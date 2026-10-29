@@ -2095,30 +2095,34 @@ function start_travel_sequence(pos, lvid, gvid, is_transition, final_gvid, is_gu
 
     tlra.is_transition = (actor_lid ~= dest_lid)
     tlra.final_gvid    = final_gvid or gvid
+    tlra.final_pos     = tlra.final_pos or vector():set(pos.x, pos.y, pos.z)
+    tlra.final_lvid    = tlra.final_lvid or lvid
 
     if tlra.is_transition then
-        local path = find_zone_path(resolve_level_name(actor_lid), resolve_level_name(dest_lid))
+        local src_lvl = resolve_level_name(actor_lid)
+        local dst_lvl = resolve_level_name(dest_lid)
+        local path = find_zone_path(src_lvl, dst_lvl)
         if not (path and #path > 1) then
             return fail_start(tlra_str("tlra_msg_no_path"), 4)
         end
         local next_lvl = path[2]
         local door = find_door_to(next_lvl)
-        if not door then
-            return fail_start(sformat(tlra_str("tlra_msg_no_transition"), next_lvl), 4)
-        end
+        tlra.first_door_pos = door and door.pos
         
-        tlra.dest_pos     = door.pos
-        tlra.dest_raw_pos = door.raw_pos
-        tlra.dest_lvid    = door.lvid
-        tlra.dest_gvid    = door.gvid
+        -- Direct continuous cross-zone expedition to destination!
+        tlra.dest_pos     = vector():set(pos.x, pos.y, pos.z)
+        tlra.dest_raw_pos = nil
+        tlra.dest_lvid    = lvid
+        tlra.dest_gvid    = gvid
 
         tlra.next_pos  = nil
         tlra.next_lvid = nil
         tlra.next_gvid = nil
         tlra.next_dir  = nil
 
-        tlra_log(" Heading to " .. next_lvl)
+        tlra_log(" Direct continuous cross-zone expedition from %s to %s via %s", src_lvl, dst_lvl, table.concat(path, " -> "))
     else
+        tlra.first_door_pos = nil
         tlra.dest_pos     = vector():set(pos.x, pos.y, pos.z)
         tlra.dest_raw_pos = nil
         tlra.dest_lvid    = lvid
@@ -2133,9 +2137,24 @@ function start_travel_sequence(pos, lvid, gvid, is_transition, final_gvid, is_gu
     local ap = db.actor:position()
     tlra.start_pos:set(ap.x, ap.y, ap.z)
 
-    tlra.travel_dist = tlra.start_pos:distance_to(tlra.dest_pos)
-    if tlra.travel_dist < 40 and not tlra.is_transition then
-        return fail_start(tlra_str("tlra_msg_too_close"), 2)
+    if tlra.is_transition then
+        local total_dist = 0
+        if game_fast_travel and game_fast_travel.global_distance_between then
+            pcall(function()
+                total_dist = game_fast_travel.global_distance_between(db.actor:position(), actor_lid, tlra.dest_pos, dest_lid)
+            end)
+        end
+        if not total_dist or total_dist <= 50 then
+            local path = find_zone_path(resolve_level_name(actor_lid), resolve_level_name(dest_lid))
+            local hops = (path and #path > 1) and (#path - 1) or 1
+            total_dist = math.max(600, hops * 1200)
+        end
+        tlra.travel_dist = math.max(200, total_dist)
+    else
+        tlra.travel_dist = tlra.start_pos:distance_to(tlra.dest_pos)
+        if tlra.travel_dist < 40 then
+            return fail_start(tlra_str("tlra_msg_too_close"), 2)
+        end
     end
 
     tlra.dot_positions = {}
@@ -2144,7 +2163,11 @@ function start_travel_sequence(pos, lvid, gvid, is_transition, final_gvid, is_gu
     -- Build dot positions snapped to walkable nav mesh surface
     local base_dots = (cfg and cfg.map_dots) or 12
     tlra.dot_count = tlra.is_guide and mfloor(base_dots * 0.5) or base_dots
-    tlra.dot_positions = build_navmesh_dots(tlra.start_pos, tlra.dest_pos, tlra.dot_count)
+    if tlra.is_transition and tlra.first_door_pos then
+        tlra.dot_positions = build_navmesh_dots(tlra.start_pos, tlra.first_door_pos, tlra.dot_count)
+    else
+        tlra.dot_positions = build_navmesh_dots(tlra.start_pos, tlra.dest_pos, tlra.dot_count)
+    end
     tlra_log(" Nav mesh dots built (%d positions)", #tlra.dot_positions)
 
     tlra.current_dist    = 0
@@ -2181,11 +2204,9 @@ function start_travel_sequence(pos, lvid, gvid, is_transition, final_gvid, is_gu
         end
         
         if dur and dur.t and dur.t > 0 then
-            local leg_ratio = (total_dist and total_dist > 0 and tlra.travel_dist) and math.min(tlra.travel_dist / total_dist, 1.0) or 1.0
-            local base_mins = dur.t * leg_ratio
             local tf_scale = mcm_tf / 15
-            tlra.expected_duration = math.max(3, mfloor(base_mins * tf_scale))
-            tlra_log(" FFT Sync - TotalDist: %.1f, TotalMins: %d, LegRatio: %.3f, ScaledMins: %d", total_dist, dur.t, leg_ratio, tlra.expected_duration)
+            tlra.expected_duration = math.max(3, mfloor(dur.t * tf_scale))
+            tlra_log(" FFT Sync - TotalDist: %.1f, TotalMins: %d, ScaledMins: %d", total_dist, dur.t, tlra.expected_duration)
         else
             local effective_pace = 2.5 * (travel_speed / 35) -- Базовый шаг (2.5 м/с), масштабируемый travel_speed
             local real_seconds = tlra.travel_dist / effective_pace
@@ -2258,7 +2279,8 @@ function start_travel_sequence(pos, lvid, gvid, is_transition, final_gvid, is_gu
         if v ~= nil then show_map = v end
     end
     if show_map and ui_tlra_travel_map and ui_tlra_travel_map.show_map then
-        ui_tlra_travel_map.show_map(tlra.start_pos, tlra.dest_pos, level.name(), tlra.is_transition, tlra.travel_dist)
+        local dest_lvl_name = resolve_level_name(dest_lid)
+        ui_tlra_travel_map.show_map(tlra.start_pos, tlra.dest_pos, level.name(), tlra.is_transition, tlra.travel_dist, dest_lvl_name)
     end
     return true
 end
@@ -2598,35 +2620,12 @@ function actor_on_first_update()
         -- v1.9.4: Ensure companions are with the actor immediately after level load
         teleport_companions(db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id())
 
-        -- Force reopen the PDA so the map remains visible during active travel
+        -- Ensure weapon and input state are unconditionally enabled
         pcall(function()
-            local cfg = tlra.active_config or refresh_active_config()
-            local is_border_term = (actor_lid == final_lid) and cfg and cfg.border_travel_only
-
             if level then
                 level.show_weapon(true)
                 level.enable_input()
             end
-            -- cleared restore_weapon counter
-
-            if is_border_term then
-                tlra_log(" Border travel only (The Final Leg) active: suppressing PDA reopen.")
-                return
-            end
-
-            if db.actor and db.actor.activate_slot then
-                db.actor:activate_slot(8) -- Force equip the physical PDA device
-            end
-            CreateTimeEvent("tlra", "reopen_pda_dialog", 0.15, function()
-                if ActorMenu and ActorMenu.get_pda_menu then
-                    local pda = ActorMenu.get_pda_menu()
-                    if pda and not pda:IsShown() then
-                        pda:ShowDialog(true)
-                        tlra_log(" Reopened PDA map screen programmatically upon travel resume.")
-                    end
-                end
-                return true
-            end)
         end)
 
         if actor_lid == final_lid then
@@ -2766,8 +2765,18 @@ function abort_travel_safe()
     local sformat = string.format
     local ratio = math.min(tlra.current_dist / tlra.travel_dist, 1.0)
     
-    -- v1.8.7: Use AI Node Snap for Safe Abort
-    local spawn_pos = get_safe_lvid_pos(ratio) or tlra.start_pos
+    local spawn_pos
+    if tlra.is_transition then
+        local exit_door = tlra.first_door_pos or tlra.start_pos
+        local leg_ratio = math.min(1.0, ratio * 2.0)
+        spawn_pos = vector():set(
+            tlra.start_pos.x + (exit_door.x - tlra.start_pos.x) * leg_ratio,
+            tlra.start_pos.y + (exit_door.y - tlra.start_pos.y) * leg_ratio,
+            tlra.start_pos.z + (exit_door.z - tlra.start_pos.z) * leg_ratio
+        )
+    else
+        spawn_pos = get_safe_lvid_pos(ratio) or tlra.start_pos
+    end
     
     -- Process Refund
     local refund = process_refund(ratio)
@@ -3256,66 +3265,66 @@ function complete_travel_sequence()
         end
     end)
     
-    -- TELEPORT BEFORE TIME JUMP to prevent starting location ambushes during simulation
-    local final_pos
-    if tlra.is_transition then
-        final_pos = tlra.dest_raw_pos or tlra.dest_pos
-        tlra_log(" Transition Teleport: pos=(%f, %f, %f)", final_pos.x, final_pos.y, final_pos.z)
-    else
-        -- v2.1.9: Spawn offset — arrive a few meters before the destination instead of right on it.
-        -- This prevents spawning directly on top of enemies at the destination.
-        local offset_m = get_config("arrival_offset") or 0
-        if offset_m > 0 and tlra.start_pos then
-            local dir = vector():set(tlra.dest_pos.x - tlra.start_pos.x, 0, tlra.dest_pos.z - tlra.start_pos.z)
-            local dir_len = math.sqrt(dir.x * dir.x + dir.z * dir.z)
-            if dir_len > 0.1 then
-                dir:normalize()
-                -- Pull back along the travel direction, clamped so we don't overshoot past the start
-                local pullback = math.min(offset_m, dir_len * 0.8)
-                local offset_pos = vector():set(
-                    tlra.dest_pos.x - dir.x * pullback,
-                    tlra.dest_pos.y,
-                    tlra.dest_pos.z - dir.z * pullback
-                )
-                final_pos = get_safe_pos(offset_pos)
-                tlra_log(" Arrival offset applied: %dm before destination (pullback=%.1fm)", offset_m, pullback)
-            else
-                final_pos = get_safe_pos(tlra.dest_pos)
-            end
-        else
-            final_pos = get_safe_pos(tlra.dest_pos)
-        end
+    local gg = game_graph()
+    local actor_lid = gg:vertex(db.actor:game_vertex_id()):level_id()
+    local final_gvid = tlra.final_gvid or tlra.dest_gvid or db.actor:game_vertex_id()
+    local final_lid  = gg:vertex(final_gvid):level_id()
+    local is_cross_zone = (actor_lid ~= final_lid)
+
+    local final_pos = tlra.final_pos or tlra.dest_pos
+    local final_lvid = tlra.final_lvid or tlra.dest_lvid or 0
+    local gvid = final_gvid
+
+    if is_cross_zone then
+        tlra_log(" Cross-Zone Direct Arrival to %s via ChangeLevel: pos=(%f, %f, %f) gvid=%d lvid=%d",
+            resolve_level_name(final_lid), final_pos.x, final_pos.y, final_pos.z, gvid, final_lvid)
+
+        -- Teleport companion server entities directly to target level vertex
+        teleport_companions(final_pos, final_lvid, gvid)
+
+        -- Jump clock to destination arrival time and clear travel flags
+        advance_travel_time(1)
+        set_safety_active(90.0)
+        check_and_skip_surges()
+        schedule_arrival_weapon_unlock(true)
+        tlra_clear()
+
+        -- Engine ChangeLevel directly to target coordinates on destination level
+        ChangeLevel(final_pos, final_lvid, gvid, vector():set(0, 0, 1), true)
+        return
     end
+
+    -- Same-level Arrival
+    local offset_m = get_config("arrival_offset") or 0
+    if offset_m > 0 and tlra.start_pos then
+        local dir = vector():set(final_pos.x - tlra.start_pos.x, 0, final_pos.z - tlra.start_pos.z)
+        local dir_len = math.sqrt(dir.x * dir.x + dir.z * dir.z)
+        if dir_len > 0.1 then
+            dir:normalize()
+            local pullback = math.min(offset_m, dir_len * 0.8)
+            local offset_pos = vector():set(
+                final_pos.x - dir.x * pullback,
+                final_pos.y,
+                final_pos.z - dir.z * pullback
+            )
+            final_pos = get_safe_pos(offset_pos)
+            tlra_log(" Arrival offset applied: %dm before destination (pullback=%.1fm)", offset_m, pullback)
+        else
+            final_pos = get_safe_pos(final_pos)
+        end
+    else
+        final_pos = get_safe_pos(final_pos)
+    end
+
     local lvid = level.vertex_id(final_pos)
-    local gvid = actor and db.actor:game_vertex_id() or 0
     if actor then
         db.actor:set_actor_position(final_pos)
         teleport_companions(final_pos, lvid, gvid)
-        tlra_log(" Actor position set to (%f, %f, %f), actual actor position: (%f, %f, %f)", final_pos.x, final_pos.y, final_pos.z, db.actor:position().x, db.actor:position().y, db.actor:position().z)
-
-        if tlra.is_transition then
-            -- Force physics and collision triggers to update by nudging the actor slightly 0.05s and 0.1s after teleport.
-            -- Snapping direct coordinates disables collision checks, so a tiny movement is required to wake the physics engine.
-            CreateTimeEvent("tlra", "nudge_transition_1", 0.05, function()
-                if db.actor then
-                    local cp = db.actor:position()
-                    db.actor:set_actor_position(vector():set(cp.x + 0.05, cp.y, cp.z + 0.05))
-                end
-                return true
-            end)
-            CreateTimeEvent("tlra", "nudge_transition_2", 0.1, function()
-                if db.actor then
-                    local cp = db.actor:position()
-                    db.actor:set_actor_position(vector():set(cp.x + 0.05, cp.y, cp.z + 0.05))
-                end
-                return true
-            end)
-        end
+        tlra_log(" Actor position set to (%f, %f, %f)", final_pos.x, final_pos.y, final_pos.z)
     end
 
     -- Jump game clock to full journey time
-    local tf_mult = (get_config("time_factor") or 1.0) * 2
-	advance_travel_time(1)
+    advance_travel_time(1)
     set_safety_active(90.0)  -- Longer buffer
     check_and_skip_surges()
 
@@ -3325,60 +3334,35 @@ function complete_travel_sequence()
     CreateTimeEvent("tlra", "safe_arrival", 0.8, function()
         local mfloor = math.floor
         if not db.actor then return true end
-        set_safety_active(60.0)  -- Extra buffer during teleport
+        set_safety_active(60.0)
 
-        -- Actor is already at final_pos, but we ensure safety window remains
+        -- v2.1.9: SafeSpawn integration — clear nearby enemies before fade-in completes
+        pcall(function()
+            if _G.safespawn and _G.safespawn.perform_silo then
+                CreateTimeEvent("SafeSpawn", "ExecuteSilo", 1, _G.safespawn.perform_silo)
+                tlra_log(" SafeSpawn perform_silo scheduled (1s delay).")
+            end
+        end)
 
-        if tlra.is_transition then
-            -- Save journey state NOW before the level transition wipes memory.
-            -- Use final_pos if set (TLRA menu), otherwise dest_pos (FFT-initiated).
-            local save_pos  = tlra.final_pos or tlra.dest_pos
-            local save_lvid = tlra.final_lvid or tlra.dest_lvid or 0
-            local save_gvid = tlra.final_gvid or tlra.dest_gvid or 0
-            if save_pos and save_gvid and save_gvid ~= 0 then
-                tlra_save(save_pos, save_lvid, save_gvid, save_gvid)
-                tlra_log(" Transition save written before level load.")
-            else
-                tlra_log(" WARNING: No valid pos/gvid to save before transition!")
-            end
-            tlra_msg(tlra_str("tlra_msg_entering_transition"), 4)
-        else
-            -- v2.1.9: SafeSpawn integration — clear nearby enemies before fade-in completes
-            -- Only fires if the SafeSpawn mod is installed; gracefully ignored otherwise.
-            pcall(function()
-                if _G.safespawn and _G.safespawn.perform_silo then
-                    CreateTimeEvent("SafeSpawn", "ExecuteSilo", 1, _G.safespawn.perform_silo)
-                    tlra_log(" SafeSpawn perform_silo scheduled (1s delay).")
-                end
-            end)
-
-            -- Multi-pulse unlock so effectors/animations cannot leave weapons locked
-            schedule_arrival_weapon_unlock(true)
-            -- Final Arrival Summary
-            local game_time_elapsed = game.get_game_time():diffSec(tlra.start_game_time or game.get_game_time())
-            local hours = mfloor(game_time_elapsed / 3600)
-            local minutes = mfloor((game_time_elapsed % 3600) / 60)
-            
-            -- v2.1.4: Real-time Time Factor calculation
-            local real_time_sec = (time_global() - (tlra.start_travel_tg or time_global())) / 1000
-            local accel_factor = 1
-            if real_time_sec > 0 then
-                accel_factor = mfloor(game_time_elapsed / real_time_sec)
-            end
-            
-            local stats_msg = string.format(tlra_str("tlra_msg_dest_reached_stats"),
-                mfloor(tlra.travel_dist), hours, minutes, 1)
-            
-            if tlra.stats_ambushes and tlra.stats_ambushes > 0 or tlra.stats_positive and tlra.stats_positive > 0 then
-                stats_msg = stats_msg .. string.format(tlra_str("tlra_msg_events_summary"), 
-                    tlra.stats_ambushes or 0, tlra.stats_positive or 0)
-            end
-            
-            if tlra.active_config and tlra.active_config.show_stats then
-                tlra_msg(stats_msg, 8)
-            end
-            tlra_clear()
+        -- Multi-pulse unlock so effectors/animations cannot leave weapons locked
+        schedule_arrival_weapon_unlock(true)
+        -- Final Arrival Summary
+        local game_time_elapsed = game.get_game_time():diffSec(tlra.start_game_time or game.get_game_time())
+        local hours = mfloor(game_time_elapsed / 3600)
+        local minutes = mfloor((game_time_elapsed % 3600) / 60)
+        
+        local stats_msg = string.format(tlra_str("tlra_msg_dest_reached_stats"),
+            mfloor(tlra.travel_dist), hours, minutes, 1)
+        
+        if tlra.stats_ambushes and tlra.stats_ambushes > 0 or tlra.stats_positive and tlra.stats_positive > 0 then
+            stats_msg = stats_msg .. string.format(tlra_str("tlra_msg_events_summary"), 
+                tlra.stats_ambushes or 0, tlra.stats_positive or 0)
         end
+        
+        if tlra.active_config and tlra.active_config.show_stats then
+            tlra_msg(stats_msg, 8)
+        end
+        tlra_clear()
 
         -- Final safety cleanup (v2.1.6: safety reset delay extended to 15.0s)
         CreateTimeEvent("tlra", "safety_reset", 15.0, function()
@@ -3775,13 +3759,24 @@ function trigger_encounter()
     end)
     -- Calculate safe encounter position BEFORE jumping time
     tlra_log("!!! ENCOUNTER TRIGGERED at ratio %.2f - Start pos: %.1f %.1f %.1f", ratio, tlra.start_pos.x, tlra.start_pos.y, tlra.start_pos.z)
-    local encounter_pos = get_safe_lvid_pos(ratio)
-    if not encounter_pos then
+    local encounter_pos
+    if tlra.is_transition then
+        local exit_door = tlra.first_door_pos or tlra.start_pos
+        local leg_ratio = math.min(1.0, ratio * 2.0)
         encounter_pos = vector():set(
-            tlra.start_pos.x + (tlra.dest_pos.x - tlra.start_pos.x) * ratio,
-            tlra.start_pos.y + (tlra.dest_pos.y - tlra.start_pos.y) * ratio,
-            tlra.start_pos.z + (tlra.dest_pos.z - tlra.start_pos.z) * ratio
+            tlra.start_pos.x + (exit_door.x - tlra.start_pos.x) * leg_ratio,
+            tlra.start_pos.y + (exit_door.y - tlra.start_pos.y) * leg_ratio,
+            tlra.start_pos.z + (exit_door.z - tlra.start_pos.z) * leg_ratio
         )
+    else
+        encounter_pos = get_safe_lvid_pos(ratio)
+        if not encounter_pos then
+            encounter_pos = vector():set(
+                tlra.start_pos.x + (tlra.dest_pos.x - tlra.start_pos.x) * ratio,
+                tlra.start_pos.y + (tlra.dest_pos.y - tlra.start_pos.y) * ratio,
+                tlra.start_pos.z + (tlra.dest_pos.z - tlra.start_pos.z) * ratio
+            )
+        end
     end
     local safe_landing = get_safe_pos(encounter_pos)
     

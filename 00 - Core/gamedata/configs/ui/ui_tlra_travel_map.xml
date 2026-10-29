@@ -309,12 +309,12 @@
         <!-- Action Choice Buttons -->
         <btn_attempt_evade x="50" y="295" width="260" height="52" stretch="1">
             <texture>ui_button_ordinary</texture>
-            <text font="letterica18" align="c" vert_align="c">ATTEMPT EVASION</text>
+            <text font="letterica18" align="c" vert_align="c">[E] ATTEMPT EVASION</text>
         </btn_attempt_evade>
 
         <btn_drop_and_fight x="350" y="295" width="260" height="52" stretch="1">
             <texture>ui_button_ordinary</texture>
-            <text font="letterica18" align="c" vert_align="c">DROP OUT &amp; FIGHT</text>
+            <text font="letterica18" align="c" vert_align="c">[F] DROP OUT &amp; FIGHT</text>
         </btn_drop_and_fight>
     </encounter_modal>
 </w>
