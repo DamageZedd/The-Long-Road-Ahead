@@ -3,6 +3,10 @@
     <file name="ui\tlra_black">
         <texture id="tlra_black_solid" x="0" y="0" width="64" height="64"/>
     </file>
+    <!-- Solid White Canvas Texture for Tinted Plates & Borders -->
+    <file name="ui\tlra_white">
+        <texture id="tlra_white_solid" x="0" y="0" width="64" height="64"/>
+    </file>
     <file name="ui\ui_global_map">
         <texture id="tlra_map_global" x="0" y="0" width="4096" height="8192"/>
     </file>
