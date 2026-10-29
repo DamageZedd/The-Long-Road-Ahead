@@ -338,4 +338,12 @@
     <string id="tlra_msg_no_markers">
         <text>TLRA: No stuck markers found.</text>
     </string>
+
+    <!-- Companion Recall Messages -->
+    <string id="tlra_msg_companions_recalled">
+        <text>Companions recalled (%d)</text>
+    </string>
+    <string id="tlra_msg_no_companions">
+        <text>No companions to recall</text>
+    </string>
 </string_table>

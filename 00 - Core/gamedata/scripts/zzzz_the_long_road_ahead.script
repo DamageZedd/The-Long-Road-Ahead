@@ -1992,6 +1992,7 @@ function on_game_start()
     RegisterScriptCallback("actor_on_first_update",          actor_on_first_update)
     RegisterScriptCallback("actor_on_before_hit",            actor_on_before_hit)
     RegisterScriptCallback("on_key_press",                   on_key_press)
+    RegisterScriptCallback("on_key_release",                 on_key_release)
     RegisterScriptCallback("on_loading_screen_dismissed",    on_loading_screen_dismissed)
     RegisterScriptCallback("map_spot_menu_add_property",     on_map_spot_menu_add_property)
     RegisterScriptCallback("map_spot_menu_property_clicked", on_map_spot_menu_property_clicked)
@@ -2008,37 +2009,18 @@ function on_game_start()
         return true
     end)
     
-    -- Prevent FFT from running duplicate companion teleports which cause crashes and "spawn away" bugs
+    -- Intercept FFT bring_companions_to_actor with TLRA authoritative teleportation
     if game_fast_travel and game_fast_travel.bring_companions_to_actor then
-        tlra_log(" Patching FFT bring_companions_to_actor to prevent conflicts...")
-        local orig_fft_bring = game_fast_travel.bring_companions_to_actor
-        game_fast_travel.bring_companions_to_actor = function(...)
+        tlra_log(" Patching FFT bring_companions_to_actor with TLRA authoritative implementation...")
+        game_fast_travel.bring_companions_to_actor = function(forced)
             if tlra.is_traveling then
                 tlra_log(" Blocked FFT bring_companions_to_actor during TLRA active travel.")
                 return true
             end
 
-            -- Temporarily sanitize companion_squads to prevent FFT boolean index crash
-            local saved_non_tables = {}
-            if axr_companions and axr_companions.companion_squads then
-                for id, squad in pairs(axr_companions.companion_squads) do
-                    if type(squad) ~= "table" then
-                        saved_non_tables[id] = squad
-                        axr_companions.companion_squads[id] = nil
-                    end
-                end
-            end
-
-            local res = orig_fft_bring(...)
-
-            -- Restore sanitized non-tables
-            if axr_companions and axr_companions.companion_squads then
-                for id, val in pairs(saved_non_tables) do
-                    axr_companions.companion_squads[id] = val
-                end
-            end
-
-            return res
+            if not (db.actor and db.actor:alive()) then return true end
+            teleport_companions(db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id(), forced)
+            return true
         end
     end
 
@@ -2051,6 +2033,17 @@ function on_game_start()
             end
             if game_fast_travel.map_spot_menu_property_clicked then
                 UnregisterScriptCallback("map_spot_menu_property_clicked", game_fast_travel.map_spot_menu_property_clicked)
+            end
+            if game_fast_travel.bring_companions_to_actor then
+                game_fast_travel.bring_companions_to_actor = function(forced)
+                    if tlra.is_traveling then
+                        tlra_log(" Blocked FFT bring_companions_to_actor during TLRA active travel.")
+                        return true
+                    end
+                    if not (db.actor and db.actor:alive()) then return true end
+                    teleport_companions(db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id(), forced)
+                    return true
+                end
             end
         else
             tlra_log(" game_fast_travel not found, skipping suppression.")
@@ -2429,6 +2422,40 @@ function on_key_press(key)
             end)
             return true
         end)
+    end
+end
+
+local last_recall_time = 0
+
+function on_key_release(key)
+    -- Don't trigger if UI window or text entry has focus
+    if level.main_input_receiver and level.main_input_receiver() then return end
+
+    -- Manual companion recall hotkey handler (DIK_BACKSLASH / FFT MCM sync)
+    local recall_bind = DIK_keys.DIK_BACKSLASH -- 43
+    local recall_mod = 0
+    if ui_mcm then
+        local b = ui_mcm.get("fftd/gen/squad_tp_bind")
+        if b ~= nil then
+            if b == -1 then
+                return -- Explicitly disabled in MCM
+            elseif b > 0 then
+                recall_bind = b
+                recall_mod = ui_mcm.get("fftd/gen/squad_tp_mod") or 0
+            end
+        end
+    end
+
+    local mod_ok = (not recall_mod or recall_mod == 0) or (ui_mcm and ui_mcm.get_mod_key(recall_mod))
+    if key == recall_bind and mod_ok then
+        local tg = time_global()
+        if tg - last_recall_time > 800 then
+            last_recall_time = tg
+            if db.actor and db.actor:alive() and not tlra.is_traveling then
+                tlra_log(" Manual companion recall hotkey pressed (key %d).", key)
+                teleport_companions(db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id(), true)
+            end
+        end
     end
 end
 
@@ -3382,67 +3409,217 @@ function trigger_encounter()
     end)
 end
 
-function teleport_companions(pos, lvid, gvid)
-    if not (axr_companions and axr_companions.companion_squads) then return end
+local last_forced_tp = 0
 
+local function safe_reset_animation(npc)
+    if not npc then return end
+    if sim_squad_scripted and sim_squad_scripted.reset_animation then
+        pcall(sim_squad_scripted.reset_animation, npc)
+        return
+    end
+    pcall(function()
+        local st = db.storage[npc:id()]
+        local state_mgr = st and st.state_mgr
+        if state_mgr then
+            if state_mgr.animation then
+                state_mgr.animation:set_state(nil, true)
+                state_mgr.animation:set_control()
+            end
+            if state_mgr.animstate then
+                state_mgr.animstate:set_state(nil, true)
+                state_mgr.animstate:set_control()
+            end
+            state_mgr:set_state("idle", nil, nil, nil, {fast_set = true})
+        end
+        if move and move.standing then
+            npc:set_body_state(move.standing)
+        end
+    end)
+end
+
+function teleport_companions(pos, lvid, gvid, forced)
     local sim = alife()
-    if not sim then return end
+    if not sim or not db.actor then return end
+
+    if forced then
+        local tg = time_global()
+        if tg - last_forced_tp < 800 then
+            return
+        end
+        last_forced_tp = tg
+    end
+
+    pos = pos or db.actor:position()
+    lvid = lvid or db.actor:level_vertex_id()
+    gvid = gvid or db.actor:game_vertex_id()
 
     -- Use actor's known-good level vertex position as the anchor
-    local anchor_pos = level.vertex_position(lvid)
-    if not anchor_pos then anchor_pos = pos end
+    local anchor_pos = level.vertex_position(lvid) or pos
 
-    for squad_id, squad in pairs(axr_companions.companion_squads) do
-        -- companion_squads values can be false (placeholder from save_state)
-        if squad and squad.commander_id then
-            -- Respect companion_squad_can_teleport (wait/patrol modes, hostages)
+    -- Collect all active companion squads safely across axr_companions and Useful Idiots
+    local squads_to_tp = {}
+    if axr_companions and axr_companions.companion_squads then
+        for squad_id, squad in pairs(axr_companions.companion_squads) do
+            local se_squad = (type(squad) == "table" and squad.commander_id and squad) or sim:object(squad_id)
+            if se_squad and se_squad.commander_id and se_squad.squad_members then
+                squads_to_tp[se_squad.id] = se_squad
+            end
+        end
+    end
+    if axr_companions and axr_companions.non_task_companions then
+        for npc_id, _ in pairs(axr_companions.non_task_companions) do
+            local se_npc = sim:object(npc_id)
+            if se_npc then
+                local sq = get_object_squad(se_npc)
+                if sq and sq.commander_id and sq.squad_members then
+                    squads_to_tp[sq.id] = sq
+                end
+            end
+        end
+    end
+
+    -- First pass: identify valid squads and count total members for radial placement
+    local valid_squads = {}
+    local total_members = 0
+
+    for squad_id, se_squad in pairs(squads_to_tp) do
+        local cid = (type(se_squad.commander_id) == "function" and se_squad:commander_id()) or se_squad.commander_id
+        local se_cmd = cid and sim:object(cid)
+
+        -- Check quest hostage status (hostages must NEVER teleport with actor)
+        local is_hostage = false
+        if se_cmd and se_load_var and se_load_var(cid, se_cmd:name(), "companion_cannot_teleport") then
+            is_hostage = true
+        end
+        if axr_task_manager and axr_task_manager.hostages_by_id and cid then
+            if axr_task_manager.hostages_by_id[cid] or axr_task_manager.hostages_by_id[tostring(cid)] or axr_task_manager.hostages_by_id[tonumber(cid)] then
+                is_hostage = true
+            end
+        end
+
+        if not is_hostage then
             local can_tp = true
-            if axr_companions.companion_squad_can_teleport and not axr_companions.companion_squad_can_teleport(squad) then
-                can_tp = false
+            -- When forced by player recall (\), bypass wait/cover/patrol blocks
+            if not forced then
+                if axr_companions and axr_companions.companion_squad_can_teleport and not axr_companions.companion_squad_can_teleport(se_squad) then
+                    can_tp = false
+                end
             end
 
             if can_tp then
-                -- Teleport the squad entity itself (critical for axr_companions / Useful Idiots sync)
-                pcall(function()
-                    if squad.online == false then
-                        squad:force_change_position(anchor_pos)
-                    end
-                    sim:teleport_object(squad_id, gvid, lvid, anchor_pos)
-                end)
-
-                -- Teleport each squad member
-                for k in squad:squad_members() do
-                    local member_id = k.id
-                    if member_id then
-                        -- Clear stale offline object state (matching _g.TeleportSquad behavior)
-                        if db.offline_objects and db.offline_objects[member_id] then
-                            db.offline_objects[member_id].level_vertex_id = nil
-                        end
-                        if db.spawned_vertex_by_id then
-                            db.spawned_vertex_by_id[member_id] = nil
-                        end
-
-                        -- Teleport the server object
-                        pcall(function()
-                            sim:teleport_object(member_id, gvid, lvid, anchor_pos)
-                        end)
-
-                        -- If online, reset animation and set visual position
-                        local online_obj = db.storage[member_id] and db.storage[member_id].object
-                        if online_obj then
-                            pcall(function()
-                                if sim_squad_scripted and sim_squad_scripted.reset_animation then
-                                    sim_squad_scripted.reset_animation(online_obj)
-                                end
-                            end)
-                            pcall(function()
-                                online_obj:set_npc_position(anchor_pos)
-                            end)
-                        end
+                table.insert(valid_squads, se_squad)
+                for k in se_squad:squad_members() do
+                    local se_m = k.id and sim:object(k.id)
+                    if se_m and (se_m.alive == nil or (type(se_m.alive) == "function" and se_m:alive()) or se_m.alive == true) then
+                        total_members = total_members + 1
                     end
                 end
             end
         end
+    end
+
+    if #valid_squads == 0 then
+        if forced then
+            tlra_msg(tlra_str("tlra_msg_no_companions"), 3)
+        end
+        return
+    end
+
+    -- Second pass: teleport squads and members with radial spacing around player
+    local member_idx = 0
+    local teleported_members = 0
+
+    for _, se_squad in ipairs(valid_squads) do
+        -- Teleport squad entity itself (critical for axr_companions / Useful Idiots sync)
+        pcall(function()
+            if se_squad.online == false and se_squad.force_change_position then
+                se_squad:force_change_position(anchor_pos)
+            end
+            sim:teleport_object(se_squad.id, gvid, lvid, anchor_pos)
+        end)
+
+        for k in se_squad:squad_members() do
+            local member_id = k.id
+            local se_member = member_id and sim:object(member_id)
+            local is_alive = se_member and (se_member.alive == nil or (type(se_member.alive) == "function" and se_member:alive()) or se_member.alive == true)
+
+            if member_id and is_alive then
+                member_idx = member_idx + 1
+
+                -- Compute staggered radial offset around actor so NPCs don't collide or stack
+                local angle = (member_idx - 1) * (2 * math.pi / math.max(total_members, 1))
+                local dist = 1.8 + ((member_idx - 1) % 3) * 0.6
+                local offset_pos = vector():set(
+                    anchor_pos.x + dist * math.cos(angle),
+                    anchor_pos.y,
+                    anchor_pos.z + dist * math.sin(angle)
+                )
+
+                local offset_lvid = level.vertex_id(offset_pos)
+                local final_pos = anchor_pos
+                local final_lvid = lvid
+
+                if offset_lvid and offset_lvid < 4294967295 and level.valid_vertex_id(offset_lvid) then
+                    final_pos = offset_pos
+                    final_lvid = offset_lvid
+                end
+
+                -- Clear stale offline position caches
+                if db.offline_objects and db.offline_objects[member_id] then
+                    db.offline_objects[member_id].level_vertex_id = final_lvid
+                end
+                if db.spawned_vertex_by_id then
+                    db.spawned_vertex_by_id[member_id] = nil
+                end
+
+                -- Teleport server object (authoritative cross-level / switch-distance movement)
+                pcall(function()
+                    sim:teleport_object(member_id, gvid, final_lvid, final_pos)
+                end)
+
+                -- If forced recall, clear wait/cover/patrol behaviors on server object so companion follows actor
+                if forced then
+                    pcall(function()
+                        if sim.disable_info_portion then
+                            sim:disable_info_portion(member_id, "npcx_beh_wait")
+                            sim:disable_info_portion(member_id, "npcx_beh_hide_in_cover")
+                            sim:disable_info_portion(member_id, "npcx_beh_patrol_mode")
+                            sim:disable_info_portion(member_id, "npcx_beh_substate_relax")
+                        end
+                    end)
+                end
+
+                -- If online, reset animations and set client object position
+                local online_obj = level.object_by_id(member_id) or (db.storage[member_id] and db.storage[member_id].object)
+                if online_obj then
+                    if forced then
+                        pcall(function()
+                            if axr_companions and axr_companions.set_companion_to_follow_state then
+                                axr_companions.set_companion_to_follow_state(online_obj)
+                            else
+                                online_obj:disable_info_portion("npcx_beh_wait")
+                                online_obj:disable_info_portion("npcx_beh_hide_in_cover")
+                                online_obj:disable_info_portion("npcx_beh_patrol_mode")
+                                online_obj:disable_info_portion("npcx_beh_substate_relax")
+                            end
+                        end)
+                    end
+
+                    safe_reset_animation(online_obj)
+
+                    pcall(function()
+                        online_obj:set_npc_position(final_pos)
+                    end)
+                end
+
+                teleported_members = teleported_members + 1
+            end
+        end
+    end
+
+    if forced and teleported_members > 0 then
+        tlra_log(" Teleported %d companion(s) to actor position (forced = true).", teleported_members)
+        tlra_msg(string.format(tlra_str("tlra_msg_companions_recalled"), teleported_members), 3)
     end
 end
 

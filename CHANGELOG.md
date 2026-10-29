@@ -16,8 +16,11 @@
 - **Encumbrance Penalties**: Being encumbered or overweight significantly reduces travel speed and increases stamina/calorie consumption exponentially.
 
 ### 👥 Companion Squad Teleportation & Synchronization
-- **Modern Squad Multi-Member Teleportation**: Companion squads now cleanly transition across levels using `axr_companions.companion_squads` and `squad:squad_members()`.
-- **Animation & Visual State Reset**: Resets NPC animations (`sim_squad_scripted.reset_animation`), synchronizes level vertex positions, and clears stale offline object state to prevent companions from getting stuck or desynced.
+- **Authoritative Manual Recall (`\` Key)**: Completely overhauled companion recall initiated via the `\` hotkey (or MCM-configured squad teleport key). Intercepts and replaces Fair Fast Travel's broken `bring_companions_to_actor` logic with TLRA's robust, authoritative multi-member teleport system.
+- **Useful Idiots Stance & Behavior Bypass**: Manual recall (`forced = true`) deliberately bypasses Useful Idiots stance restrictions (`axr_companions.companion_squad_can_teleport`), allowing players to summon companions even if they are stuck in wait, cover, relax, or patrol mode across levels or switch distance, while safely preserving quest hostage protections.
+- **Staggered Radial Distribution**: Teleported companions now calculate radial offset positions (1.8m–3.0m) around the player with AI level vertex validation, completely eliminating companion physics collisions, mesh stacking, and terrain clipping.
+- **Offline & Cross-Level Alife Synchronization**: Safely teleports server entities via `sim:teleport_object`, invalidates stale offline caches (`db.offline_objects`, `db.spawned_vertex_by_id`), clears animation states (`safe_reset_animation`), and smoothly synchronizes client positions.
+- **Status Notification**: Added clean, non-intrusive on-screen HUD message feedback indicating the number of companions successfully recalled.
 
 ### 🛠️ Bug Fixes & Diagnostics
 - **Clean Logs**: Eliminated excessive log spam and removed redundant state flags.
