@@ -10,6 +10,15 @@
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+▶ QUICK REPOSITORY & PROJECT LINKS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ◈ Full Changelog:    https://github.com/DamageZedd/The-Long-Road-Ahead/blob/main/CHANGELOG.md
+  ◈ GitHub Repository: https://github.com/DamageZedd/The-Long-Road-Ahead
+  ◈ Latest Release:    https://github.com/DamageZedd/The-Long-Road-Ahead/releases/latest
+  ◈ G.A.M.M.A. Discord: https://discord.gg/stalker-gamma
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ▶ 01. DITCH THE INSTANT TELEPORTS: EXPERIENCE THE EXPEDITION
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -317,3 +326,10 @@ Tailor every mechanic in-game through the extensive Mod Configuration Menu:
   ✔ Safety Window Hardening: Increased arrival weapon restore delay and guarded
     safety_reset to prevent vulnerability windows after teleportation.
   ✔ Campfire & Stash Fast Travel: Accepted any destination with a fast_travel tag.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+▶ COMPLETE CHANGELOG & COMMIT HISTORY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+For the complete commit log, past version patch notes, and full historical diffs:
+https://github.com/DamageZedd/The-Long-Road-Ahead/blob/main/CHANGELOG.md
+

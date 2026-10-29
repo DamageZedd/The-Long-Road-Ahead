@@ -9,7 +9,7 @@
 
 ![Version](https://img.shields.io/badge/version-v2.3.1-e0a43c?style=for-the-badge) ![Author](https://img.shields.io/badge/by-Damage__Zedd-8fae5a?style=for-the-badge) ![Game](https://img.shields.io/badge/S.T.A.L.K.E.R.-Anomaly%201.5.3-555555?style=for-the-badge)
 
-**[Full Changelog](CHANGELOG.md)** · **[Latest Release](https://github.com/DamageZedd/The-Long-Road-Ahead/releases/latest)**
+**[Full Changelog](CHANGELOG.md)** · **[GitHub Repository](https://github.com/DamageZedd/The-Long-Road-Ahead)** · **[Latest Release](https://github.com/DamageZedd/The-Long-Road-Ahead/releases/latest)** · **[GAMMA Discord](https://discord.gg/stalker-gamma)**
 
 </div>
 
