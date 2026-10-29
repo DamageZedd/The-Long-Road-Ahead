@@ -1,6 +1,6 @@
 <div style="padding: 20px; margin: 14px 0; background-color: #1f1d17; border: 1px solid #4a4333; box-shadow: inset 0 1px 0 rgba(255,236,190,0.06), 0 3px 12px rgba(0,0,0,0.3);">
 <p><span style="color: #e0a43c; font-size: 24px; font-weight: bold; letter-spacing: 2px;">THE LONG ROAD AHEAD</span> <span style="display: inline-block; padding: 2px 10px; background-color: #8fae5a; color: #14130f; font-weight: bold; font-size: 13px; letter-spacing: 1px; vertical-align: middle; margin-left: 10px;">v2.3.1</span></p>
-<p><span style="color: #b9a572; font-size: 14px; letter-spacing: 1px;">CONTINUOUS ZONE-TO-ZONE TRAVEL &amp; EXPEDITION SIMULATION</span></p>
+<p><span style="color: #b9a572; font-size: 14px; letter-spacing: 1px;">CONTINUOUS ZONE-TO-ZONE TRAVEL & EXPEDITION SIMULATION</span></p>
 <hr style="border: 0; border-top: 1px solid #3d372b; margin: 15px 0;" />
 <p>The Long Road Ahead is a comprehensive travel simulation and continuous Zone expedition overhaul for <strong>S.T.A.L.K.E.R. Anomaly 1.5.3</strong> and <strong>S.T.A.L.K.E.R. G.A.M.M.A.</strong>, inspired by the physical, unforgiving travel mechanics of <em>Kingdom Come: Deliverance</em>.</p>
 <br />
@@ -12,49 +12,49 @@
 <p><span style="display: inline-block; padding: 2px 10px; background-color: #8fae5a; color: #14130f; font-weight: bold; font-size: 12px; letter-spacing: 1px;">NEW</span> <strong><span style="font-size: 17px; color: #e0a43c;">AUTHORITATIVE COMPANION MANUAL RECALL (\ KEY)</span></strong></p>
 <p>Completely overhauled companion recall initiated via the <strong>\ hotkey</strong> (default <code>DIK_BACKSLASH = 43</code>, fully synchronized with Fair Fast Travel MCM settings). Intercepts and replaces Fair Fast Travel's broken <code>bring_companions_to_actor</code> logic with TLRA's robust multi-member teleport system, ensuring stuck or separated companions are always summoned reliably.</p>
 <hr style="border: 0; border-top: 1px solid #3d372b; margin: 15px 0;" />
-<p><span style="display: inline-block; padding: 2px 10px; background-color: #e0a43c; color: #14130f; font-weight: bold; font-size: 12px; letter-spacing: 1px;">FIX</span> <strong><span style="font-size: 17px; color: #e0a43c;">USEFUL IDIOTS STANCE &amp; BEHAVIOR BYPASS</span></strong></p>
+<p><span style="display: inline-block; padding: 2px 10px; background-color: #e0a43c; color: #14130f; font-weight: bold; font-size: 12px; letter-spacing: 1px;">FIX</span> <strong><span style="font-size: 17px; color: #e0a43c;">USEFUL IDIOTS STANCE & BEHAVIOR BYPASS</span></strong></p>
 <p><em>Useful Idiots</em> splits companions into individual squads and locks them out of teleporting when set to <strong>wait, cover, relax, or patrol</strong> mode. Manual recall (<code>forced = true</code>) now deliberately bypasses Useful Idiots stance restrictions, allowing players to summon companions even if they are stuck in wait mode across levels or switch distance, while safely preserving quest hostage protections.</p>
 <hr style="border: 0; border-top: 1px solid #3d372b; margin: 15px 0;" />
-<p><span style="display: inline-block; padding: 2px 10px; background-color: #8fae5a; color: #14130f; font-weight: bold; font-size: 12px; letter-spacing: 1px;">NEW</span> <strong><span style="font-size: 17px; color: #e0a43c;">ANTI-STACKING RADIAL PLACEMENT (1.8m &ndash; 3.0m)</span></strong></p>
+<p><span style="display: inline-block; padding: 2px 10px; background-color: #8fae5a; color: #14130f; font-weight: bold; font-size: 12px; letter-spacing: 1px;">NEW</span> <strong><span style="font-size: 17px; color: #e0a43c;">ANTI-STACKING RADIAL PLACEMENT (1.8m – 3.0m)</span></strong></p>
 <p>Companions no longer spawn inside your body or stack into a single coordinate! TLRA computes staggered radial positions (1.8m to 3.0m) around the actor with validated AI navmesh vertex checks, completely eliminating companion physics collisions, mesh stacking, and terrain clipping.</p>
 <hr style="border: 0; border-top: 1px solid #3d372b; margin: 15px 0;" />
-<p><span style="display: inline-block; padding: 2px 10px; background-color: #e0a43c; color: #14130f; font-weight: bold; font-size: 12px; letter-spacing: 1px;">FIX</span> <strong><span style="font-size: 17px; color: #e0a43c;">OFFLINE &amp; CROSS-LEVEL ALIFE SYNCHRONIZATION</span></strong></p>
+<p><span style="display: inline-block; padding: 2px 10px; background-color: #e0a43c; color: #14130f; font-weight: bold; font-size: 12px; letter-spacing: 1px;">FIX</span> <strong><span style="font-size: 17px; color: #e0a43c;">OFFLINE & CROSS-LEVEL ALIFE SYNCHRONIZATION</span></strong></p>
 <p>Safely teleports server entities via <code>sim:teleport_object</code> across level borders, invalidates stale offline caches (<code>db.offline_objects</code>, <code>db.spawned_vertex_by_id</code>), clears animation locks (<code>safe_reset_animation</code>), and smoothly restores upright standing posture.</p>
 <hr style="border: 0; border-top: 1px solid #3d372b; margin: 15px 0;" />
-<p><span style="display: inline-block; padding: 2px 10px; background-color: #8fae5a; color: #14130f; font-weight: bold; font-size: 12px; letter-spacing: 1px;">NEW</span> <strong><span style="font-size: 17px; color: #e0a43c;">STANDALONE HOTKEY FALLBACK &amp; HUD NOTIFICATIONS</span></strong></p>
+<p><span style="display: inline-block; padding: 2px 10px; background-color: #8fae5a; color: #14130f; font-weight: bold; font-size: 12px; letter-spacing: 1px;">NEW</span> <strong><span style="font-size: 17px; color: #e0a43c;">STANDALONE HOTKEY FALLBACK & HUD NOTIFICATIONS</span></strong></p>
 <p>Added a standalone <code>on_key_release</code> listener with UI dialog focus checking and 800ms debounce protection so manual recall operates reliably even if Fair Fast Travel is uninstalled or disabled. Added clean, non-intrusive on-screen HUD message feedback indicating the number of companions successfully recalled.</p>
 </div>
 
 <div style="padding: 20px; margin: 14px 0; background-color: #1f1d17; border: 1px solid #4a4333; border-top: 3px solid #e0a43c; box-shadow: inset 0 1px 0 rgba(255,236,190,0.06), 0 3px 12px rgba(0,0,0,0.3);">
 <h2><span style="color: #e0a43c; font-size: 22px; letter-spacing: 2px;">NEW IN v2.3.0</span></h2>
-<p><span style="display: inline-block; padding: 2px 10px; background-color: #e0a43c; color: #14130f; font-weight: bold; font-size: 12px; letter-spacing: 1px;">NEW</span> <strong><span style="font-size: 17px; color: #e0a43c;">DYNAMIC DURATION &amp; REAL-TIME PROGRESSION</span></strong></p>
+<p><span style="display: inline-block; padding: 2px 10px; background-color: #e0a43c; color: #14130f; font-weight: bold; font-size: 12px; letter-spacing: 1px;">NEW</span> <strong><span style="font-size: 17px; color: #e0a43c;">DYNAMIC DURATION & REAL-TIME PROGRESSION</span></strong></p>
 <p>Travel duration is no longer fixed at a rigid 2 minutes regardless of distance. Travel time dynamically scales based on actual world vector distance, walking speed, active encumbrance, and time acceleration factors. Journeys across multiple territories feel substantial, perilous, and physically grounded.</p>
 <hr style="border: 0; border-top: 1px solid #3d372b; margin: 15px 0;" />
 <p><span style="display: inline-block; padding: 2px 10px; background-color: #8fae5a; color: #14130f; font-weight: bold; font-size: 12px; letter-spacing: 1px;">NEW</span> <strong><span style="font-size: 17px; color: #e0a43c;">NATIVE DIET SYSTEM INTEGRATION</span></strong></p>
 <p>Full native integration with the <span style="color: #e0c478;">Diet System</span> mod: carbohydrates, fats, and protein reserves now deplete dynamically over the course of the journey based on exact game-time elapsed alongside vanilla/GAMMA thirst (<code>actor_status_thirst</code>) and sleep (<code>actor_status_sleep</code>).</p>
 <hr style="border: 0; border-top: 1px solid #3d372b; margin: 15px 0;" />
-<p><span style="display: inline-block; padding: 2px 10px; background-color: #e0a43c; color: #14130f; font-weight: bold; font-size: 12px; letter-spacing: 1px;">NEW</span> <strong><span style="font-size: 17px; color: #e0a43c;">CARRY WEIGHT &amp; OVER-ENCUMBRANCE PHYSICS</span></strong></p>
+<p><span style="display: inline-block; padding: 2px 10px; background-color: #e0a43c; color: #14130f; font-weight: bold; font-size: 12px; letter-spacing: 1px;">NEW</span> <strong><span style="font-size: 17px; color: #e0a43c;">CARRY WEIGHT & OVER-ENCUMBRANCE PHYSICS</span></strong></p>
 <p>Real maximum carrying capacity is dynamically calculated from equipped suits, backpacks, belt artifacts, and active boosters. Traveling while heavily encumbered severely degrades movement speed and exponentially accelerates stamina and calorie consumption.</p>
 <hr style="border: 0; border-top: 1px solid #3d372b; margin: 15px 0;" />
 <p><span style="display: inline-block; padding: 2px 10px; background-color: #555555; color: #ffffff; font-weight: bold; font-size: 12px; letter-spacing: 1px;">CORE</span> <strong><span style="font-size: 17px; color: #e0a43c;">REWORKED SURVIVAL ECONOMY</span></strong></p>
-<p>Removed illogical self-paid ruble charges for walking journeys&mdash;you now pay for the journey with physical calories, fatigue, hydration, and precious in-game daylight.</p>
+<p>Removed illogical self-paid ruble charges for walking journeys—you now pay for the journey with physical calories, fatigue, hydration, and precious in-game daylight.</p>
 </div>
 
 <div style="padding: 20px; margin: 14px 0; background-color: #1f1d17; border: 1px solid #4a4333; box-shadow: inset 0 1px 0 rgba(255,236,190,0.06), 0 3px 12px rgba(0,0,0,0.3);">
-<h2><span style="color: #e0a43c; font-size: 20px; letter-spacing: 2px;">DYNAMIC EXPEDITION PATHING &amp; PDA BREADCRUMBS</span></h2>
+<h2><span style="color: #e0a43c; font-size: 20px; letter-spacing: 2px;">DYNAMIC EXPEDITION PATHING & PDA BREADCRUMBS</span></h2>
 <br />
 <p>Your expeditions across the Zone are visualized live through the PDA map interface:</p>
 <br />
 <ul>
 <li><strong>Animated Waypoint Breadcrumbs:</strong> Green breadcrumb dots plot your physical trajectory across the PDA map in real time, advancing smoothly as your virtual coordinates traverse the Zone.</li>
-<li><strong>Multi-Level Transit Routing:</strong> Long-distance journeys between non-adjacent levels (e.g., Cordon to Jupiter) chart an authentic route through real intermediate level transitions (<em>Cordon &rarr; Garbage &rarr; Rostok &rarr; Army Warehouses &rarr; Red Forest &rarr; Jupiter</em>), properly accounting for distance, elapsed time, and local threats.</li>
+<li><strong>Multi-Level Transit Routing:</strong> Long-distance journeys between non-adjacent levels (e.g., Cordon to Jupiter) chart an authentic route through real intermediate level transitions (<em>Cordon → Garbage → Rostok → Army Warehouses → Red Forest → Jupiter</em>), properly accounting for distance, elapsed time, and local threats.</li>
 <li><strong>Safe Journey Abort:</strong> Need to halt immediately? Press <strong>Escape</strong> or <strong>Backspace</strong> mid-journey to safely interrupt travel. Your character smoothly drops onto the nearest safe AI ground vertex with partial stamina refunds and defensive grace windows.</li>
 <li><strong>Custom Levels Support:</strong> Includes dynamic routing and door dictionaries for 5 custom community maps (<em>Promzone, Grimwood, Poselok UG, Bunker A1, and Collider</em>) via the optional FOMOD module.</li>
 </ul>
 </div>
 
 <div style="padding: 20px; margin: 14px 0; background-color: #1f1d17; border: 1px solid #4a4333; border-top: 3px solid #f08a5d; box-shadow: inset 0 1px 0 rgba(255,236,190,0.06), 0 3px 12px rgba(0,0,0,0.3);">
-<h2><span style="color: #f08a5d; font-size: 20px; letter-spacing: 2px;">REAL-TIME THREAT DETECTION &amp; AMBUSHES</span></h2>
+<h2><span style="color: #f08a5d; font-size: 20px; letter-spacing: 2px;">REAL-TIME THREAT DETECTION & AMBUSHES</span></h2>
 <br />
 <p>The Chernobyl Exclusion Zone never sleeps. While your character is on the road, TLRA's <strong>Real-Time Threat Detection (RTTD)</strong> engine actively probes the Zone around you:</p>
 <br />
@@ -69,12 +69,12 @@
     <li><strong>Stalker Faction Heritage:</strong> Faction experience grants baseline evasion bonuses.</li>
   </ul>
 </li>
-<li><strong>Atmospheric Roadside Events:</strong> Expeditions aren't just combat&mdash;experience sunny breaks piercing the clouds (+Morale), discovered forgotten stashes, radiation hot pockets, and scenic vista ridge pauses.</li>
+<li><strong>Atmospheric Roadside Events:</strong> Expeditions aren't just combat—experience sunny breaks piercing the clouds (+Morale), discovered forgotten stashes, radiation hot pockets, and scenic vista ridge pauses.</li>
 </ul>
 </div>
 
 <div style="padding: 20px; margin: 14px 0; background-color: #1f1d17; border: 1px solid #4a4333; box-shadow: inset 0 1px 0 rgba(255,236,190,0.06), 0 3px 12px rgba(0,0,0,0.3);">
-<h2><span style="color: #e0a43c; font-size: 20px; letter-spacing: 2px;">DYNAMIC SURVIVAL &amp; DIET SYSTEM INTEGRATION</span></h2>
+<h2><span style="color: #e0a43c; font-size: 20px; letter-spacing: 2px;">DYNAMIC SURVIVAL & DIET SYSTEM INTEGRATION</span></h2>
 <br />
 <p>Survival in the Zone is physically grounded. Long treks extract a real toll on your character's body:</p>
 <br />
@@ -86,13 +86,13 @@
     <li><strong>Proteins:</strong> Degrade gradually during multi-hour cross-Zone expeditions.</li>
   </ul>
 </li>
-<li><strong>Continuous Thirst &amp; Fatigue:</strong> Thirst (<code>actor_status_thirst</code>) and Sleepiness (<code>actor_status_sleep</code>) accumulate smoothly based on exact game-time elapsed. Crossing several sectors will leave your stalker exhausted, dehydrated, and hungry.</li>
+<li><strong>Continuous Thirst & Fatigue:</strong> Thirst (<code>actor_status_thirst</code>) and Sleepiness (<code>actor_status_sleep</code>) accumulate smoothly based on exact game-time elapsed. Crossing several sectors will leave your stalker exhausted, dehydrated, and hungry.</li>
 <li><strong>Zero Illogical Ruble Fees:</strong> You no longer pay cash to yourself to walk. Fast travel costs are paid entirely in food, clean water, and daylight hours.</li>
 </ul>
 </div>
 
 <div style="padding: 20px; margin: 14px 0; background-color: #1f1d17; border: 1px solid #4a4333; box-shadow: inset 0 1px 0 rgba(255,236,190,0.06), 0 3px 12px rgba(0,0,0,0.3);">
-<h2><span style="color: #e0a43c; font-size: 20px; letter-spacing: 2px;">INVENTORY WEIGHT &amp; OVER-ENCUMBRANCE DYNAMICS</span></h2>
+<h2><span style="color: #e0a43c; font-size: 20px; letter-spacing: 2px;">INVENTORY WEIGHT & OVER-ENCUMBRANCE DYNAMICS</span></h2>
 <br />
 <p>Your pack weight directly governs how fast and safely you move:</p>
 <br />
@@ -109,7 +109,7 @@
 </div>
 
 <div style="padding: 20px; margin: 14px 0; background-color: #1f1d17; border: 1px solid #4a4333; box-shadow: inset 0 1px 0 rgba(255,236,190,0.06), 0 3px 12px rgba(0,0,0,0.3);">
-<h2><span style="color: #e0a43c; font-size: 20px; letter-spacing: 2px;">COMPANION SQUAD RECALL &amp; USEFUL IDIOTS SYNCHRONIZATION</span></h2>
+<h2><span style="color: #e0a43c; font-size: 20px; letter-spacing: 2px;">COMPANION SQUAD RECALL & USEFUL IDIOTS SYNCHRONIZATION</span></h2>
 <br />
 <p>Full multi-member companion squad transitions and recall tools:</p>
 <br />
@@ -117,21 +117,21 @@
 <li><strong>Manual Recall Hotkey (<code>\</code> Key):</strong> Pressing <code>\</code> summons companions directly to your position with server-side ALife migration (<code>sim:teleport_object</code>).</li>
 <li><strong>Useful Idiots Compatibility:</strong> Automatically bypasses stance blocks when manually recalled, clearing wait/cover/patrol flags so companions follow you immediately.</li>
 <li><strong>Anti-Stacking Radial Placement:</strong> Spawns squad members in a validated 1.8m to 3.0m radial arc around the player, preventing physics launches, mesh stacking, and collision deaths.</li>
-<li><strong>Animation &amp; Stance Recovery:</strong> Resets stuck animpoints (smoking, sitting, guitar) and restores standing combat readiness.</li>
+<li><strong>Animation & Stance Recovery:</strong> Resets stuck animpoints (smoking, sitting, guitar) and restores standing combat readiness.</li>
 <li><strong>Quest Hostage Protection:</strong> Hostages and VIP rescue targets are strictly excluded from teleportation.</li>
 </ul>
 </div>
 
 <div style="padding: 20px; margin: 14px 0; background-color: #1f1d17; border: 1px solid #4a4333; box-shadow: inset 0 1px 0 rgba(255,236,190,0.06), 0 3px 12px rgba(0,0,0,0.3);">
-<h2><span style="color: #e0a43c; font-size: 20px; letter-spacing: 2px;">MOD CONFIGURATION MENU (MCM) &amp; PRESETS</span></h2>
+<h2><span style="color: #e0a43c; font-size: 20px; letter-spacing: 2px;">MOD CONFIGURATION MENU (MCM) & PRESETS</span></h2>
 <br />
-<p>Fine-tune over 20 options in-game with complete dual-language English &amp; Russian (CP1251) localization:</p>
+<p>Fine-tune over 20 options in-game with complete dual-language English & Russian (CP1251) localization:</p>
 <br />
 <table style="width: 100%; border-collapse: collapse; margin: 10px 0; background-color: #191813; border: 1px solid #4a4333;">
 <tr style="background-color: #2a2720; border-bottom: 2px solid #8fae5a;">
 <th style="padding: 8px 12px; text-align: left; color: #e0a43c;">Setting</th>
 <th style="padding: 8px 12px; text-align: left; color: #e0a43c;">Range / Options</th>
-<th style="padding: 8px 12px; text-align: left; color: #e0a43c;">Default &amp; Description</th>
+<th style="padding: 8px 12px; text-align: left; color: #e0a43c;">Default & Description</th>
 </tr>
 <tr style="border-bottom: 1px solid #3d372b;">
 <td style="padding: 8px 12px; color: #ffffff;"><strong>Travel Preset</strong></td>
@@ -140,17 +140,17 @@
 </tr>
 <tr style="border-bottom: 1px solid #3d372b;">
 <td style="padding: 8px 12px; color: #ffffff;"><strong>Travel Speed</strong></td>
-<td style="padding: 8px 12px; color: #b9a572;">1.0 &ndash; 5.0 m/s</td>
+<td style="padding: 8px 12px; color: #b9a572;">1.0 – 5.0 m/s</td>
 <td style="padding: 8px 12px; color: #cccccc;">1.8 m/s (Simulated walking pace).</td>
 </tr>
 <tr style="border-bottom: 1px solid #3d372b;">
 <td style="padding: 8px 12px; color: #ffffff;"><strong>Time Acceleration</strong></td>
-<td style="padding: 8px 12px; color: #b9a572;">1.0x &ndash; 30.0x</td>
+<td style="padding: 8px 12px; color: #b9a572;">1.0x – 30.0x</td>
 <td style="padding: 8px 12px; color: #cccccc;">15.0x (Matches standard Zone world time multiplier).</td>
 </tr>
 <tr style="border-bottom: 1px solid #3d372b;">
 <td style="padding: 8px 12px; color: #ffffff;"><strong>PDA Path Detail</strong></td>
-<td style="padding: 8px 12px; color: #b9a572;">4 &ndash; 24 Dots</td>
+<td style="padding: 8px 12px; color: #b9a572;">4 – 24 Dots</td>
 <td style="padding: 8px 12px; color: #cccccc;">12 Waypoints displayed on the PDA map.</td>
 </tr>
 <tr style="border-bottom: 1px solid #3d372b;">
@@ -160,22 +160,22 @@
 </tr>
 <tr style="border-bottom: 1px solid #3d372b;">
 <td style="padding: 8px 12px; color: #ffffff;"><strong>Threat Detection Radius</strong></td>
-<td style="padding: 8px 12px; color: #b9a572;">50m &ndash; 200m</td>
+<td style="padding: 8px 12px; color: #b9a572;">50m – 200m</td>
 <td style="padding: 8px 12px; color: #cccccc;">100m detection sphere around your virtual path.</td>
 </tr>
 <tr style="border-bottom: 1px solid #3d372b;">
 <td style="padding: 8px 12px; color: #ffffff;"><strong>Stealth Dodge Base Chance</strong></td>
-<td style="padding: 8px 12px; color: #b9a572;">0% &ndash; 100%</td>
+<td style="padding: 8px 12px; color: #b9a572;">0% – 100%</td>
 <td style="padding: 8px 12px; color: #cccccc;">25% baseline evasion odds (boosted by night and bad weather).</td>
 </tr>
 <tr style="border-bottom: 1px solid #3d372b;">
 <td style="padding: 8px 12px; color: #ffffff;"><strong>Survival Costs (Hunger/Thirst/Sleep)</strong></td>
-<td style="padding: 8px 12px; color: #b9a572;">0.1x &ndash; 3.0x</td>
+<td style="padding: 8px 12px; color: #b9a572;">0.1x – 3.0x</td>
 <td style="padding: 8px 12px; color: #cccccc;">1.0x (Realistic metabolic drain per hour).</td>
 </tr>
 <tr style="border-bottom: 1px solid #3d372b;">
 <td style="padding: 8px 12px; color: #ffffff;"><strong>Arrival Offset Distance</strong></td>
-<td style="padding: 8px 12px; color: #b9a572;">0m &ndash; 30m</td>
+<td style="padding: 8px 12px; color: #b9a572;">0m – 30m</td>
 <td style="padding: 8px 12px; color: #cccccc;">10m (Spawns slightly ahead of destination to avoid campfire traps).</td>
 </tr>
 <tr>
@@ -187,7 +187,7 @@
 </div>
 
 <div style="padding: 20px; margin: 14px 0; background-color: #1f1d17; border: 1px solid #4a4333; box-shadow: inset 0 1px 0 rgba(255,236,190,0.06), 0 3px 12px rgba(0,0,0,0.3);">
-<h2><span style="color: #e0a43c; font-size: 20px; letter-spacing: 2px;">MODULAR FOMOD INSTALLATION &amp; COMPATIBILITY</span></h2>
+<h2><span style="color: #e0a43c; font-size: 20px; letter-spacing: 2px;">MODULAR FOMOD INSTALLATION & COMPATIBILITY</span></h2>
 <br />
 <p>Install via <strong>Mod Organizer 2</strong> or <strong>Vortex</strong> using the included interactive FOMOD installer:</p>
 <br />
@@ -199,12 +199,12 @@
 <br />
 <p><strong>Verified 100% Compatible With:</strong></p>
 <ul>
-<li>S.T.A.L.K.E.R. Anomaly 1.5.3 &amp; S.T.A.L.K.E.R. G.A.M.M.A.</li>
-<li>Useful Idiots (Companion AI &amp; squad splitting)</li>
+<li>S.T.A.L.K.E.R. Anomaly 1.5.3 & S.T.A.L.K.E.R. G.A.M.M.A.</li>
+<li>Useful Idiots (Companion AI & squad splitting)</li>
 <li>Diet System (Carbs, fats, and protein reserves)</li>
 <li>Fair Fast Travel 2.7+ (Catspaw)</li>
-<li>SafeSpawn &amp; SafeZone protection mods</li>
-<li>Weapon Parts Overhaul (WPO) &amp; Body Health System (BHS)</li>
+<li>SafeSpawn & SafeZone protection mods</li>
+<li>Weapon Parts Overhaul (WPO) & Body Health System (BHS)</li>
 </ul>
 </div>
 
@@ -237,4 +237,4 @@
 </div>
 
 <br />
-<p align="center" style="color: #888888; font-size: 12px; letter-spacing: 1px;">THE LONG ROAD AHEAD &middot; BY DAMAGE_ZEDD &middot; CONTINUOUS ZONE-TO-ZONE TRAVEL FOR S.T.A.L.K.E.R. ANOMALY &amp; G.A.M.M.A.</p>
+<p align="center" style="color: #888888; font-size: 12px; letter-spacing: 1px;">THE LONG ROAD AHEAD · BY DAMAGE_ZEDD · CONTINUOUS ZONE-TO-ZONE TRAVEL FOR S.T.A.L.K.E.R. ANOMALY & G.A.M.M.A.</p>
