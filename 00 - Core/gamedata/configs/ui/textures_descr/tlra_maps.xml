@@ -7,6 +7,18 @@
     <file name="ui\tlra_white">
         <texture id="tlra_white_solid" x="0" y="0" width="64" height="64"/>
     </file>
+    <!-- S.T.A.L.K.E.R. Diegetic UI Atlas -->
+    <file name="ui\tlra_stalker_atlas">
+        <texture id="tlra_dossier_tab" x="0" y="0" width="320" height="100"/>
+        <texture id="tlra_field_journal" x="0" y="110" width="450" height="170"/>
+        <texture id="tlra_btn_halt" x="0" y="290" width="180" height="65"/>
+        <texture id="tlra_pawn_stalker" x="200" y="290" width="48" height="64"/>
+        <texture id="tlra_beacon_radiation" x="260" y="290" width="48" height="48"/>
+        <texture id="tlra_trail_dash" x="320" y="290" width="24" height="8"/>
+        <texture id="tlra_bar_brass" x="0" y="370" width="260" height="14"/>
+        <texture id="tlra_bar_gradient" x="0" y="390" width="260" height="12"/>
+        <texture id="tlra_bar_cyan" x="0" y="410" width="140" height="12"/>
+    </file>
     <file name="ui\ui_global_map">
         <texture id="tlra_map_global" x="0" y="0" width="4096" height="8192"/>
     </file>

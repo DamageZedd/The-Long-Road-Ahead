@@ -254,31 +254,11 @@ function UIRoadAheadTravelMap:InitControls()
         self.bg:SetWndRect(Frect():set(-1200, -600, 3424, 1968))
     end)
 
-    -- Top Telemetry Expedition Header (960x58, Centered at x=32)
-    self.header_frame       = xml:InitStatic("header_frame", self)
-    self.header_bg          = xml:InitStatic("header_frame:header_bg", self.header_frame)
-    self.header_line_top    = xml:InitStatic("header_frame:header_line_top", self.header_frame)
-    self.header_line_bot    = xml:InitStatic("header_frame:header_line_bot", self.header_frame)
-    self.header_line_left   = xml:InitStatic("header_frame:header_line_left", self.header_frame)
-    self.header_line_right  = xml:InitStatic("header_frame:header_line_right", self.header_frame)
-    self.divider_h1         = xml:InitStatic("header_frame:divider_h1", self.header_frame)
-    self.divider_h2         = xml:InitStatic("header_frame:divider_h2", self.header_frame)
-
-    self.txt_subheading     = xml:InitTextWnd("header_frame:txt_subheading", self.header_frame)
-    self.txt_title          = xml:InitTextWnd("header_frame:txt_title", self.header_frame)
-    self.txt_route          = xml:InitTextWnd("header_frame:txt_route", self.header_frame)
-    self.txt_clock          = xml:InitTextWnd("header_frame:txt_clock", self.header_frame)
-    self.txt_env            = xml:InitTextWnd("header_frame:txt_environment", self.header_frame)
-    self.txt_progress       = xml:InitTextWnd("header_frame:txt_progress", self.header_frame)
-    self.progress_border    = xml:InitStatic("header_frame:progress_border", self.header_frame)
-    self.progress_bg        = xml:InitStatic("header_frame:progress_bg", self.header_frame)
-    self.progress_fill      = xml:InitStatic("header_frame:progress_fill", self.header_frame)
-
-    -- Center Map Viewport Frame (960x526, Centered at x=32, y=78)
+        -- 1. Fullscreen Map Viewport Frame (1024x768)
     self.map_frame          = xml:InitStatic("map_frame", self)
     self.map_frame_bg       = xml:InitStatic("map_frame:map_frame_bg", self.map_frame)
 
-    -- Layer 1: Continuous Zone Global Map (Seamless background)
+    -- Layer 1: Continuous Zone Global Map
     self.bg_map_canvas      = xml:InitStatic("map_frame:bg_map_canvas", self.map_frame)
     self.bg_map_canvas:SetStretchTexture(true)
 
@@ -286,84 +266,58 @@ function UIRoadAheadTravelMap:InitControls()
     self.map_canvas         = xml:InitStatic("map_frame:map_canvas", self.map_frame)
     self.map_canvas:SetStretchTexture(true)
 
-    -- Subtle Tactical Crosshair Reticles
-    self.reticle_h1         = xml:InitStatic("map_frame:reticle_h1", self.map_frame)
-    self.reticle_h2         = xml:InitStatic("map_frame:reticle_h2", self.map_frame)
-    self.reticle_v1         = xml:InitStatic("map_frame:reticle_v1", self.map_frame)
-    self.reticle_v2         = xml:InitStatic("map_frame:reticle_v2", self.map_frame)
-
-    -- Tactical Viewport Corner Brackets
-    xml:InitStatic("map_frame:corner_tl_h", self.map_frame)
-    xml:InitStatic("map_frame:corner_tl_v", self.map_frame)
-    xml:InitStatic("map_frame:corner_tr_h", self.map_frame)
-    xml:InitStatic("map_frame:corner_tr_v", self.map_frame)
-    xml:InitStatic("map_frame:corner_bl_h", self.map_frame)
-    xml:InitStatic("map_frame:corner_bl_v", self.map_frame)
-    xml:InitStatic("map_frame:corner_br_h", self.map_frame)
-    xml:InitStatic("map_frame:corner_br_v", self.map_frame)
-
-    -- Gold Frame Borders
-    self.frame_top          = xml:InitStatic("map_frame:frame_top", self.map_frame)
-    self.frame_bottom       = xml:InitStatic("map_frame:frame_bottom", self.map_frame)
-    self.frame_left         = xml:InitStatic("map_frame:frame_left", self.map_frame)
-    self.frame_right        = xml:InitStatic("map_frame:frame_right", self.map_frame)
-
     -- Departure & Destination Map Spots
     self.start_marker       = xml:InitStatic("map_frame:start_marker", self.map_frame)
     self.dest_marker        = xml:InitStatic("map_frame:dest_marker", self.map_frame)
 
-    -- Breadcrumb Waypoint Dots (1..12)
+    -- Dashed Yellow Road Breadcrumbs (1..12)
     self.trail_dots = {}
     for i = 1, 12 do
         self.trail_dots[i] = xml:InitStatic("map_frame:trail_dot_" .. i, self.map_frame)
     end
 
-    -- Stalker Traveler Pawn: Anchored Dead-Center at (466, 249)
+    -- Stalker Traveler Pawn: Anchored Dead-Center at (497, 364)
     self.pawn_marker        = xml:InitStatic("map_frame:pawn_marker", self.map_frame)
 
-    -- Bottom Field Telemetry Console (960x146, Centered at x=32, y=610)
-    self.bottom_frame       = xml:InitStatic("bottom_frame", self)
-    self.bottom_bg          = xml:InitStatic("bottom_frame:bottom_bg", self.bottom_frame)
-    self.bottom_line_top    = xml:InitStatic("bottom_frame:bottom_line_top", self.bottom_frame)
-    self.bottom_line_bot    = xml:InitStatic("bottom_frame:bottom_line_bot", self.bottom_frame)
-    self.bottom_line_left   = xml:InitStatic("bottom_frame:bottom_line_left", self.bottom_frame)
-    self.bottom_line_right  = xml:InitStatic("bottom_frame:bottom_line_right", self.bottom_frame)
+    -- 2. Top-Left: Military Field Dossier / Clipboard Tab
+    self.dossier_tab        = xml:InitStatic("dossier_tab", self)
+    self.txt_title          = xml:InitTextWnd("dossier_tab:txt_title", self.dossier_tab)
+    self.txt_route          = xml:InitTextWnd("dossier_tab:txt_route", self.dossier_tab)
+    self.txt_pace           = xml:InitTextWnd("dossier_tab:txt_pace", self.dossier_tab)
 
-    -- Card 1: Vitals
-    self.vitals_card        = xml:InitStatic("bottom_frame:vitals_card", self.bottom_frame)
-    self.vitals_bg          = xml:InitStatic("bottom_frame:vitals_card:vitals_bg", self.vitals_card)
-    self.vitals_hdr_bg      = xml:InitStatic("bottom_frame:vitals_card:vitals_hdr_bg", self.vitals_card)
-    self.vitals_bt          = xml:InitStatic("bottom_frame:vitals_card:vitals_bt", self.vitals_card)
-    self.vitals_bb          = xml:InitStatic("bottom_frame:vitals_card:vitals_bb", self.vitals_card)
-    self.vitals_bl          = xml:InitStatic("bottom_frame:vitals_card:vitals_bl", self.vitals_card)
-    self.vitals_br          = xml:InitStatic("bottom_frame:vitals_card:vitals_br", self.vitals_card)
-    self.txt_calories       = xml:InitTextWnd("bottom_frame:vitals_card:txt_calories", self.vitals_card)
-    self.txt_hydration      = xml:InitTextWnd("bottom_frame:vitals_card:txt_hydration", self.vitals_card)
-    self.txt_stamina        = xml:InitTextWnd("bottom_frame:vitals_card:txt_stamina", self.vitals_card)
-    self.txt_encumbrance    = xml:InitTextWnd("bottom_frame:vitals_card:txt_encumbrance", self.vitals_card)
+    -- 3. Top-Center: Floating Tactical HUD (Clock, Weather, Threat)
+    self.top_center         = xml:InitStatic("top_center", self)
+    self.txt_clock          = xml:InitTextWnd("top_center:txt_clock", self.top_center)
+    self.txt_env            = xml:InitTextWnd("top_center:txt_weather", self.top_center)
+    self.txt_threat_hud     = xml:InitTextWnd("top_center:txt_threat", self.top_center)
 
-    -- Card 2: Road Recon Ticker
-    self.ticker_card        = xml:InitStatic("bottom_frame:ticker_card", self.bottom_frame)
-    self.ticker_bg          = xml:InitStatic("bottom_frame:ticker_card:ticker_bg", self.ticker_card)
-    self.ticker_hdr_bg      = xml:InitStatic("bottom_frame:ticker_card:ticker_hdr_bg", self.ticker_card)
-    self.ticker_bt          = xml:InitStatic("bottom_frame:ticker_card:ticker_bt", self.ticker_card)
-    self.ticker_bb          = xml:InitStatic("bottom_frame:ticker_card:ticker_bb", self.ticker_card)
-    self.ticker_bl          = xml:InitStatic("bottom_frame:ticker_card:ticker_bl", self.ticker_card)
-    self.ticker_br          = xml:InitStatic("bottom_frame:ticker_card:ticker_br", self.ticker_card)
+    -- 4. Top-Right: Trip Progress & Dual Gauges
+    self.top_right          = xml:InitStatic("top_right", self)
+    self.txt_progress       = xml:InitTextWnd("top_right:txt_progress", self.top_right)
+    self.progress_border    = xml:InitStatic("top_right:progress_border", self.top_right)
+    self.progress_bg        = xml:InitStatic("top_right:progress_bg", self.top_right)
+    self.progress_fill      = xml:InitStatic("top_right:progress_fill", self.top_right)
+    self.threat_fill        = xml:InitStatic("top_right:threat_fill", self.top_right)
+
+    -- 5. Bottom-Left: Floating Survival Metabolism Telemetry
+    self.vitals_panel       = xml:InitStatic("vitals_panel", self)
+    self.txt_calories       = xml:InitTextWnd("vitals_panel:txt_calories", self.vitals_panel)
+    self.txt_hydration      = xml:InitTextWnd("vitals_panel:txt_hydration", self.vitals_panel)
+    self.txt_stamina        = xml:InitTextWnd("vitals_panel:txt_stamina", self.vitals_panel)
+    self.txt_encumbrance    = xml:InitTextWnd("vitals_panel:txt_encumbrance", self.vitals_panel)
+    self.txt_rad            = xml:InitTextWnd("vitals_panel:txt_rad", self.vitals_panel)
+    self.txt_psy            = xml:InitTextWnd("vitals_panel:txt_psy", self.vitals_panel)
+    self.psy_fill           = xml:InitStatic("vitals_panel:psy_fill", self.vitals_panel)
+
+    -- 6. Bottom-Center: Authentic S.T.A.L.K.E.R. Field Journal & Log
+    self.journal_card       = xml:InitStatic("journal_card", self)
     self.txt_logs = {}
-    for i = 1, 4 do
-        self.txt_logs[i] = xml:InitTextWnd("bottom_frame:ticker_card:txt_log_" .. i, self.ticker_card)
+    for i = 1, 5 do
+        self.txt_logs[i] = xml:InitTextWnd("journal_card:txt_log_" .. i, self.journal_card)
     end
 
-    -- Card 3: Halt Button
-    self.action_card        = xml:InitStatic("bottom_frame:action_card", self.bottom_frame)
-    self.action_bg          = xml:InitStatic("bottom_frame:action_card:action_bg", self.action_card)
-    self.action_hdr_bg      = xml:InitStatic("bottom_frame:action_card:action_hdr_bg", self.action_card)
-    self.action_bt          = xml:InitStatic("bottom_frame:action_card:action_bt", self.action_card)
-    self.action_bb          = xml:InitStatic("bottom_frame:action_card:action_bb", self.action_card)
-    self.action_bl          = xml:InitStatic("bottom_frame:action_card:action_bl", self.action_card)
-    self.action_br          = xml:InitStatic("bottom_frame:action_card:action_br", self.action_card)
-    self.btn_halt           = xml:Init3tButton("bottom_frame:action_card:btn_halt", self.action_card)
+    -- 7. Bottom-Right: Heavy Rusted Industrial Metal Button
+    self.btn_halt           = xml:Init3tButton("btn_halt", self)
     self:Register(self.btn_halt, "btn_halt")
 
     -- KCD Ambush / Threat Decision Modal Card
@@ -443,7 +397,7 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
     end)
 
     -- Lock pawn marker at dead center of the 960x526 viewport: (480 - 14, 263 - 14) = (466, 249)
-    self.pawn_marker:SetWndPos(vector2():set(466, 249))
+    self.pawn_marker:SetWndPos(vector2():set(497, 364))
     self.pawn_marker:Show(true)
 
     -- Build Road-Biased Waypoint Polyline (identical to PDA system dots)
@@ -483,8 +437,9 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
 
     -- Header Route Title
     local lvl_str = game.translate_string(self.level_name) or self.level_name
-    self.txt_title:SetText("EXPEDITION: " .. string.upper(lvl_str))
-    self.txt_route:SetText(string.format("Route Trek: %dm | Safe Stride Mode Active", math.floor(self.travel_dist)))
+    if self.txt_title then self.txt_title:SetText("EXPEDITION: " .. string.upper(lvl_str)) end
+    if self.txt_route then self.txt_route:SetText(string.format("ROUTE TREK: %dm | SAFE STRIDE ACTIVE", math.floor(self.travel_dist))) end
+    if self.txt_pace then self.txt_pace:SetText("SLOW PACE / SCANNING") end
 
     -- Initialize road log messages
     local h = level.get_time_hours()
@@ -576,13 +531,13 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
     cur_pos = cur_pos or self.start_pos
     ratio   = ratio or 0.0
 
-    local FW = 960
-    local FH = 526
-    local CX = 480
-    local CY = 263
+    local FW = 1024
+    local FH = 768
+    local CX = 512
+    local CY = 384
 
-    -- 1. Ensure Player Arrow remains locked dead-center at (466, 249)
-    self.pawn_marker:SetWndPos(vector2():set(CX - 14, CY - 14))
+    -- 1. Ensure Player Stalker Pawn remains locked dead-center at (497, 364)
+    self.pawn_marker:SetWndPos(vector2():set(CX - 15, CY - 20))
     self.pawn_marker:Show(true)
 
     -- 2. Dynamic Zoom Scale: Tailored around expedition trek distance
@@ -604,7 +559,7 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
     local dx = CX + (self.dest_pos.x - cur_pos.x) * scale
     local dy = CY - (self.dest_pos.z - cur_pos.z) * scale
     if dx >= -13 and dx <= FW + 13 and dy >= -13 and dy <= FH + 13 then
-        self.dest_marker:SetWndPos(vector2():set(dx - 13, dy - 13))
+        self.dest_marker:SetWndPos(vector2():set(dx - 17, dy - 17))
         self.dest_marker:Show(true)
     else
         self.dest_marker:Show(false)
@@ -620,7 +575,7 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
                 local px = CX + (dp.x - cur_pos.x) * scale
                 local py = CY - (dp.z - cur_pos.z) * scale
                 if px >= 0 and px <= FW and py >= 0 and py <= FH then
-                    self.trail_dots[i]:SetWndPos(vector2():set(px - 5, py - 5))
+                    self.trail_dots[i]:SetWndPos(vector2():set(px - 8, py - 3))
                     self.trail_dots[i]:Show(true)
                 else
                     self.trail_dots[i]:Show(false)
@@ -741,7 +696,7 @@ function UIRoadAheadTravelMap:AddLog(entry)
     if #self.log_history > 10 then
         table.remove(self.log_history)
     end
-    for i = 1, 4 do
+    for i = 1, 5 do
         if self.txt_logs[i] then
             self.txt_logs[i]:SetText(self.log_history[i] or "")
         end
@@ -804,7 +759,17 @@ function UIRoadAheadTravelMap:Update()
     elseif h < 5 or h >= 22 then
         env_desc = "Night Darkness (Cover +20%)"
     end
-    self.txt_env:SetText("Weather: " .. env_desc)
+        if self.txt_env then self.txt_env:SetText("WEATHER: " .. string.upper(env_desc)) end
+
+    local threat_desc = "LOW (Clear Route)"
+    if self.encounter_active then
+        threat_desc = "CRITICAL (Hostile Ambush!)"
+    elseif string.find(w_lower, "storm") then
+        threat_desc = "ELEVATED (Hazardous Weather)"
+    elseif ratio > 0.2 and ratio < 0.8 then
+        threat_desc = "HIGH (ALife Activity)"
+    end
+    if self.txt_threat_hud then self.txt_threat_hud:SetText("THREAT RISK: " .. threat_desc) end
 
     -- Ambient Roadside Recon Log Updates
     local step = math.floor(ratio * 8)
@@ -878,7 +843,21 @@ function UIRoadAheadTravelMap:UpdateSurvivalVitals()
     end)
     max_w = math.floor(max_w * 10) / 10
 
-    self.txt_encumbrance:SetText(string.format("Pack: %.1f kg / %.0f kg [Stride: 3.4 m/s]", weight, max_w))
+        if self.txt_encumbrance then self.txt_encumbrance:SetText(string.format("PACK: %.1f kg / %.0f kg [Stride: 3.4 m/s]", weight, max_w)) end
+
+    local rad = 0.0
+    pcall(function()
+        if actor.radiation then rad = math.max(0.0, actor.radiation * 0.1) end
+    end)
+    if self.txt_rad then self.txt_rad:SetText(string.format("RADIATION: %.2f mSv", rad)) end
+
+    local psy = 1.0
+    pcall(function()
+        if actor.psy_health then psy = math.max(0.0, math.min(1.0, actor.psy_health)) end
+    end)
+    if self.psy_fill then
+        self.psy_fill:SetWndSize(vector2():set(math.floor(83 * psy), 10))
+    end
 end
 
 -- ===================================================================

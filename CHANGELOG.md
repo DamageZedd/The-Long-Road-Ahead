@@ -3,7 +3,17 @@
 ## v2.4.0 — Kingdom Come Animated Travel Map & Interactive Road Encounters
 
 ### 🗺️ Kingdom Come: Deliverance Style Animated Travel Map
-- **Full-Screen Expedition Map Interface (`ui_tlra_travel_map`)**: Initiating travel now launches a full-screen expedition map viewport featuring genuine S.T.A.L.K.E.R. cartographic aesthetics, displaying high-resolution level maps for regional journeys and the global Zone map for cross-level transitions.
+- **Full-Screen Diegetic S.T.A.L.K.E.R. Cartographic Overhaul (`ui_tlra_travel_map`)**: Transformed the expedition map interface into a diegetic S.T.A.L.K.E.R. tactical display where authentic regional cartography and the continuous Zone background map span the entire screen edge-to-edge (1024x768).
+- **Dedicated S.T.A.L.K.E.R. Visual Texture Atlas (`tlra_stalker_atlas.dds`)**: Integrated a custom, uncompressed 32-bit ARGB texture atlas loaded via `tlra_maps.xml` introducing weathered military field artifacts:
+  - **Top-Left Field Dossier / Clipboard Tab (`tlra_dossier_tab`)**: Weathered military document tab displaying dynamic expedition title, route trek distance, and safe stride pacing in dark military stencil ink.
+  - **Top-Center Floating Tactical HUD**: Crisp typography floating directly over the map with accelerated world clock (`[10x SPEED]`), dynamic weather conditions, and live ALife threat risk alerts.
+  - **Top-Right Antique Brass & Threat Progress Gauges**: Segmented golden expedition distance progress bar and dual-tone threat condition meter.
+  - **Bottom-Left Floating Survival Telemetry**: Translucent dark military plate displaying real-time calories, hydration, stamina, pack weight, radiation dosing in mSv, and a dedicated teal/cyan psy-health meter.
+  - **Bottom-Center S.T.A.L.K.E.R. Field Journal (`tlra_field_journal`)**: Authentic army field journal card with `S.T.A.L.K.E.R.` tab and dark inset CRT display rendering scrolling roadside reconnaissance events.
+  - **Bottom-Right Industrial Rusted Steel Button (`tlra_btn_halt`)**: Heavy metal plate with corner rivets/screws for immediate safe journey abort (`HALT [ESC]`).
+  - **Stalker Silhouette Traveler Pawn (`tlra_pawn_stalker`)**: Replaced generic pointer arrow with an authentic stalker silhouette carrying a rifle, dynamically walking along the trail.
+  - **Glowing Amber Radiation Target Beacon (`tlra_beacon_radiation`)**: Luminous hazard beacon marking the destination objective.
+  - **Dashed Yellow Road Breadcrumb Trail (`tlra_trail_dash`)**: Traversal waypoints rendered as authentic yellow road dashes curving along highways and paths.
 - **Symmetrical 1024x768 Centered Framing**: Standardized UI root window to clean `1024x768` virtual coordinate space with uniform 32px margins, eliminating widescreen displacement, screen-edge clipping, and empty side voids.
 - **Mathematical Dead-Center Player Anchoring**: The stalker traveler pawn marker is anchored dead-center within the 960x526 viewport at `(CX, CY) = (480, 263)`, with terrain and cartography smoothly scrolling underneath in real time.
 - **Continuous Dual-Layer Cartography (Zone Global Map Background)**: Synchronously renders the complete Zone global map (`tlra_map_global`) behind the regional level map, eliminating black voids around level borders and showing continuous geographic context.
