@@ -28,6 +28,11 @@
             <texture>tlra_map_global</texture>
         </map_canvas>
 
+        <!-- Template Canvas for All 22 Regional Level Maps Loaded Simultaneously -->
+        <level_canvas x="0" y="0" width="1024" height="768" stretch="1">
+            <texture>tlra_map_global</texture>
+        </level_canvas>
+
         <!-- Departure Origin Marker -->
         <start_marker x="0" y="0" width="24" height="24" stretch="1">
             <texture>ui_inGame2_PDA_icon_Place_to_rest</texture>
