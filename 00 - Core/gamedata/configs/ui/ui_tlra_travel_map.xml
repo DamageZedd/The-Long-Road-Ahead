@@ -1,6 +1,6 @@
 <w>
     <!-- =================================================================== -->
-    <!-- THE LONG ROAD AHEAD: STALKER DIEGETIC EXPEDITION MAP INTERFACE      -->
+    <!-- THE LONG ROAD AHEAD: FULLSCREEN EXPEDITION MAP INTERFACE            -->
     <!-- Resolution: 1024x768 (Full-screen authentic Zone cartography)       -->
     <!-- =================================================================== -->
 
@@ -33,157 +33,219 @@
             <texture>ui_inGame2_PDA_icon_Place_to_rest</texture>
         </start_marker>
 
-        <!-- Target Destination Marker (Glowing Amber Radiation Target Beacon) -->
-        <dest_marker x="0" y="0" width="34" height="34" stretch="1">
-            <texture>tlra_beacon_radiation</texture>
+        <!-- Target Destination Marker -->
+        <dest_marker x="0" y="0" width="28" height="28" stretch="1">
+            <texture>ui_inGame2_PDA_icon_Primary_mission</texture>
         </dest_marker>
 
-        <!-- Dashed Yellow Road Breadcrumb Trail Dots (1..12) -->
-        <trail_dot_1  x="-50" y="-50" width="16" height="6" stretch="1"><texture>tlra_trail_dash</texture></trail_dot_1>
-        <trail_dot_2  x="-50" y="-50" width="16" height="6" stretch="1"><texture>tlra_trail_dash</texture></trail_dot_2>
-        <trail_dot_3  x="-50" y="-50" width="16" height="6" stretch="1"><texture>tlra_trail_dash</texture></trail_dot_3>
-        <trail_dot_4  x="-50" y="-50" width="16" height="6" stretch="1"><texture>tlra_trail_dash</texture></trail_dot_4>
-        <trail_dot_5  x="-50" y="-50" width="16" height="6" stretch="1"><texture>tlra_trail_dash</texture></trail_dot_5>
-        <trail_dot_6  x="-50" y="-50" width="16" height="6" stretch="1"><texture>tlra_trail_dash</texture></trail_dot_6>
-        <trail_dot_7  x="-50" y="-50" width="16" height="6" stretch="1"><texture>tlra_trail_dash</texture></trail_dot_7>
-        <trail_dot_8  x="-50" y="-50" width="16" height="6" stretch="1"><texture>tlra_trail_dash</texture></trail_dot_8>
-        <trail_dot_9  x="-50" y="-50" width="16" height="6" stretch="1"><texture>tlra_trail_dash</texture></trail_dot_9>
-        <trail_dot_10 x="-50" y="-50" width="16" height="6" stretch="1"><texture>tlra_trail_dash</texture></trail_dot_10>
-        <trail_dot_11 x="-50" y="-50" width="16" height="6" stretch="1"><texture>tlra_trail_dash</texture></trail_dot_11>
-        <trail_dot_12 x="-50" y="-50" width="16" height="6" stretch="1"><texture>tlra_trail_dash</texture></trail_dot_12>
+        <!-- Breadcrumb Trail Waypoint Dots (1..12) - Bright Amber Tactical Dots -->
+        <trail_dot_1  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_1>
+        <trail_dot_2  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_2>
+        <trail_dot_3  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_3>
+        <trail_dot_4  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_4>
+        <trail_dot_5  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_5>
+        <trail_dot_6  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_6>
+        <trail_dot_7  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_7>
+        <trail_dot_8  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_8>
+        <trail_dot_9  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_9>
+        <trail_dot_10 x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_10>
+        <trail_dot_11 x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_11>
+        <trail_dot_12 x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_12>
 
-        <!-- Stalker Silhouette Traveler Pawn: Anchored Dead-Center at (497, 364) -->
-        <pawn_marker x="497" y="364" width="30" height="40" stretch="1">
-            <texture>tlra_pawn_stalker</texture>
+        <!-- Stalker Traveler Pawn: Anchored Dead-Center at (498, 370) -->
+        <pawn_marker x="498" y="370" width="28" height="28" stretch="1">
+            <texture>ui_hud_map_arrow</texture>
         </pawn_marker>
     </map_frame>
 
     <!-- =================================================================== -->
-    <!-- TOP-LEFT: MILITARY FIELD DOSSIER / CLIPBOARD FOLDER TAB             -->
+    <!-- TOP-LEFT: EXPEDITION COMMAND HEADER CARD                            -->
     <!-- =================================================================== -->
-    <dossier_tab x="20" y="16" width="310" height="95">
-        <dossier_bg x="0" y="0" width="310" height="95" stretch="1">
-            <texture>tlra_dossier_tab</texture>
+    <dossier_tab x="20" y="16" width="310" height="74">
+        <dossier_bg x="0" y="0" width="310" height="74" stretch="1">
+            <texture r="18" g="22" b="28">tlra_white_solid</texture>
         </dossier_bg>
-        <txt_title x="18" y="10" width="280" height="22">
-            <text font="letterica18" r="35" g="40" b="30">EXPEDITION: THE ZONE</text>
+        <dossier_bt x="0" y="0" width="310" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></dossier_bt>
+        <dossier_bb x="0" y="72" width="310" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></dossier_bb>
+        <dossier_bl x="0" y="0" width="2" height="74" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></dossier_bl>
+        <dossier_br x="308" y="0" width="2" height="74" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></dossier_br>
+        <dossier_top_bar x="2" y="2" width="306" height="3" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></dossier_top_bar>
+
+        <txt_title x="12" y="8" width="286" height="22">
+            <text font="letterica18" r="245" g="195" b="75">EXPEDITION: CORDON</text>
         </txt_title>
-        <txt_route x="18" y="34" width="280" height="16">
-            <text font="letterica16" r="55" g="50" b="40">ROUTE TREK: 597m | SAFE STRIDE ACTIVE</text>
+        <txt_route x="12" y="30" width="286" height="18">
+            <text font="letterica16" r="220" g="215" b="200">Route Trek: 597m | Safe Stride Mode Active</text>
         </txt_route>
-        <txt_pace x="18" y="52" width="280" height="16">
-            <text font="letterica16" r="65" g="60" b="48">SLOW PACE / SCANNING</text>
+        <txt_pace x="12" y="50" width="286" height="18">
+            <text font="letterica16" r="190" g="180" b="150">Slow Pace / ALife Radar Scanning</text>
         </txt_pace>
     </dossier_tab>
 
     <!-- =================================================================== -->
-    <!-- TOP-CENTER: FLOATING TACTICAL CLOCK, WEATHER & ALIFE THREAT HUD     -->
+    <!-- TOP-CENTER: CLOCK, WEATHER & THREAT STATUS                          -->
     <!-- =================================================================== -->
-    <top_center x="380" y="16" width="264" height="70">
-        <txt_clock x="0" y="0" width="264" height="20">
-            <text font="letterica18" r="245" g="240" b="220" align="c">[10x SPEED] 11:26</text>
+    <top_center x="377" y="16" width="270" height="74">
+        <top_center_bg x="0" y="0" width="270" height="74" stretch="1">
+            <texture r="18" g="22" b="28">tlra_white_solid</texture>
+        </top_center_bg>
+        <top_center_bt x="0" y="0" width="270" height="2" stretch="1"><texture r="140" g="135" b="115">tlra_white_solid</texture></top_center_bt>
+        <top_center_bb x="0" y="72" width="270" height="2" stretch="1"><texture r="140" g="135" b="115">tlra_white_solid</texture></top_center_bb>
+        <top_center_bl x="0" y="0" width="2" height="74" stretch="1"><texture r="140" g="135" b="115">tlra_white_solid</texture></top_center_bl>
+        <top_center_br x="268" y="0" width="2" height="74" stretch="1"><texture r="140" g="135" b="115">tlra_white_solid</texture></top_center_br>
+
+        <txt_clock x="6" y="8" width="258" height="20">
+            <text font="letterica18" r="255" g="230" b="130" align="c">[10x SPEED] 11:26</text>
         </txt_clock>
-        <txt_weather x="0" y="20" width="264" height="18">
-            <text font="letterica16" r="190" g="195" b="185" align="c">WEATHER: OVERCAST &amp; RAIN</text>
+        <txt_weather x="6" y="30" width="258" height="18">
+            <text font="letterica16" r="140" g="200" b="235" align="c">Weather: Clear Skies</text>
         </txt_weather>
-        <txt_threat x="0" y="40" width="264" height="18">
-            <text font="letterica16" r="255" g="95" b="65" align="c">THREAT RISK: HIGH (ALife Activity)</text>
+        <txt_threat x="6" y="50" width="258" height="18">
+            <text font="letterica16" r="255" g="100" b="70" align="c">Threat Risk: Clear Route</text>
         </txt_threat>
     </top_center>
 
     <!-- =================================================================== -->
-    <!-- TOP-RIGHT: TRIP PROGRESS READOUT & ANTIQUE BRASS / THREAT GAUGES    -->
+    <!-- TOP-RIGHT: JOURNEY PROGRESS GAUGE                                   -->
     <!-- =================================================================== -->
-    <top_right x="710" y="18" width="290" height="65">
-        <txt_progress x="0" y="0" width="270" height="18">
-            <text font="letterica18" r="245" g="235" b="200" align="r">33% (197m / 597m)</text>
-        </txt_progress>
-        <progress_border x="10" y="22" width="262" height="14" stretch="1">
-            <texture r="40" g="38" b="30">tlra_white_solid</texture>
-        </progress_border>
-        <progress_bg x="11" y="23" width="260" height="12" stretch="1">
-            <texture r="20" g="20" b="18">tlra_white_solid</texture>
-        </progress_bg>
-        <progress_fill x="11" y="23" width="0" height="12" stretch="1">
-            <texture>tlra_bar_brass</texture>
-        </progress_fill>
+    <top_right x="724" y="16" width="280" height="74">
+        <top_right_bg x="0" y="0" width="280" height="74" stretch="1">
+            <texture r="18" g="22" b="28">tlra_white_solid</texture>
+        </top_right_bg>
+        <top_right_bt x="0" y="0" width="280" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></top_right_bt>
+        <top_right_bb x="0" y="72" width="280" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></top_right_bb>
+        <top_right_bl x="0" y="0" width="2" height="74" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></top_right_bl>
+        <top_right_br x="278" y="0" width="2" height="74" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></top_right_br>
 
-        <threat_border x="10" y="38" width="262" height="12" stretch="1">
-            <texture r="40" g="38" b="30">tlra_white_solid</texture>
+        <txt_progress x="10" y="8" width="260" height="20">
+            <text font="letterica18" r="245" g="195" b="75" align="r">0% (0m / 0m)</text>
+        </txt_progress>
+        <progress_border x="10" y="32" width="260" height="14" stretch="1">
+            <texture r="90" g="95" b="105">tlra_white_solid</texture>
+        </progress_border>
+        <progress_bg x="11" y="33" width="258" height="12" stretch="1">
+            <texture r="34" g="38" b="46">tlra_white_solid</texture>
+        </progress_bg>
+        <progress_fill x="11" y="33" width="0" height="12" stretch="1">
+            <texture r="224" g="164" b="60">tlra_white_solid</texture>
+        </progress_fill>
+        <threat_border x="10" y="52" width="260" height="10" stretch="1">
+            <texture r="70" g="75" b="85">tlra_white_solid</texture>
         </threat_border>
-        <threat_bg x="11" y="39" width="260" height="10" stretch="1">
-            <texture r="20" g="20" b="18">tlra_white_solid</texture>
+        <threat_bg x="11" y="53" width="258" height="8" stretch="1">
+            <texture r="28" g="32" b="38">tlra_white_solid</texture>
         </threat_bg>
-        <threat_fill x="11" y="39" width="260" height="10" stretch="1">
-            <texture>tlra_bar_gradient</texture>
+        <threat_fill x="11" y="53" width="258" height="8" stretch="1">
+            <texture r="75" g="185" b="140">tlra_white_solid</texture>
         </threat_fill>
     </top_right>
 
     <!-- =================================================================== -->
-    <!-- BOTTOM-LEFT: FLOATING SURVIVAL METABOLISM & PSY-HEALTH TELEMETRY    -->
+    <!-- BOTTOM-LEFT: SURVIVAL TELEMETRY CARD                                -->
     <!-- =================================================================== -->
-    <vitals_panel x="20" y="620" width="280" height="130">
-        <vitals_bg x="0" y="0" width="280" height="130" stretch="1">
-            <texture r="16" g="20" b="22">tlra_white_solid</texture>
+    <vitals_panel x="20" y="618" width="280" height="132">
+        <vitals_bg x="0" y="0" width="280" height="132" stretch="1">
+            <texture r="18" g="22" b="28">tlra_white_solid</texture>
         </vitals_bg>
-        <txt_calories x="12" y="10" width="160" height="18">
-            <text font="letterica16" r="245" g="230" b="180">CALORIES: 2500 kcal (-14 kcal/min)</text>
+        <vitals_bt x="0" y="0" width="280" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></vitals_bt>
+        <vitals_bb x="0" y="130" width="280" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></vitals_bb>
+        <vitals_bl x="0" y="0" width="2" height="132" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></vitals_bl>
+        <vitals_br x="278" y="0" width="2" height="132" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></vitals_br>
+        <vitals_hdr_bg x="2" y="2" width="276" height="20" stretch="1"><texture r="32" g="38" b="48">tlra_white_solid</texture></vitals_hdr_bg>
+
+        <vitals_hdr_txt x="10" y="3" width="260" height="18">
+            <text font="letterica16" r="245" g="195" b="75">SURVIVAL TELEMETRY</text>
+        </vitals_hdr_txt>
+
+        <txt_calories x="10" y="26" width="160" height="18">
+            <text font="letterica16" r="240" g="225" b="190">Calories: 2,500 kcal</text>
         </txt_calories>
-        <txt_hydration x="12" y="32" width="160" height="18">
-            <text font="letterica16" r="130" g="205" b="250">HYDRATION: 99%</text>
+        <txt_hydration x="10" y="48" width="160" height="18">
+            <text font="letterica16" r="130" g="205" b="250">Hydration: 99%</text>
         </txt_hydration>
-        <txt_stamina x="12" y="54" width="160" height="18">
-            <text font="letterica16" r="145" g="235" b="140">STAMINA: 99%</text>
+        <txt_stamina x="10" y="70" width="160" height="18">
+            <text font="letterica16" r="145" g="235" b="140">Stamina: 99%</text>
         </txt_stamina>
-        <txt_encumbrance x="12" y="76" width="160" height="18">
-            <text font="letterica16" r="210" g="205" b="195">PACK: 34.9 kg / 60 kg [Stride: 3.4 m/s]</text>
+        <txt_encumbrance x="10" y="94" width="260" height="18">
+            <text font="letterica16" r="215" g="210" b="200">Pack: 34.8 kg / 60 kg [3.4 m/s]</text>
         </txt_encumbrance>
 
-        <txt_rad x="180" y="10" width="95" height="18">
-            <text font="letterica16" r="245" g="195" b="80">RADIATION: 0.02 mSv</text>
+        <txt_rad x="175" y="26" width="95" height="18">
+            <text font="letterica16" r="245" g="195" b="80">Rad: 0.00 mSv</text>
         </txt_rad>
-        <txt_psy x="180" y="54" width="95" height="18">
-            <text font="letterica16" r="110" g="215" b="200">PSY-HEALTH</text>
+        <txt_psy x="175" y="48" width="95" height="18">
+            <text font="letterica16" r="110" g="215" b="200">Psy-Health</text>
         </txt_psy>
-        <psy_border x="180" y="76" width="85" height="12" stretch="1">
-            <texture r="30" g="50" b="50">tlra_white_solid</texture>
+        <psy_border x="175" y="70" width="95" height="14" stretch="1">
+            <texture r="50" g="60" b="70">tlra_white_solid</texture>
         </psy_border>
-        <psy_fill x="181" y="77" width="83" height="10" stretch="1">
-            <texture>tlra_bar_cyan</texture>
+        <psy_bg x="176" y="71" width="93" height="12" stretch="1">
+            <texture r="20" g="30" b="35">tlra_white_solid</texture>
+        </psy_bg>
+        <psy_fill x="176" y="71" width="93" height="12" stretch="1">
+            <texture r="60" g="190" b="180">tlra_white_solid</texture>
         </psy_fill>
     </vitals_panel>
 
     <!-- =================================================================== -->
-    <!-- BOTTOM-CENTER: AUTHENTIC S.T.A.L.K.E.R. FIELD JOURNAL & LOG CARD    -->
+    <!-- BOTTOM-CENTER: ROAD RECONNAISSANCE LOG                              -->
     <!-- =================================================================== -->
-    <journal_card x="315" y="560" width="450" height="190">
-        <journal_bg x="0" y="0" width="450" height="190" stretch="1">
-            <texture>tlra_field_journal</texture>
+    <journal_card x="315" y="618" width="480" height="132">
+        <journal_bg x="0" y="0" width="480" height="132" stretch="1">
+            <texture r="18" g="22" b="28">tlra_white_solid</texture>
         </journal_bg>
-        <txt_log_1 x="18" y="44" width="414" height="18">
-            <text font="letterica16" r="230" g="225" b="200">11:26 - Crossing open terrain... Maintaining low profile.</text>
+        <journal_bt x="0" y="0" width="480" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></journal_bt>
+        <journal_bb x="0" y="130" width="480" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></journal_bb>
+        <journal_bl x="0" y="0" width="2" height="132" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></journal_bl>
+        <journal_br x="478" y="0" width="2" height="132" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></journal_br>
+        <journal_hdr_bg x="2" y="2" width="476" height="20" stretch="1"><texture r="32" g="38" b="48">tlra_white_solid</texture></journal_hdr_bg>
+
+        <journal_hdr_txt x="12" y="3" width="456" height="18">
+            <text font="letterica16" r="245" g="195" b="75">ROAD RECONNAISSANCE LOG</text>
+        </journal_hdr_txt>
+
+        <txt_log_1 x="12" y="26" width="456" height="18">
+            <text font="letterica16" r="245" g="240" b="220">13:55 - Crossing open terrain... Maintaining low profile.</text>
         </txt_log_1>
-        <txt_log_2 x="18" y="66" width="414" height="18">
-            <text font="letterica16" r="200" g="195" b="175">11:27 - Weather turning back... Wind picks up.</text>
+        <txt_log_2 x="12" y="46" width="456" height="18">
+            <text font="letterica16" r="205" g="200" b="185">13:55 - Weather clear. Steady walking rhythm established.</text>
         </txt_log_2>
-        <txt_log_3 x="18" y="88" width="414" height="18">
-            <text font="letterica16" r="170" g="165" b="150">11:28 - ALife Threat Radar scanning road ahead (100m radius).</text>
+        <txt_log_3 x="12" y="66" width="456" height="18">
+            <text font="letterica16" r="175" g="170" b="160">13:55 - ALife Threat Radar scanning road ahead (100m radius).</text>
         </txt_log_3>
-        <txt_log_4 x="18" y="110" width="414" height="18">
-            <text font="letterica16" r="145" g="140" b="130">11:29 - DISTANT SHOTS HEARD in the direction of the Garbage checkpoint...</text>
+        <txt_log_4 x="12" y="86" width="456" height="18">
+            <text font="letterica16" r="145" g="140" b="135">13:55 - Route plotted: heading towards destination beacon.</text>
         </txt_log_4>
-        <txt_log_5 x="18" y="132" width="414" height="18">
-            <text font="letterica16" r="120" g="115" b="110">11:30 - Route plotted: heading towards destination beacon.</text>
+        <txt_log_5 x="12" y="106" width="456" height="18">
+            <text font="letterica16" r="120" g="115" b="110">13:55 - Terrain clear of anomalies. Stamina holding stable.</text>
         </txt_log_5>
     </journal_card>
 
     <!-- =================================================================== -->
-    <!-- BOTTOM-RIGHT: HEAVY RUSTED INDUSTRIAL METAL BUTTON                  -->
+    <!-- BOTTOM-RIGHT: ACTION COMMAND / SAFE HALT                            -->
     <!-- =================================================================== -->
-    <btn_halt x="815" y="655" width="180" height="65" stretch="1">
-        <texture>tlra_btn_halt</texture>
-        <text font="letterica18" r="220" g="220" b="210" align="c" vert_align="c">HALT [ESC]</text>
-    </btn_halt>
+    <action_panel x="815" y="618" width="189" height="132">
+        <action_bg x="0" y="0" width="189" height="132" stretch="1">
+            <texture r="18" g="22" b="28">tlra_white_solid</texture>
+        </action_bg>
+        <action_bt x="0" y="0" width="189" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></action_bt>
+        <action_bb x="0" y="130" width="189" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></action_bb>
+        <action_bl x="0" y="0" width="2" height="132" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></action_bl>
+        <action_br x="187" y="0" width="2" height="132" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></action_br>
+        <action_hdr_bg x="2" y="2" width="185" height="20" stretch="1"><texture r="32" g="38" b="48">tlra_white_solid</texture></action_hdr_bg>
+
+        <action_hdr_txt x="6" y="3" width="177" height="18">
+            <text font="letterica16" r="245" g="195" b="75" align="c">COMMAND</text>
+        </action_hdr_txt>
+
+        <btn_halt x="15" y="36" width="159" height="48" stretch="1">
+            <texture>ui_button_ordinary</texture>
+            <text font="letterica18" align="c" vert_align="c">HALT [ESC]</text>
+        </btn_halt>
+        <txt_halt_sub x="15" y="96" width="159" height="18">
+            <text font="letterica16" r="180" g="165" b="130" align="c">Safe Abort</text>
+        </txt_halt_sub>
+    </action_panel>
 
     <!-- =================================================================== -->
     <!-- KINGDOM COME: DELIVERANCE THREAT ENCOUNTER MODAL CARD (Centered)    -->

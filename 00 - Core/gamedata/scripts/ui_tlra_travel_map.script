@@ -254,7 +254,7 @@ function UIRoadAheadTravelMap:InitControls()
         self.bg:SetWndRect(Frect():set(-1200, -600, 3424, 1968))
     end)
 
-        -- 1. Fullscreen Map Viewport Frame (1024x768)
+            -- 1. Fullscreen Map Viewport Frame (1024x768)
     self.map_frame          = xml:InitStatic("map_frame", self)
     self.map_frame_bg       = xml:InitStatic("map_frame:map_frame_bg", self.map_frame)
 
@@ -276,49 +276,92 @@ function UIRoadAheadTravelMap:InitControls()
         self.trail_dots[i] = xml:InitStatic("map_frame:trail_dot_" .. i, self.map_frame)
     end
 
-    -- Stalker Traveler Pawn: Anchored Dead-Center at (497, 364)
+    -- Stalker Traveler Pawn: Anchored Dead-Center at (498, 370)
     self.pawn_marker        = xml:InitStatic("map_frame:pawn_marker", self.map_frame)
 
-    -- 2. Top-Left: Military Field Dossier / Clipboard Tab
+    -- 2. Top-Left: Military Field Command Card
     self.dossier_tab        = xml:InitStatic("dossier_tab", self)
+    self.dossier_bg         = xml:InitStatic("dossier_tab:dossier_bg", self.dossier_tab)
+    xml:InitStatic("dossier_tab:dossier_bt", self.dossier_tab)
+    xml:InitStatic("dossier_tab:dossier_bb", self.dossier_tab)
+    xml:InitStatic("dossier_tab:dossier_bl", self.dossier_tab)
+    xml:InitStatic("dossier_tab:dossier_br", self.dossier_tab)
+    xml:InitStatic("dossier_tab:dossier_top_bar", self.dossier_tab)
     self.txt_title          = xml:InitTextWnd("dossier_tab:txt_title", self.dossier_tab)
     self.txt_route          = xml:InitTextWnd("dossier_tab:txt_route", self.dossier_tab)
     self.txt_pace           = xml:InitTextWnd("dossier_tab:txt_pace", self.dossier_tab)
 
     -- 3. Top-Center: Floating Tactical HUD (Clock, Weather, Threat)
     self.top_center         = xml:InitStatic("top_center", self)
+    self.top_center_bg      = xml:InitStatic("top_center:top_center_bg", self.top_center)
+    xml:InitStatic("top_center:top_center_bt", self.top_center)
+    xml:InitStatic("top_center:top_center_bb", self.top_center)
+    xml:InitStatic("top_center:top_center_bl", self.top_center)
+    xml:InitStatic("top_center:top_center_br", self.top_center)
     self.txt_clock          = xml:InitTextWnd("top_center:txt_clock", self.top_center)
     self.txt_env            = xml:InitTextWnd("top_center:txt_weather", self.top_center)
     self.txt_threat_hud     = xml:InitTextWnd("top_center:txt_threat", self.top_center)
 
     -- 4. Top-Right: Trip Progress & Dual Gauges
     self.top_right          = xml:InitStatic("top_right", self)
+    self.top_right_bg       = xml:InitStatic("top_right:top_right_bg", self.top_right)
+    xml:InitStatic("top_right:top_right_bt", self.top_right)
+    xml:InitStatic("top_right:top_right_bb", self.top_right)
+    xml:InitStatic("top_right:top_right_bl", self.top_right)
+    xml:InitStatic("top_right:top_right_br", self.top_right)
     self.txt_progress       = xml:InitTextWnd("top_right:txt_progress", self.top_right)
     self.progress_border    = xml:InitStatic("top_right:progress_border", self.top_right)
     self.progress_bg        = xml:InitStatic("top_right:progress_bg", self.top_right)
     self.progress_fill      = xml:InitStatic("top_right:progress_fill", self.top_right)
+    self.threat_border      = xml:InitStatic("top_right:threat_border", self.top_right)
+    self.threat_bg          = xml:InitStatic("top_right:threat_bg", self.top_right)
     self.threat_fill        = xml:InitStatic("top_right:threat_fill", self.top_right)
 
     -- 5. Bottom-Left: Floating Survival Metabolism Telemetry
     self.vitals_panel       = xml:InitStatic("vitals_panel", self)
+    self.vitals_bg          = xml:InitStatic("vitals_panel:vitals_bg", self.vitals_panel)
+    xml:InitStatic("vitals_panel:vitals_bt", self.vitals_panel)
+    xml:InitStatic("vitals_panel:vitals_bb", self.vitals_panel)
+    xml:InitStatic("vitals_panel:vitals_bl", self.vitals_panel)
+    xml:InitStatic("vitals_panel:vitals_br", self.vitals_panel)
+    xml:InitStatic("vitals_panel:vitals_hdr_bg", self.vitals_panel)
+    xml:InitTextWnd("vitals_panel:vitals_hdr_txt", self.vitals_panel)
     self.txt_calories       = xml:InitTextWnd("vitals_panel:txt_calories", self.vitals_panel)
     self.txt_hydration      = xml:InitTextWnd("vitals_panel:txt_hydration", self.vitals_panel)
     self.txt_stamina        = xml:InitTextWnd("vitals_panel:txt_stamina", self.vitals_panel)
     self.txt_encumbrance    = xml:InitTextWnd("vitals_panel:txt_encumbrance", self.vitals_panel)
     self.txt_rad            = xml:InitTextWnd("vitals_panel:txt_rad", self.vitals_panel)
     self.txt_psy            = xml:InitTextWnd("vitals_panel:txt_psy", self.vitals_panel)
+    xml:InitStatic("vitals_panel:psy_border", self.vitals_panel)
+    xml:InitStatic("vitals_panel:psy_bg", self.vitals_panel)
     self.psy_fill           = xml:InitStatic("vitals_panel:psy_fill", self.vitals_panel)
 
-    -- 6. Bottom-Center: Authentic S.T.A.L.K.E.R. Field Journal & Log
+    -- 6. Bottom-Center: Authentic Road Reconnaissance Log
     self.journal_card       = xml:InitStatic("journal_card", self)
+    self.journal_bg         = xml:InitStatic("journal_card:journal_bg", self.journal_card)
+    xml:InitStatic("journal_card:journal_bt", self.journal_card)
+    xml:InitStatic("journal_card:journal_bb", self.journal_card)
+    xml:InitStatic("journal_card:journal_bl", self.journal_card)
+    xml:InitStatic("journal_card:journal_br", self.journal_card)
+    xml:InitStatic("journal_card:journal_hdr_bg", self.journal_card)
+    xml:InitTextWnd("journal_card:journal_hdr_txt", self.journal_card)
     self.txt_logs = {}
     for i = 1, 5 do
         self.txt_logs[i] = xml:InitTextWnd("journal_card:txt_log_" .. i, self.journal_card)
     end
 
-    -- 7. Bottom-Right: Heavy Rusted Industrial Metal Button
-    self.btn_halt           = xml:Init3tButton("btn_halt", self)
+    -- 7. Bottom-Right: Heavy Industrial Command Panel
+    self.action_panel       = xml:InitStatic("action_panel", self)
+    self.action_bg          = xml:InitStatic("action_panel:action_bg", self.action_panel)
+    xml:InitStatic("action_panel:action_bt", self.action_panel)
+    xml:InitStatic("action_panel:action_bb", self.action_panel)
+    xml:InitStatic("action_panel:action_bl", self.action_panel)
+    xml:InitStatic("action_panel:action_br", self.action_panel)
+    xml:InitStatic("action_panel:action_hdr_bg", self.action_panel)
+    xml:InitTextWnd("action_panel:action_hdr_txt", self.action_panel)
+    self.btn_halt           = xml:Init3tButton("action_panel:btn_halt", self.action_panel)
     self:Register(self.btn_halt, "btn_halt")
+    xml:InitTextWnd("action_panel:txt_halt_sub", self.action_panel)
 
     -- KCD Ambush / Threat Decision Modal Card
     self.encounter_modal        = xml:InitStatic("encounter_modal", self)
@@ -437,8 +480,10 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
 
     -- Header Route Title
     local lvl_str = game.translate_string(self.level_name) or self.level_name
-    if self.txt_title then self.txt_title:SetText("EXPEDITION: " .. string.upper(lvl_str)) end
-    if self.txt_route then self.txt_route:SetText(string.format("ROUTE TREK: %dm | SAFE STRIDE ACTIVE", math.floor(self.travel_dist))) end
+    if self.txt_title then self.txt_title:SetText("EXPEDITION: " .. string.upper(lvl_str)) end
+
+    if self.txt_route then self.txt_route:SetText(string.format("ROUTE TREK: %dm | SAFE STRIDE ACTIVE", math.floor(self.travel_dist))) end
+
     if self.txt_pace then self.txt_pace:SetText("SLOW PACE / SCANNING") end
 
     -- Initialize road log messages
@@ -537,7 +582,7 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
     local CY = 384
 
     -- 1. Ensure Player Stalker Pawn remains locked dead-center at (497, 364)
-    self.pawn_marker:SetWndPos(vector2():set(CX - 15, CY - 20))
+    self.pawn_marker:SetWndPos(vector2():set(CX - 14, CY - 14))
     self.pawn_marker:Show(true)
 
     -- 2. Dynamic Zoom Scale: Tailored around expedition trek distance
@@ -559,7 +604,7 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
     local dx = CX + (self.dest_pos.x - cur_pos.x) * scale
     local dy = CY - (self.dest_pos.z - cur_pos.z) * scale
     if dx >= -13 and dx <= FW + 13 and dy >= -13 and dy <= FH + 13 then
-        self.dest_marker:SetWndPos(vector2():set(dx - 17, dy - 17))
+        self.dest_marker:SetWndPos(vector2():set(dx - 14, dy - 14))
         self.dest_marker:Show(true)
     else
         self.dest_marker:Show(false)
@@ -575,7 +620,7 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
                 local px = CX + (dp.x - cur_pos.x) * scale
                 local py = CY - (dp.z - cur_pos.z) * scale
                 if px >= 0 and px <= FW and py >= 0 and py <= FH then
-                    self.trail_dots[i]:SetWndPos(vector2():set(px - 8, py - 3))
+                    self.trail_dots[i]:SetWndPos(vector2():set(px - 4, py - 4))
                     self.trail_dots[i]:Show(true)
                 else
                     self.trail_dots[i]:Show(false)
