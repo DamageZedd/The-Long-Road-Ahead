@@ -664,134 +664,320 @@ local function get_safe_pos(pos)
     end
     return vector():set(pos.x, pos.y + 1.5, pos.z)
 end
--- Road Bias Heuristics
--- Samples nearby points to find flatter terrain or AI paths (roads).
 -- ============================================================
-local function get_road_favoring_pos(base_pos, travel_dir, attempt_count)
-    local mabs = math.abs
-    if not base_pos then return base_pos end
-    local attempts = attempt_count or 10
-    
-    local best_pos = base_pos
-    local best_score = -999999
-    
-    local dir = vector():set(travel_dir)
-    dir:normalize()
+-- S.T.A.L.K.E.R. Road Network Navigation Engine (A* Heuristics)
+-- Caches level game graph vertices placed along real roads and trails.
+-- ============================================================
+local level_road_graph = {}
+local cached_road_level = nil
 
-    local perp = vector():set(-dir.z, 0, dir.x)
-    perp:normalize()
-    
-    for i = -attempts, attempts do
-        -- Sweep up to 100 meters laterally (10m steps) for wider road detection
-        local offset = vector():set(perp):mul(i * 10.0)
-        local test_pos = vector():set(base_pos.x + offset.x, base_pos.y + offset.y, base_pos.z + offset.z)
-        
-        local lvid = level.vertex_id(test_pos)
-        if lvid and lvid ~= 4294967295 and lvid ~= -1 then
-            local snapped = level.vertex_position(lvid)
-            if snapped then
-                local score = 0
-                
-                -- 1. Height delta penalty (reduced to allow roads in deep valleys or high passes)
-                local height_diff = mabs(snapped.y - base_pos.y)
-                score = score - height_diff * 2.0
-                
-                -- 2. Local flatness check (roads are locally flat and level)
-                local flat_score = 0
-                for k = -1, 1 do
-                    local check = vector():set(snapped.x + (dir.x * (k * 5)), snapped.y + (dir.y * (k * 5)), snapped.z + (dir.z * (k * 5)))
-                    local clvid = level.vertex_id(check)
-                    if clvid and clvid ~= 4294967295 then
-                        local cpos = level.vertex_position(clvid)
-                        if cpos then
-                            flat_score = flat_score - mabs(cpos.y - snapped.y)
+local function get_level_road_nodes()
+    local cur_level = level.name()
+    if cached_road_level == cur_level and level_road_graph[cur_level] then
+        return level_road_graph[cur_level]
+    end
+
+    local nodes = {}
+    local gg = game_graph()
+    local sim = alife()
+    if not (gg and sim) then return nodes end
+
+    local gvid = 0
+    local invalid_streak = 0
+    while invalid_streak < 50 and gvid < 65000 do
+        if gg:valid_vertex_id(gvid) then
+            invalid_streak = 0
+            local ok_v, v = pcall(function() return gg:vertex(gvid) end)
+            if ok_v and v then
+                local ok_lid, lid = pcall(function() return v:level_id() end)
+                if ok_lid and lid then
+                    local ok_name, lname = pcall(function() return sim:level_name(lid) end)
+                    if ok_name and lname == cur_level then
+                        local ok_pt, pt = pcall(function() return v:level_point() end)
+                        local ok_lvid, lvid = pcall(function() return v:level_vertex_id() end)
+                        if ok_pt and pt then
+                            table.insert(nodes, {
+                                gvid = gvid,
+                                lvid = (ok_lvid and lvid) or nil,
+                                pos = vector():set(pt.x, pt.y, pt.z)
+                            })
                         end
                     end
                 end
-                score = score + flat_score * 12.0
-                
-                -- 3. Strong pull to game graph vertices (AI road pathways)
-                local gg = game_graph()
-                if gg and gg.nearest_vertex then
-                    -- Expand search radius to 150 meters for deep road detection
-                    local ok_near, nearest_gv = pcall(function() return gg:nearest_vertex(snapped, 150) end)
-                    if ok_near and nearest_gv and gg:valid_vertex_id(nearest_gv) then
-                        local gv_pos = gg:vertex(nearest_gv):level_point()
-                        -- Heavily favor points close to game graph nodes (actual roads/paths)
-                        score = score - snapped:distance_to(gv_pos) * 3.5
-                    end
+            end
+        else
+            invalid_streak = invalid_streak + 1
+        end
+        gvid = gvid + 1
+    end
+
+    level_road_graph[cur_level] = nodes
+    cached_road_level = cur_level
+    tlra_log("Cached %d road graph vertices for level %s", #nodes, cur_level)
+    return nodes
+end
+
+local function dist2d(p1, p2)
+    local dx = p1.x - p2.x
+    local dz = p1.z - p2.z
+    return math.sqrt(dx * dx + dz * dz)
+end
+
+local function find_road_path(start_pos, dest_pos)
+    if not (start_pos and dest_pos) then return nil end
+    local direct_dist = dist2d(start_pos, dest_pos)
+    if direct_dist < 40.0 then return nil end
+
+    local nodes = get_level_road_nodes()
+    if not nodes or #nodes < 2 then return nil end
+
+    -- Find nearest road node to start and destination
+    local s_idx, d_idx = nil, nil
+    local min_s_dist, min_d_dist = 999999, 999999
+
+    for i = 1, #nodes do
+        local np = nodes[i].pos
+        local ds = dist2d(start_pos, np)
+        if ds < min_s_dist then
+            min_s_dist = ds
+            s_idx = i
+        end
+        local dd = dist2d(dest_pos, np)
+        if dd < min_d_dist then
+            min_d_dist = dd
+            d_idx = i
+        end
+    end
+
+    -- Road nodes must be within reasonable reach (140m)
+    if not (s_idx and d_idx) or min_s_dist > 140.0 or min_d_dist > 140.0 then
+        return nil
+    end
+
+    -- If both are closest to the same node, travel directly
+    if s_idx == d_idx then return nil end
+
+    -- A* search over road nodes
+    local open_set = { [s_idx] = true }
+    local came_from = {}
+    local g_score = { [s_idx] = 0 }
+    local f_score = { [s_idx] = dist2d(nodes[s_idx].pos, nodes[d_idx].pos) }
+
+    while next(open_set) do
+        local current = nil
+        local min_f = 9999999
+        for idx in pairs(open_set) do
+            local f = f_score[idx] or 9999999
+            if f < min_f then
+                min_f = f
+                current = idx
+            end
+        end
+
+        if current == d_idx then
+            local raw_path = {}
+            local curr = current
+            while curr do
+                table.insert(raw_path, 1, nodes[curr].pos)
+                curr = came_from[curr]
+            end
+
+            -- Validate road path efficiency against direct distance
+            local total_road_len = dist2d(start_pos, raw_path[1]) + g_score[d_idx] + dist2d(raw_path[#raw_path], dest_pos)
+            if total_road_len <= direct_dist * 2.8 then
+                local full_route = { start_pos }
+                for _, rpos in ipairs(raw_path) do
+                    table.insert(full_route, rpos)
                 end
-                
-                -- 4. Line proximity bonus (slightly favor the straight path if no road is near)
-                score = score - (mabs(i) * 2.5)
-                
-                -- 5. Random jitter to break ties
-                score = score + math.random() * 2
-                
-                if score > best_score then
-                    best_score = score
-                    best_pos = snapped
+                table.insert(full_route, dest_pos)
+                tlra_log(" Road A* found %d-node route (Length: %.1fm vs Direct: %.1fm)", #full_route, total_road_len, direct_dist)
+                return full_route
+            else
+                tlra_log(" Road path detour too large (%.1fm vs %.1fm), using direct navigation", total_road_len, direct_dist)
+                return nil
+            end
+        end
+
+        open_set[current] = nil
+
+        for nbr_idx = 1, #nodes do
+            if nbr_idx ~= current then
+                local d = dist2d(nodes[current].pos, nodes[nbr_idx].pos)
+                if d <= 85.0 then
+                    local tentative_g = g_score[current] + d
+                    if tentative_g < (g_score[nbr_idx] or 9999999) then
+                        came_from[nbr_idx] = current
+                        g_score[nbr_idx] = tentative_g
+                        f_score[nbr_idx] = tentative_g + dist2d(nodes[nbr_idx].pos, nodes[d_idx].pos)
+                        open_set[nbr_idx] = true
+                    end
                 end
             end
         end
     end
-    
-    return best_pos
+
+    return nil
 end
 
 local function get_safe_lvid_pos(ratio)
     if not (tlra.start_pos and tlra.dest_pos) then return nil end
-    local travel_dir = vector():set(tlra.dest_pos):sub(tlra.start_pos)
-    travel_dir:normalize()
+    local r = math.max(0.0, math.min(1.0, ratio or 0.0))
 
-    -- Interpolate along the straight-line route
-    local interp = vector()
-    lerp_pos(tlra.start_pos, tlra.dest_pos, ratio, interp)
+    -- If dot_positions exists, interpolate along the actual road route polyline
+    if tlra.dot_positions and #tlra.dot_positions > 0 then
+        local poly = { tlra.start_pos }
+        for _, dp in ipairs(tlra.dot_positions) do
+            table.insert(poly, dp)
+        end
+        table.insert(poly, tlra.dest_pos)
 
-    -- v1.8.7: Apply strong road bias heuristics
-    local biased = get_road_favoring_pos(interp, travel_dir, 10)
+        local total_len = 0
+        local seg_lens = {}
+        for i = 1, #poly - 1 do
+            local d = poly[i]:distance_to(poly[i+1])
+            seg_lens[i] = d
+            total_len = total_len + d
+        end
 
-    -- Snap to nearest walkable nav mesh vertex for a valid ground position
-    local lvid = level.vertex_id(biased)
-    if lvid and lvid ~= 4294967295 and lvid ~= -1 then
-        local snapped = level.vertex_position(lvid)
-        if snapped then return snapped, lvid end
+        local target_d = r * total_len
+        local accum = 0
+        for i = 1, #seg_lens do
+            if accum + seg_lens[i] >= target_d or i == #seg_lens then
+                local slen = math.max(0.001, seg_lens[i])
+                local seg_t = math.max(0.0, math.min(1.0, (target_d - accum) / slen))
+                local p1 = poly[i]
+                local p2 = poly[i+1]
+                local candidate = vector():set(
+                    p1.x + (p2.x - p1.x) * seg_t,
+                    p1.y + (p2.y - p1.y) * seg_t,
+                    p1.z + (p2.z - p1.z) * seg_t
+                )
+                local lvid = level.vertex_id(candidate)
+                if lvid and lvid ~= 4294967295 and lvid ~= -1 then
+                    local sn = level.vertex_position(lvid)
+                    if sn then return sn, lvid end
+                end
+                return candidate, lvid
+            end
+            accum = accum + seg_lens[i]
+        end
     end
 
-    return biased, lvid
+    -- Direct fallback
+    local candidate = vector():set(
+        tlra.start_pos.x + (tlra.dest_pos.x - tlra.start_pos.x) * r,
+        tlra.start_pos.y + (tlra.dest_pos.y - tlra.start_pos.y) * r,
+        tlra.start_pos.z + (tlra.dest_pos.z - tlra.start_pos.z) * r
+    )
+    local lvid = level.vertex_id(candidate)
+    if lvid and lvid ~= 4294967295 and lvid ~= -1 then
+        local sn = level.vertex_position(lvid)
+        if sn then return sn, lvid end
+    end
+    return candidate, lvid
 end
 
 -- ============================================================
 -- Nav Mesh Dot Builder
--- Samples points along the route and snaps each to the nearest
--- walkable nav mesh vertex — the same system NPC navigation uses.
+-- Generates smooth road-aligned waypoints using Level Road A*
+-- with multi-pass Laplacian smoothing to eliminate all zig-zags.
 -- ============================================================
-local function build_navmesh_dots(start_pos, dest_pos, count)
+function build_navmesh_dots(start_pos, dest_pos, count)
     local positions = {}
-    local travel_dir = vector():set(dest_pos):sub(start_pos)
-    travel_dir:normalize()
+    local d_count = count or 12
 
-    local interp = vector()
-    for i = 1, count do
-        local t = i / (count + 1)
-        lerp_pos(start_pos, dest_pos, t, interp)
+    -- 1. Attempt A* Road Route
+    local road_poly = find_road_path(start_pos, dest_pos)
 
-        -- v1.8.7: Apply strong road bias heuristics
-        local biased = get_road_favoring_pos(interp, travel_dir, 10)
+    if road_poly and #road_poly >= 2 then
+        -- Resample evenly spaced points along road polyline
+        local seg_lens = {}
+        local total_len = 0
+        for i = 1, #road_poly - 1 do
+            local d = road_poly[i]:distance_to(road_poly[i+1])
+            seg_lens[i] = d
+            total_len = total_len + d
+        end
 
-        -- Snap to nearest walkable nav mesh vertex
-        local lvid = level.vertex_id(biased)
-        if lvid and lvid ~= 4294967295 and lvid ~= -1 then
-            local snapped = level.vertex_position(lvid)
-            if snapped then
-                positions[i] = vector():set(snapped.x, snapped.y + 0.1, snapped.z)
-            else
-                positions[i] = vector():set(biased.x, biased.y, biased.z)
+        for k = 1, d_count do
+            local target = (k / (d_count + 1)) * total_len
+            local accum = 0
+            local cur_pt = nil
+            for i = 1, #seg_lens do
+                if accum + seg_lens[i] >= target or i == #seg_lens then
+                    local slen = math.max(0.001, seg_lens[i])
+                    local seg_t = math.max(0.0, math.min(1.0, (target - accum) / slen))
+                    local p1 = road_poly[i]
+                    local p2 = road_poly[i+1]
+                    cur_pt = vector():set(
+                        p1.x + (p2.x - p1.x) * seg_t,
+                        p1.y + (p2.y - p1.y) * seg_t,
+                        p1.z + (p2.z - p1.z) * seg_t
+                    )
+                    break
+                end
+                accum = accum + seg_lens[i]
             end
-        else
-            positions[i] = vector():set(biased.x, biased.y, biased.z)
+
+            if cur_pt then
+                local lvid = level.vertex_id(cur_pt)
+                if lvid and lvid ~= 4294967295 and lvid ~= -1 then
+                    local sn = level.vertex_position(lvid)
+                    if sn then cur_pt = vector():set(sn.x, sn.y + 0.1, sn.z) end
+                end
+                positions[k] = cur_pt
+            end
+        end
+    else
+        -- 2. Direct Cross-Country Route with Ground Navmesh Snapping
+        local interp = vector()
+        for i = 1, d_count do
+            local t = i / (d_count + 1)
+            lerp_pos(start_pos, dest_pos, t, interp)
+
+            local lvid = level.vertex_id(interp)
+            local cur_pt = nil
+            if lvid and lvid ~= 4294967295 and lvid ~= -1 then
+                local snapped = level.vertex_position(lvid)
+                if snapped then
+                    cur_pt = vector():set(snapped.x, snapped.y + 0.1, snapped.z)
+                else
+                    cur_pt = vector():set(interp.x, interp.y, interp.z)
+                end
+            else
+                cur_pt = vector():set(interp.x, interp.y, interp.z)
+            end
+            positions[i] = cur_pt
         end
     end
+
+    -- 3. Multi-Pass Laplacian Path Relaxation to Smooth Bends and Kinks
+    if #positions >= 3 then
+        for pass = 1, 2 do
+            for k = 2, #positions - 1 do
+                local p_prev = positions[k-1]
+                local p_curr = positions[k]
+                local p_next = positions[k+1]
+
+                local sx = p_curr.x * 0.5 + (p_prev.x + p_next.x) * 0.25
+                local sz = p_curr.z * 0.5 + (p_prev.z + p_next.z) * 0.25
+                local test_pos = vector():set(sx, p_curr.y, sz)
+
+                local lvid = level.vertex_id(test_pos)
+                if lvid and lvid ~= 4294967295 and lvid ~= -1 then
+                    local sn = level.vertex_position(lvid)
+                    if sn then
+                        positions[k] = vector():set(sn.x, sn.y + 0.1, sn.z)
+                    else
+                        positions[k] = test_pos
+                    end
+                else
+                    positions[k] = test_pos
+                end
+            end
+        end
+    end
+
     return positions
 end
 -- ============================================================
