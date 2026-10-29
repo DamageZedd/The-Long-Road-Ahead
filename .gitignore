@@ -13,3 +13,7 @@ Thumbs.db
 *.bak
 *.tmp
 *.log
+
+# Release packages
+releases/
+*.zip

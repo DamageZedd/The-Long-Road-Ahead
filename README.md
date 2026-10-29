@@ -7,7 +7,7 @@
 
 *Ditch instant teleports. Experience the journey. Watch your back.*
 
-![Version](https://img.shields.io/badge/version-v2.3-e0a43c?style=for-the-badge) ![Author](https://img.shields.io/badge/by-Damage__Zedd-8fae5a?style=for-the-badge) ![Game](https://img.shields.io/badge/S.T.A.L.K.E.R.-Anomaly%201.5.3-555555?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-v2.3.1-e0a43c?style=for-the-badge) ![Author](https://img.shields.io/badge/by-Damage__Zedd-8fae5a?style=for-the-badge) ![Game](https://img.shields.io/badge/S.T.A.L.K.E.R.-Anomaly%201.5.3-555555?style=for-the-badge)
 
 **[Full Changelog](CHANGELOG.md)** · **[Latest Release](https://github.com/DamageZedd/The-Long-Road-Ahead/releases/latest)**
 
@@ -22,7 +22,19 @@ Right-click any discovered map spot, fast-travel marker, or guide to set out. Yo
 
 ---
 
-## 🆕 New in v2.3
+## 🆕 New in v2.3.1
+
+### 👥 Authoritative Companion Recall & Useful Idiots Stance Synchronization
+- **Authoritative Manual Recall (`\` Key)**: Completely overhauled companion recall initiated via the `\` hotkey (or MCM-configured squad teleport key). Intercepts and replaces Fair Fast Travel's broken `bring_companions_to_actor` logic with TLRA's robust, authoritative multi-member teleport system.
+- **Useful Idiots Stance Bypass**: Manual recall (`forced = true`) deliberately bypasses Useful Idiots stance restrictions (`companion_squad_can_teleport`), allowing players to summon companions even if they are stuck in wait, cover, relax, or patrol mode across levels or switch distance, while safely preserving quest hostage protections.
+- **Staggered Radial Distribution**: Teleported companions now calculate radial offset positions (1.8m–3.0m) around the player with AI level vertex validation, completely eliminating companion physics collisions, mesh stacking, and terrain clipping.
+- **Offline & Cross-Level Alife Synchronization**: Safely teleports server entities via `sim:teleport_object`, invalidates stale offline caches (`db.offline_objects`, `db.spawned_vertex_by_id`), clears animation states (`safe_reset_animation`), and smoothly synchronizes client positions.
+- **Standalone Hotkey Fallback**: Added standalone `on_key_release` listener with UI dialog focus checking and 800ms debounce protection so manual recall operates reliably even if Fair Fast Travel is uninstalled or disabled.
+- **Status Notification**: Added clean, non-intrusive on-screen HUD message feedback indicating the number of companions successfully recalled.
+
+---
+
+## 🆕 New in v2.3.0
 
 ### ⏱️ Dynamic Travel & Time Progression
 Travel duration is no longer fixed at a rigid 2 minutes regardless of distance. Travel time dynamically scales based on actual world vector distance, walking speed, active encumbrance, and time acceleration factors. Journeys across multiple territories feel substantial, perilous, and physically grounded.
@@ -33,7 +45,7 @@ Hunger, thirst, and fatigue properly accumulate over the course of the journey b
 ### 🎒 Carry Weight & Over-Encumbrance Physics
 Real carrying capacity is dynamically calculated from equipped suits, backpacks, belt artifacts, and active boosters. Traveling while heavily encumbered severely degrades movement speed and exponentially accelerates stamina and calorie consumption.
 
-### 👥 Modern Companion Squad Teleportation
+### 👥 Multi-Member Squad Synchronization
 Companion squads now cleanly transition across level borders utilizing `axr_companions.companion_squads` and `squad:squad_members()`. Resets companion animations (`sim_squad_scripted.reset_animation`), synchronizes level vertex positions, and clears stale offline flags to prevent companions from getting stuck or desynced upon arrival.
 
 ---

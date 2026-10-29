@@ -1,6 +1,18 @@
 # The Long Road Ahead - Changelog
 
-## v2.3 — Dynamic Progression, Weight & Diet System Update
+## v2.3.1 — Companion Manual Recall & Useful Idiots Stance Synchronization
+
+### 👥 Companion Squad Recall & Stance Synchronization
+- **Authoritative Manual Recall (`\` Key)**: Completely overhauled companion recall initiated via the `\` hotkey (or MCM-configured squad teleport key). Intercepts and replaces Fair Fast Travel's broken `bring_companions_to_actor` logic with TLRA's robust, authoritative multi-member teleport system.
+- **Useful Idiots Stance & Behavior Bypass**: Manual recall (`forced = true`) deliberately bypasses Useful Idiots stance restrictions (`axr_companions.companion_squad_can_teleport`), allowing players to summon companions even if they are stuck in wait, cover, relax, or patrol mode across levels or switch distance, while safely preserving quest hostage protections.
+- **Staggered Radial Distribution**: Teleported companions now calculate radial offset positions (1.8m–3.0m) around the player with AI level vertex validation, completely eliminating companion physics collisions, mesh stacking, and terrain clipping.
+- **Offline & Cross-Level Alife Synchronization**: Safely teleports server entities via `sim:teleport_object`, invalidates stale offline caches (`db.offline_objects`, `db.spawned_vertex_by_id`), clears animation states (`safe_reset_animation`), and smoothly synchronizes client positions.
+- **Standalone Hotkey Fallback**: Added standalone `on_key_release` listener with UI dialog focus checking and 800ms debounce protection so manual recall operates reliably even if Fair Fast Travel is uninstalled or disabled.
+- **Status Notification**: Added clean, non-intrusive on-screen HUD message feedback indicating the number of companions successfully recalled.
+
+---
+
+## v2.3.0 — Dynamic Progression, Weight & Diet System Update
 
 ### ⏱️ Realistic Travel & Time Progression
 - **Dynamic Duration Scaling**: Travel duration is no longer fixed at a rigid 2 minutes regardless of distance. Travel time dynamically scales based on actual world vector distance, character walking pace, time acceleration factors, and active survival conditions.
@@ -15,12 +27,9 @@
 - **Dynamic Carrying Capacity Detection**: Real maximum carrying capacity is dynamically calculated from equipment (suits, backpacks, belt artifacts, and active boosters).
 - **Encumbrance Penalties**: Being encumbered or overweight significantly reduces travel speed and increases stamina/calorie consumption exponentially.
 
-### 👥 Companion Squad Teleportation & Synchronization
-- **Authoritative Manual Recall (`\` Key)**: Completely overhauled companion recall initiated via the `\` hotkey (or MCM-configured squad teleport key). Intercepts and replaces Fair Fast Travel's broken `bring_companions_to_actor` logic with TLRA's robust, authoritative multi-member teleport system.
-- **Useful Idiots Stance & Behavior Bypass**: Manual recall (`forced = true`) deliberately bypasses Useful Idiots stance restrictions (`axr_companions.companion_squad_can_teleport`), allowing players to summon companions even if they are stuck in wait, cover, relax, or patrol mode across levels or switch distance, while safely preserving quest hostage protections.
-- **Staggered Radial Distribution**: Teleported companions now calculate radial offset positions (1.8m–3.0m) around the player with AI level vertex validation, completely eliminating companion physics collisions, mesh stacking, and terrain clipping.
-- **Offline & Cross-Level Alife Synchronization**: Safely teleports server entities via `sim:teleport_object`, invalidates stale offline caches (`db.offline_objects`, `db.spawned_vertex_by_id`), clears animation states (`safe_reset_animation`), and smoothly synchronizes client positions.
-- **Status Notification**: Added clean, non-intrusive on-screen HUD message feedback indicating the number of companions successfully recalled.
+### 👥 Multi-Member Squad Synchronization
+- **Modern Multi-Member Teleportation**: Companion squads cleanly transition across levels using `axr_companions.companion_squads` and `squad:squad_members()`.
+- **Animation & Visual State Reset**: Resets NPC animations (`sim_squad_scripted.reset_animation`), synchronizes level vertex positions, and clears stale offline object state to prevent companions from getting stuck or desynced.
 
 ### 🛠️ Bug Fixes & Diagnostics
 - **Clean Logs**: Eliminated excessive log spam and removed redundant state flags.
