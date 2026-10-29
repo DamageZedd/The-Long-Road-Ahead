@@ -666,10 +666,72 @@ local function get_safe_pos(pos)
 end
 -- ============================================================
 -- S.T.A.L.K.E.R. Road Network Navigation Engine (A* Heuristics)
--- Caches level game graph vertices placed along real roads and trails.
+-- Curated road splines & dynamic smart-terrain graph for realistic travel paths.
 -- ============================================================
+local ZONE_CURATED_ROADS = {
+    ["l01_escape"] = {
+        {-165.0, -30.0, -350.0}, {-135.0, -28.0, -320.0}, {-85.0, -22.0, -260.0},
+        {-120.0, -21.0, -245.0}, {-210.0, -20.0, -225.0}, {-245.0, -19.0, -247.0},
+        {-260.0, -18.0, -210.0}, {-45.0, -14.0, -175.0}, {-10.0, -6.0, -95.0},
+        {15.0, 1.0, -20.0}, {40.0, 1.0, -25.0}, {75.0, 1.0, -40.0},
+        {25.0, 2.0, 40.0}, {30.0, 2.0, 95.0}, {100.0, 3.0, 70.0},
+        {35.0, 2.0, 140.0}, {35.0, 3.0, 175.0}, {35.0, 2.0, 210.0},
+        {15.0, 2.0, 260.0}, {-10.0, 2.0, 290.0}, {-45.0, 2.0, 310.0},
+        {-35.0, 2.0, 350.0}, {-70.0, 2.0, 420.0}, {-105.0, 2.0, 480.0}
+    },
+    ["l02_garbage"] = {
+        {35.0, 0.0, -300.0}, {15.0, 0.0, -220.0}, {-30.0, 8.0, -180.0},
+        {0.0, 0.0, -100.0}, {-15.0, 0.0, -20.0}, {-70.0, 0.0, 0.0},
+        {-15.0, 0.0, 20.0}, {-10.0, 0.0, 100.0}, {40.0, 0.0, 120.0},
+        {120.0, 0.0, 150.0}, {250.0, 0.0, 180.0}, {-60.0, 0.0, 50.0},
+        {-150.0, 0.0, 70.0}, {-250.0, 0.0, 50.0}, {-10.0, 0.0, 220.0},
+        {-10.0, 0.0, 320.0}, {0.0, 0.0, 420.0}
+    },
+    ["l05_bar"] = {
+        {120.0, 0.0, -280.0}, {120.0, 0.0, -180.0}, {125.0, 0.0, -80.0},
+        {130.0, 0.0, 10.0}, {140.0, 0.0, 25.0}, {150.0, 0.0, 60.0},
+        {110.0, 0.0, 120.0}, {110.0, 0.0, 220.0}, {100.0, 0.0, 350.0},
+        {30.0, 0.0, -10.0}, {-60.0, 0.0, 0.0}
+    },
+    ["l04_darkvalley"] = {
+        {-40.0, 0.0, 250.0}, {-40.0, 0.0, 150.0}, {-45.0, 0.0, 50.0},
+        {-30.0, 0.0, 40.0}, {40.0, 0.0, 40.0}, {-50.0, 0.0, -50.0},
+        {-65.0, 0.0, -100.0}, {110.0, 0.0, -120.0}, {-50.0, 0.0, -250.0},
+        {-60.0, 0.0, -350.0}
+    },
+    ["l03_agroprom"] = {
+        {280.0, 0.0, 20.0}, {120.0, 0.0, 20.0}, {-50.0, 0.0, 50.0},
+        {-100.0, 0.0, -50.0}, {-150.0, 0.0, -150.0}, {-240.0, 0.0, 120.0}
+    },
+    ["l07_military"] = {
+        {-200.0, -20.0, -320.0}, {-180.0, -18.0, -200.0}, {-120.0, -15.0, -100.0},
+        {-40.0, -12.0, -20.0}, {-40.0, -10.0, 50.0}, {-20.0, -8.0, 120.0},
+        {-220.0, -15.0, 20.0}, {-300.0, -15.0, 80.0}, {80.0, -10.0, -20.0},
+        {180.0, -5.0, -10.0}
+    },
+    ["l08_yantar"] = {
+        {80.0, -10.0, -250.0}, {30.0, -11.0, -220.0}, {30.0, -11.0, -270.0},
+        {30.0, -8.0, -120.0}, {-20.0, -5.0, 0.0}
+    },
+    ["zaton"] = {
+        {120.0, -5.0, -180.0}, {120.0, 0.0, -50.0}, {100.0, 5.0, 100.0},
+        {-50.0, 8.0, 200.0}, {-150.0, 10.0, -250.0}, {-280.0, 15.0, -150.0},
+        {300.0, 10.0, 150.0}
+    },
+    ["jupiter"] = {
+        {-50.0, 3.0, 200.0}, {-150.0, 3.0, 150.0}, {50.0, 3.0, 250.0},
+        {200.0, 5.0, 300.0}, {150.0, 0.0, -50.0}, {20.0, 0.0, -200.0}
+    }
+}
+
 local level_road_graph = {}
 local cached_road_level = nil
+
+local function dist2d(p1, p2)
+    local dx = p1.x - p2.x
+    local dz = p1.z - p2.z
+    return math.sqrt(dx * dx + dz * dz)
+end
 
 local function get_level_road_nodes()
     local cur_level = level.name()
@@ -678,49 +740,54 @@ local function get_level_road_nodes()
     end
 
     local nodes = {}
-    local gg = game_graph()
-    local sim = alife()
-    if not (gg and sim) then return nodes end
 
-    local gvid = 0
-    local invalid_streak = 0
-    while invalid_streak < 50 and gvid < 65000 do
-        if gg:valid_vertex_id(gvid) then
-            invalid_streak = 0
-            local ok_v, v = pcall(function() return gg:vertex(gvid) end)
-            if ok_v and v then
-                local ok_lid, lid = pcall(function() return v:level_id() end)
-                if ok_lid and lid then
-                    local ok_name, lname = pcall(function() return sim:level_name(lid) end)
-                    if ok_name and lname == cur_level then
-                        local ok_pt, pt = pcall(function() return v:level_point() end)
-                        local ok_lvid, lvid = pcall(function() return v:level_vertex_id() end)
-                        if ok_pt and pt then
-                            table.insert(nodes, {
-                                gvid = gvid,
-                                lvid = (ok_lvid and lvid) or nil,
-                                pos = vector():set(pt.x, pt.y, pt.z)
-                            })
+    -- 1. Curated Road Backbone for Current Level
+    local curated = ZONE_CURATED_ROADS[cur_level]
+    if curated then
+        for i, c in ipairs(curated) do
+            table.insert(nodes, {
+                pos = vector():set(c[1], c[2], c[3]),
+                is_backbone = true,
+                seq = i
+            })
+        end
+    end
+
+    -- 2. Dynamic Smart Terrain Anchors from SIMBOARD
+    pcall(function()
+        if SIMBOARD and SIMBOARD.smarts then
+            for id, smrt in pairs(SIMBOARD.smarts) do
+                if smrt and smrt.smrt and smrt.smrt.position then
+                    local p = smrt.smrt.position
+                    local ok_lid, lid = pcall(function() return game_graph():vertex(smrt.smrt.m_game_vertex_id):level_id() end)
+                    if ok_lid and lid then
+                        local lname = alife():level_name(lid)
+                        if lname == cur_level then
+                            -- Prevent duplicate placement if within 15m of curated node
+                            local is_dup = false
+                            for _, en in ipairs(nodes) do
+                                if dist2d(en.pos, p) < 15.0 then
+                                    is_dup = true
+                                    break
+                                end
+                            end
+                            if not is_dup then
+                                table.insert(nodes, {
+                                    pos = vector():set(p.x, p.y, p.z),
+                                    is_smart = true
+                                })
+                            end
                         end
                     end
                 end
             end
-        else
-            invalid_streak = invalid_streak + 1
         end
-        gvid = gvid + 1
-    end
+    end)
 
     level_road_graph[cur_level] = nodes
     cached_road_level = cur_level
-    tlra_log("Cached %d road graph vertices for level %s", #nodes, cur_level)
+    tlra_log("Cached %d road network vertices for level %s", #nodes, cur_level)
     return nodes
-end
-
-local function dist2d(p1, p2)
-    local dx = p1.x - p2.x
-    local dz = p1.z - p2.z
-    return math.sqrt(dx * dx + dz * dz)
 end
 
 local function find_road_path(start_pos, dest_pos)
@@ -731,7 +798,7 @@ local function find_road_path(start_pos, dest_pos)
     local nodes = get_level_road_nodes()
     if not nodes or #nodes < 2 then return nil end
 
-    -- Find nearest road node to start and destination
+    -- Find nearest road node to start and destination (snap radius up to 350m)
     local s_idx, d_idx = nil, nil
     local min_s_dist, min_d_dist = 999999, 999999
 
@@ -749,12 +816,10 @@ local function find_road_path(start_pos, dest_pos)
         end
     end
 
-    -- Road nodes must be within reasonable reach (140m)
-    if not (s_idx and d_idx) or min_s_dist > 140.0 or min_d_dist > 140.0 then
+    if not (s_idx and d_idx) or min_s_dist > 350.0 or min_d_dist > 350.0 then
         return nil
     end
 
-    -- If both are closest to the same node, travel directly
     if s_idx == d_idx then return nil end
 
     -- A* search over road nodes
@@ -784,16 +849,33 @@ local function find_road_path(start_pos, dest_pos)
 
             -- Validate road path efficiency against direct distance
             local total_road_len = dist2d(start_pos, raw_path[1]) + g_score[d_idx] + dist2d(raw_path[#raw_path], dest_pos)
-            if total_road_len <= direct_dist * 2.8 then
+            if total_road_len <= direct_dist * 3.5 then
                 local full_route = { start_pos }
                 for _, rpos in ipairs(raw_path) do
                     table.insert(full_route, rpos)
                 end
                 table.insert(full_route, dest_pos)
+
+                -- Multi-pass Laplacian smoothing on route waypoints (eliminates sharp doglegs)
+                if #full_route >= 4 then
+                    for pass = 1, 3 do
+                        for k = 2, #full_route - 1 do
+                            local p0 = full_route[k-1]
+                            local p1 = full_route[k]
+                            local p2 = full_route[k+1]
+                            full_route[k] = vector():set(
+                                p1.x * 0.5 + (p0.x + p2.x) * 0.25,
+                                p1.y * 0.5 + (p0.y + p2.y) * 0.25,
+                                p1.z * 0.5 + (p0.z + p2.z) * 0.25
+                            )
+                        end
+                    end
+                end
+
                 tlra_log(" Road A* found %d-node route (Length: %.1fm vs Direct: %.1fm)", #full_route, total_road_len, direct_dist)
                 return full_route
             else
-                tlra_log(" Road path detour too large (%.1fm vs %.1fm), using direct navigation", total_road_len, direct_dist)
+                tlra_log(" Road detour too large (%.1fm vs %.1fm), using organic wilderness curve", total_road_len, direct_dist)
                 return nil
             end
         end
@@ -802,8 +884,12 @@ local function find_road_path(start_pos, dest_pos)
 
         for nbr_idx = 1, #nodes do
             if nbr_idx ~= current then
-                local d = dist2d(nodes[current].pos, nodes[nbr_idx].pos)
-                if d <= 85.0 then
+                local n1 = nodes[current]
+                local n2 = nodes[nbr_idx]
+                local d = dist2d(n1.pos, n2.pos)
+                -- Connect adjacent backbone nodes up to 300m, other nodes up to 220m
+                local max_edge = (n1.is_backbone and n2.is_backbone and math.abs((n1.seq or 0) - (n2.seq or 0)) <= 2) and 300.0 or 220.0
+                if d <= max_edge then
                     local tentative_g = g_score[current] + d
                     if tentative_g < (g_score[nbr_idx] or 9999999) then
                         came_from[nbr_idx] = current
@@ -880,7 +966,7 @@ end
 -- ============================================================
 -- Nav Mesh Dot Builder
 -- Generates smooth road-aligned waypoints using Level Road A*
--- with multi-pass Laplacian smoothing to eliminate all zig-zags.
+-- with smooth ground elevation snapping (no horizontal cell zig-zags).
 -- ============================================================
 function build_navmesh_dots(start_pos, dest_pos, count)
     local positions = {}
@@ -920,38 +1006,43 @@ function build_navmesh_dots(start_pos, dest_pos, count)
             end
 
             if cur_pt then
+                -- Only adapt ground height (Y), keep smooth X and Z to avoid cell zig-zags
                 local lvid = level.vertex_id(cur_pt)
                 if lvid and lvid ~= 4294967295 and lvid ~= -1 then
                     local sn = level.vertex_position(lvid)
-                    if sn then cur_pt = vector():set(sn.x, sn.y + 0.1, sn.z) end
+                    if sn then cur_pt.y = sn.y + 0.15 end
                 end
                 positions[k] = cur_pt
             end
         end
     else
-        -- 2. Direct Cross-Country Route with Ground Navmesh Snapping
-        local interp = vector()
+        -- 2. Organic Wilderness Trail Fallback (Sinusoidal lateral arch + gentle terrain snapping)
+        -- Never travels in a rigid straight laser-line across fields and geometry.
+        local dx = dest_pos.x - start_pos.x
+        local dz = dest_pos.z - start_pos.z
+        local direct_d = math.max(1.0, math.sqrt(dx * dx + dz * dz))
+        local perp_x = -dz / direct_d
+        local perp_z = dx / direct_d
+        local max_arch = math.min(32.0, direct_d * 0.16)
+
         for i = 1, d_count do
             local t = i / (d_count + 1)
-            lerp_pos(start_pos, dest_pos, t, interp)
+            local arch = math.sin(t * math.pi) * max_arch
+            local cur_x = start_pos.x + dx * t + perp_x * arch
+            local cur_z = start_pos.z + dz * t + perp_z * arch
+            local cur_y = start_pos.y + (dest_pos.y - start_pos.y) * t
 
-            local lvid = level.vertex_id(interp)
-            local cur_pt = nil
+            local candidate = vector():set(cur_x, cur_y, cur_z)
+            local lvid = level.vertex_id(candidate)
             if lvid and lvid ~= 4294967295 and lvid ~= -1 then
-                local snapped = level.vertex_position(lvid)
-                if snapped then
-                    cur_pt = vector():set(snapped.x, snapped.y + 0.1, snapped.z)
-                else
-                    cur_pt = vector():set(interp.x, interp.y, interp.z)
-                end
-            else
-                cur_pt = vector():set(interp.x, interp.y, interp.z)
+                local sn = level.vertex_position(lvid)
+                if sn then candidate.y = sn.y + 0.15 end
             end
-            positions[i] = cur_pt
+            positions[i] = candidate
         end
     end
 
-    -- 3. Multi-Pass Laplacian Path Relaxation to Smooth Bends and Kinks
+    -- 3. Multi-Pass Laplacian Path Relaxation (smooths horizontal trail without reverting to cell centers)
     if #positions >= 3 then
         for pass = 1, 2 do
             for k = 2, #positions - 1 do
@@ -964,16 +1055,12 @@ function build_navmesh_dots(start_pos, dest_pos, count)
                 local test_pos = vector():set(sx, p_curr.y, sz)
 
                 local lvid = level.vertex_id(test_pos)
+                local sn_y = p_curr.y
                 if lvid and lvid ~= 4294967295 and lvid ~= -1 then
                     local sn = level.vertex_position(lvid)
-                    if sn then
-                        positions[k] = vector():set(sn.x, sn.y + 0.1, sn.z)
-                    else
-                        positions[k] = test_pos
-                    end
-                else
-                    positions[k] = test_pos
+                    if sn then sn_y = sn.y + 0.15 end
                 end
+                positions[k] = vector():set(sx, sn_y, sz)
             end
         end
     end
@@ -1035,28 +1122,27 @@ local function tlra_restore_weapons(force_equip)
         end
         if show_all_ui then show_all_ui(true) end
 
-        -- 1. CRITICAL: Clear engine movekeys lock (used by FDDA/animations/cutscenes)
-        -- When only_allow_movekeys is true, WASD works but slot equip (1, 2, 3), meds, PDA are locked.
+        -- 1. Clear engine movekeys lock
         if game and game.only_allow_movekeys then
             game.only_allow_movekeys(false)
         end
 
-        -- 2. CRITICAL: Clear engine weapon selection lock
+        -- 2. Clear engine weapon selection lock
         if game and game.can_select_weapon then
             game.can_select_weapon(true)
         end
 
-        -- 3. CRITICAL: Unlower actor weapon
+        -- 3. Unlower actor weapon
         if game and game.actor_lower_weapon then
             game.actor_lower_weapon(false)
         end
 
-        -- 4. CRITICAL: Stop lingering HUD motions / item animations
+        -- 4. Stop lingering HUD motions / item animations
         if game and game.stop_hud_motion then
             game.stop_hud_motion()
         end
 
-        -- 5. CRITICAL: Clear xr_effects / engine input lock timer
+        -- 5. Clear xr_effects / engine input lock timer
         if AC_ID and db.storage and db.storage[AC_ID] then
             db.storage[AC_ID].disable_input_time = nil
         end
@@ -1066,20 +1152,12 @@ local function tlra_restore_weapons(force_equip)
             level.enable_input()
         end
 
-        -- Decrement and thoroughly flush engine hide-weapon counter locks (m_iDisableWeapon)
-        pcall(function()
-            if db.actor and db.actor.restore_weapon then
-                for i = 1, 10 do
-                    db.actor:restore_weapon()
-                end
-            end
-        end)
+        pcall(function() exec_console_cmd("hud_weapon 1") end)
+        if xr_effects and xr_effects.enable_ui then
+            pcall(xr_effects.enable_ui, db.actor, nil)
+        end
 
         -- Determine the best valid weapon slot to equip:
-        -- 1. Check last equipped weapon before travel/PDA
-        -- 2. Check slot 2 (primary weapon)
-        -- 3. Check slot 3 (secondary weapon / shotgun / rifle)
-        -- 4. Check slot 1 (pistol / sidearm)
         local target_slot = nil
         if tlra.last_equipped_slot and tlra.last_equipped_slot ~= 0 and tlra.last_equipped_slot ~= 8 and db.actor:item_in_slot(tlra.last_equipped_slot) then
             target_slot = tlra.last_equipped_slot
@@ -1105,32 +1183,33 @@ local function tlra_restore_weapons(force_equip)
     tlra_log(" tlra_restore_weapons called: UI/Input/Weapons unlocked.")
 end
 
--- Multi-pulse unlock sequence to prevent engine weapon/item lockout on arrival.
--- Fires across multiple ticks so level transitions, camera effectors (fade_in.ppe),
--- and item holster animations cannot leave the player stuck empty-handed.
+-- Multi-pulse unlock sequence to cleanly unholster weapons on arrival without spamming engine counters
 local function schedule_arrival_weapon_unlock(is_arrival)
-    tlra_restore_weapons(true)
-    CreateTimeEvent("tlra", "unlock_pulse_1", 0.1, function()
+    -- Pulse 0: Unlock UI & input immediately
+    tlra_restore_weapons(false)
+
+    -- Pulse 1 (0.15s): Ensure hands are clean (holster state settles)
+    CreateTimeEvent("tlra", "unlock_pulse_1", 0.15, function()
+        pcall(function()
+            if db.actor and db.actor.activate_slot then
+                db.actor:activate_slot(0)
+            end
+        end)
+        return true
+    end)
+
+    -- Pulse 2 (0.45s): Activate desired weapon slot cleanly
+    CreateTimeEvent("tlra", "unlock_pulse_2", 0.45, function()
         tlra_restore_weapons(true)
         return true
     end)
-    CreateTimeEvent("tlra", "unlock_pulse_2", 0.4, function()
-        tlra_restore_weapons(true)
-        return true
-    end)
-    CreateTimeEvent("tlra", "unlock_pulse_3", 0.9, function()
-        tlra_restore_weapons(true)
-        return true
-    end)
-    CreateTimeEvent("tlra", "unlock_pulse_4", 1.8, function()
-        tlra_restore_weapons(true)
+
+    -- Pulse 3 (1.2s): Sanity check - clear safety and verify weapon state
+    CreateTimeEvent("tlra", "unlock_pulse_3", 1.2, function()
+        tlra_restore_weapons(false)
         tlra.safety_until = 0
         pcall(function() save_var(db.actor, "surge_immuned", false) end)
-        tlra_log(" Safety and surge immunity cleared on weapon unlock pulse 4.")
-        return true
-    end)
-    CreateTimeEvent("tlra", "unlock_pulse_5", 3.0, function()
-        tlra_restore_weapons(false)
+        tlra_log(" Safety and surge immunity cleared on weapon unlock pulse 3.")
         return true
     end)
 end
@@ -1945,6 +2024,26 @@ function start_travel_sequence(pos, lvid, gvid, is_transition, final_gvid, is_gu
         end
     end
 
+    if not tlra.last_equipped_slot or tlra.last_equipped_slot == 0 or tlra.last_equipped_slot == 8 then
+        if db.actor:item_in_slot(2) then tlra.last_equipped_slot = 2
+        elseif db.actor:item_in_slot(3) then tlra.last_equipped_slot = 3
+        elseif db.actor:item_in_slot(1) then tlra.last_equipped_slot = 1
+        end
+    end
+
+    -- Holster hands and close PDA menu cleanly before journey initiates
+    pcall(function()
+        if ActorMenu and ActorMenu.get_pda_menu then
+            local pda = ActorMenu.get_pda_menu()
+            if pda and pda:IsShown() then pda:HideDialog() end
+        end
+        hide_hud_all()
+        if hide_hud_pda then hide_hud_pda() end
+        if db.actor and db.actor.activate_slot then
+            db.actor:activate_slot(0)
+        end
+    end)
+
     local function fail_start(message, secs)
         if message then tlra_msg(message, secs or 4) end
         tlra_clear()
@@ -2508,11 +2607,7 @@ function actor_on_first_update()
                 level.show_weapon(true)
                 level.enable_input()
             end
-            pcall(function()
-                if db.actor and db.actor.restore_weapon then
-                    db.actor:restore_weapon()
-                end
-            end)
+            -- cleared restore_weapon counter
 
             if is_border_term then
                 tlra_log(" Border travel only (The Final Leg) active: suppressing PDA reopen.")
@@ -2854,9 +2949,7 @@ function actor_on_update()
                     end
                     level.show_weapon(true)
                     level.enable_input()
-                    if db.actor and db.actor.restore_weapon then
-                        db.actor:restore_weapon()
-                    end
+                    -- restore_weapon() deliberately omitted to prevent m_iDisableWeapon underflow
                 end)
             end
         elseif tlra._was_invuln then
@@ -3143,9 +3236,7 @@ function complete_travel_sequence()
             db.actor:activate_slot(0)
         end
         -- Clear any hide-weapon counter accumulated by the PDA being open
-        if db.actor and db.actor.restore_weapon then
-            db.actor:restore_weapon()
-        end
+        -- cleared restore_weapon counter
         tlra_log(" PDA closed and weapon counter cleared before teleport.")
     end)
 

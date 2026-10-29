@@ -1003,7 +1003,9 @@ function UIRoadAheadTravelMap:Close()
         if game and game.actor_lower_weapon then game.actor_lower_weapon(false) end
         if game and game.stop_hud_motion then game.stop_hud_motion() end
         if level then level.enable_input(); level.show_weapon(true) end
-        if db.actor and db.actor.restore_weapon then db.actor:restore_weapon() end
+        pcall(function() exec_console_cmd("hud_weapon 1") end)
+        if xr_effects and xr_effects.enable_ui then pcall(xr_effects.enable_ui, db.actor, nil) end
+        -- restore_weapon omitted
     end)
 
     GUI = nil
@@ -1028,7 +1030,7 @@ function show_map(start_pos, dest_pos, level_name, is_transition, travel_dist)
 
     GUI:StartJourney(start_pos, dest_pos, level_name, is_transition, travel_dist)
     GUI:ShowDialog(true)
-    Register_UI("UIRoadAheadTravelMap", "ui_sleep_dialog")
+    Register_UI("UIRoadAheadTravelMap", "ui_tlra_travel_map")
     return GUI
 end
 
@@ -1041,6 +1043,8 @@ function close_map()
             if game and game.only_allow_movekeys then game.only_allow_movekeys(false) end
             if game and game.can_select_weapon then game.can_select_weapon(true) end
             if level then level.enable_input(); level.show_weapon(true) end
+        pcall(function() exec_console_cmd("hud_weapon 1") end)
+        if xr_effects and xr_effects.enable_ui then pcall(xr_effects.enable_ui, db.actor, nil) end
         end)
     end
 end
