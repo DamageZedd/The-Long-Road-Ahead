@@ -1,11 +1,11 @@
-﻿<div align="center">
+<div align="center">
 
 <sub>S.T.A.L.K.E.R. ANOMALY / G.A.M.M.A.</sub>
 
 # THE LONG ROAD AHEAD
-### CONTINUOUS ZONE-TO-ZONE TRAVEL & FAST TRAVEL OVERHAUL
+### CONTINUOUS ZONE-TO-ZONE TRAVEL
 
-*Ditch the instant teleports. Experience simulated physical travel across the Zone with animated map paths, real-time ALife threats, and realistic survival costs.*
+*Ditch instant teleports. Experience the journey. Watch your back.*
 
 ![Version](https://img.shields.io/badge/version-v2.3-e0a43c?style=for-the-badge) ![Author](https://img.shields.io/badge/by-Damage__Zedd-8fae5a?style=for-the-badge) ![Game](https://img.shields.io/badge/S.T.A.L.K.E.R.-Anomaly%201.5.3-555555?style=for-the-badge)
 
@@ -14,155 +14,168 @@
 </div>
 
 > ⚠️ **FULL RELEASE – PLEASE READ**  
-> The Long Road Ahead is a comprehensive travel simulation overhaul. Always back up your saved games before updating or modifying large modlists.
+> The Long Road Ahead is a comprehensive travel simulation overhaul and continuous Zone travel mod. Please report any issues you encounter so they can be fixed in future updates. Back up your saves before updating.
 
-**The Long Road Ahead (TLRA)** is a complete overhaul of the fast-travel experience in **S.T.A.L.K.E.R. Anomaly** and **G.A.M.M.A.**, inspired by the immersive journey mechanics of *Kingdom Come: Deliverance*.
+The Long Road Ahead is a comprehensive fast travel overhaul and continuous Zone travel simulation mod for S.T.A.L.K.E.R. Anomaly and G.A.M.M.A., inspired by the travel mechanics of *Kingdom Come: Deliverance*. Ditch immersion-breaking instant teleportation: travel takes real time, drains stamina and calories, advances the world clock, and tracks your physical movement across the Zone.
 
-Instead of immersion-breaking instant teleportation, your stalker embarks on a physical journey across the Zone in accelerated real time. Intermediate levels are traversed seamlessly, in-game time moves forward, stamina and calories deplete, and animated breadcrumbs trace your path on the PDA map. But the Zone is never safe: dynamic threat detection scans for hostile squads and mutant packs along your route, giving you a chance to sneak past using darkness and bad weather or pulling you into a high-stakes roadside ambush.
+Right-click any discovered map spot, fast-travel marker, or guide to set out. Your journey traverses intermediate territories in accelerated time, plotting animated breadcrumbs across the PDA map. Dynamic threat detection continuously scans nearby ALife simulation squads and mutant packs, pulling you out of travel for dangerous roadside ambushes or giving veteran stalkers a chance to slip past under the cover of night or stormy weather.
 
 ---
 
 ## 🆕 New in v2.3
 
-### ⏱️ Dynamic Travel & Time Scaling
-Travel duration is no longer fixed at a rigid 2 minutes regardless of destination. Travel time dynamically scales based on actual world vector distance, walking speed, active encumbrance, and time acceleration factors. Journeys across multiple territories feel substantial and perilous.
+### ⏱️ Dynamic Travel & Time Progression
+Travel duration is no longer fixed at a rigid 2 minutes regardless of distance. Travel time dynamically scales based on actual world vector distance, walking speed, active encumbrance, and time acceleration factors. Journeys across multiple territories feel substantial, perilous, and physically grounded.
 
-### 🍗 Native Diet System & Calorie Reserves
-Full native integration with the **Diet System** mod: carbohydrates, fats, and protein reserves now deplete naturally over the course of the journey alongside vanilla/GAMMA thirst (ctor_status_thirst) and fatigue (ctor_status_sleep). Illogical self-paid ruble charges for walking journeys have been replaced—you now pay for your journey with physical calories, sweat, and time.
+### 🍗 Dynamic Survival Stats & Diet System Support
+Hunger, thirst, and fatigue properly accumulate over the course of the journey based on exact game-time elapsed. Features full native integration with the **Diet System** mod: carbohydrates, fats, and protein reserves deplete over the trip alongside vanilla/GAMMA thirst (`actor_status_thirst`) and sleep (`actor_status_sleep`). Reworked travel economy removes illogical self-paid ruble charges for walking journeys—you pay with physical calories, fatigue, and in-game time.
 
 ### 🎒 Carry Weight & Over-Encumbrance Physics
-Real carrying capacity is dynamically calculated from equipped suits, backpacks, belt artifacts, and active boosters. Traveling while heavily encumbered severely degrades movement speed and exponentially accelerates stamina and calorie drain.
+Real carrying capacity is dynamically calculated from equipped suits, backpacks, belt artifacts, and active boosters. Traveling while heavily encumbered severely degrades movement speed and exponentially accelerates stamina and calorie consumption.
 
 ### 👥 Modern Companion Squad Teleportation
-Companion squads now cleanly transition across level borders utilizing xr_companions.companion_squads and squad:squad_members(). Companion animations are cleanly reset (sim_squad_scripted.reset_animation), vertex positions synchronized, and stale offline flags cleared to eliminate companion stacking or freezing upon arrival.
-
-### 🌐 Full Russian Localization (us/st_tlra_mcm.xml)
-Added complete Russian translation across all MCM settings, option descriptions, in-game notifications, roadside atmosphere events, guide chatter, and stealth dodge feedback.
+Companion squads now cleanly transition across level borders utilizing `axr_companions.companion_squads` and `squad:squad_members()`. Resets companion animations (`sim_squad_scripted.reset_animation`), synchronizes level vertex positions, and clears stale offline flags to prevent companions from getting stuck or desynced upon arrival.
 
 ---
 
-## 🗺️ Core Mechanics & Features
+## 🆕 New in v2.2.2
 
-### 🧭 Continuous Multi-Zone Routing & AI Navigation
-Seamlessly travel across multiple Zone borders in a single expedition. The mod automatically executes a Breadth-First Search (BFS) pathfinder across level transition restrictors, routing you through intermediate maps (e.g., Cordon → Garbage → Rostok → Army Warehouses).
-- **The Final Leg**: Enable this setting to have long-distance travel deposit you right at the entrance of your destination territory, requiring you to walk the final stretch on foot.
-- **Fallback Door Scanner**: Comprehensive scanner for non-standard or invisible level transitions, guaranteeing reliable routing into Red Forest, Limansk, and Jupiter.
-
-### ⚔️ Ambush Tech (Real-Time Threat Detection)
-Your journey is never guaranteed to be peaceful. The mod continuously projects your virtual position through the world graph and scans for active ALife simulation squads and mutant packs within threat range.
-- If your virtual trajectory passes near a hostile camp or mutant pack, the journey is interrupted, pulling you into real-time combat.
-- **Safe Zone Protection**: Configurable buffer (100m) ensuring ambushes never trigger immediately upon departure or right outside your destination safe zone.
-- **Fair Percentage Refunds**: If a journey is aborted or interrupted by an ambush, you receive a prorated refund of your travel cost for the uncompleted distance.
-
-### 🥷 Dynamic Encounter Sneaking (Stealth Dodge)
-When a threat is detected along your path, you have a chance to slip past unseen without interrupting the journey:
-- **Rank Scaling**: Veteran stalkers have sharper survival instincts and higher baseline sneak chances.
-- **Circadian Advantage**: Traveling under the cover of night significantly increases stealth success.
-- **Weather Camouflage**: Heavy fog, rain, and thunderstorms mask movement sounds and visual silhouettes.
-- Configurable base chance (default: 15%) and maximum cap (default: 75%) in MCM.
-
-### 📍 AI-Node Snapping & Arrival Offset
-- **Strict AI Vertex Snapping**: When exiting travel (voluntarily or via ambush), you are snapped to the nearest validated AI node (level_vertex_id) with a 1.5m physics sky-drop to prevent clipping into map geometry or falling through the world.
-- **Arrival Offset (default 10m)**: Spawns you slightly before the target spot instead of directly on it, avoiding ambushes from enemies camping directly on the fast-travel point.
-- **SafeSpawn Integration**: Seamlessly interfaces with the SafeSpawn mod (perform_silo) to clear immediate threats before the screen fades in.
-
-### 🗺️ Animated PDA Map & Visual Immersion
-- **Animated Map Dots**: Real-time breadcrumbs display your journey's progress on the PDA map. Detail level is customizable (4 to 24 waypoints).
-- **Cinematic Vignette & Sound**: Subtle visual vignette and ambient wind sound effects immerse you while on the road.
-- **Roadside Atmosphere Events**: Ambient PDA updates keep you informed of your character's thoughts, distant sounds, and Zone weather while traveling.
-
-### 🧭 Guide Travel & Fair Fast Travel (FFT) Support
-- Full compatibility with the **Fair Fast Travel** cost and duration calculation systems.
-- Optional **"Hire guide (instant)"** menu option to pay guides for instantaneous travel while preserving simulated journeys for solo treks.
-
-### 🗺️ Custom Levels Support
-Included compatibility patch seamlessly connects 5 custom community maps into the routing database and keyword dictionary:
-- **Promzona**
-- **Grimwood**
-- **Poselok UG**
-- **Bunker A1**
-- **Collider**
+### 🌐 Russian Localization
+Added full Russian translation (`rus/st_tlra_mcm.xml`). All MCM settings, descriptions, in-game notifications, roadside atmosphere events, guide dialogue, stealth dodge results, and positive event messages are now fully translated. Russian players can install GAMMA/Anomaly with a Russian UI and experience all mod text natively without script changes.
 
 ---
 
-## 🎛️ Presets & Configuration
+## 🆕 New in v2.2.0 & v2.1.9
 
-### Travel Presets
-
-| Feature | Stalker (Default) | Tourist (Easy) |
-|---|:---:|:---:|
-| **Ambush Tech & Encounters** | Active | Disabled |
-| **Survival Costs (Hunger / Thirst / Sleep)** | Active | Disabled |
-| **Stamina Exhaustion Interrupts** | Active | Disabled |
-| **Simulated Travel Speed** | 25 m/s | 35 m/s |
-| **Stealth Dodge** | Rank & Weather Scaled | Guaranteed Safe |
-
-### MCM Options Breakdown
-
-| Setting | Type | Default | Description |
-|---|:---:|:---:|---|
-| **Enable Mod** | Toggle | Enabled | Master toggle for all travel systems |
-| **Travel Preset** | List | Stalker | Stalker (full danger) or Tourist (peaceful) |
-| **Travel Speed** | Slider | 25 m/s | Simulated travel speed across the map (10–50 m/s) |
-| **Time Acceleration** | Slider | 10x | Game-time passage multiplier during travel (1–50x) |
-| **Enable Ambush Tech** | Toggle | Enabled | Real-time threat detection from ALife squads |
-| **Safe Zone Protection** | Toggle | Enabled | Blocks ambushes within 100m of departure/arrival |
-| **Arrival Offset** | Slider | 10m | Spawns before destination to avoid enemy spawns |
-| **Enable Stealth Dodge** | Toggle | Enabled | Allows chance to slip past detected threats |
-| **Base Sneak Chance** | Slider | 15% | Baseline sneak chance before bonuses |
-| **Max Sneak Chance** | Slider | 75% | Upper limit on stealth evasion |
-| **Enable Survival Costs** | Toggle | Enabled | Applies hunger, thirst, and sleepiness |
-| **Stamina Consumption** | Toggle | Enabled | Forces stops if stamina reaches zero |
-| **The Final Leg** | Toggle | Disabled | Drops player at border to walk destination map |
-| **PDA Path Detail** | Slider | 12 | Number of waypoints displayed on PDA map |
-| **Travel Wind & Vignette** | Toggle | Enabled | Cinematic audio-visual travel atmosphere |
+### 🛡️ Arrival Offset & Safety Hardening
+New MCM setting (default **10m**) to spawn before the destination marker instead of directly on top of it, avoiding hostile smart terrain ambushes. Switched to manual 2D vector length calculation `math.sqrt(dx*dx + dz*dz)` for full X-Ray Lua engine stability, extended safety window to **15.0s**, and integrated optional SafeSpawn mod clearing (`perform_silo`).
 
 ---
 
-## 📦 Required & Recommended Mods
+## 🆕 New in v2.0.9
 
-### Requirements
-- **S.T.A.L.K.E.R. Anomaly** (1.5.1 / 1.5.2 / 1.5.3), **G.A.M.M.A.**, or **EFP**
-- **[Mod Configuration Menu (MCM)](https://www.moddb.com/mods/stalker-anomaly/addons/anomaly-mod-configuration-menu)**
-
-### Supported Integrations
-- **Fair Fast Travel (FFT)**: Supported via included  1 - Fair Fast Travel Patch.
-- **Diet System**: Automatically detected and hooked—depletes carbohydrates, fats, and protein reserves.
-- **SafeSpawn**: Automatically detected—clears immediate spawn hazards upon arrival.
-- **Custom Levels Pack**: Supported via included  2 - New levels Patch.
+### 🥷 Dynamic Encounter Sneaking & PDA Holster
+Added dynamic stealth system to slip past detected threats during travel, scaling with character rank, nighttime darkness, and bad weather. Cleanly auto-holsters 3D PDA device UI and equips Slot 2 primary weapon upon travel completion, voluntary abort, or roadside encounter.
 
 ---
+
+## 🚶 The Road & Travel Mechanics
+
+- Continuous Zone-to-Zone travel across intermediate territories with shortest-path BFS routing
+- Real-time animated breadcrumb waypoints (**4–24 dots**) on the PDA map
+- Time acceleration (**1–50x**) advances world clock, sun, circadian rhythms, and weather naturally
+- Simulated walking pace (**10–50 m/s**, default **25 m/s**)
+- "The Final Leg" border travel option: stops at transition boundary, leaving the remaining distance to walk on foot
+- Cinematic vignette effect and ambient travel wind sound
+- Ambient roadside thoughts and atmospheric event messages during transit
+
+## ⚔️ Ambush Tech & Threat Detection
+
+- Real-time ALife radar actively scans simulation squads and mutant packs within threat range of your virtual path
+- Passing near hostile camps, stalker patrols, or mutant packs interrupts travel for immediate combat
+- Safe Zone Protection: **100m** threat-free perimeter around departure and destination
+- Percentage-based RU refunds: aborting or being ambushed refunds travel costs for the uncompleted leg
+- Safe Waypoint Spawning: aborting or being ambushed safely snaps to the nearest validated AI node (`level_vertex_id`) with **1.5m physics sky-drop** to prevent clipping geometry
+- Arrival Offset (**0–50m**, default **10m**) avoids spawning directly on camped enemies
+- SafeSpawn integration (`perform_silo`) clears hostile spawns before fade-in completes
+
+## 🥷 Dynamic Encounter Sneaking
+
+- Chance to sneak past detected threats without journey interruption
+- Dynamic scaling:
+  - **Rank**: Novice → Trainee → Experienced → Professional → Veteran → Expert → Master → Legend
+  - **Circadian**: Higher evasion under pitch-black night skies
+  - **Weather**: Heavy fog, rain, and storms mask movement and sound
+- Configurable base chance (**0–100%**, default **15%**) and maximum cap (**0–100%**, default **75%**)
+- Detailed feedback messages indicating which factor allowed you to slip past
+
+## 🍞 Survival Costs & Body Physics
+
+- Time-scaled hunger, thirst, and fatigue accumulation based on travel duration
+- Native Diet System integration: continuous depletion of carbohydrates, fats, and protein reserves
+- Stamina exhaustion: journeys halt automatically if stamina reaches zero, forcing you to catch your breath
+- Weather impact: rain and storms slow travel speed and accelerate survival drains
+- Over-encumbrance physics: carrying weight scales against real equipment capacity, multiplying stamina and calorie burn
+- Fair economy: walking journeys consume calories, water, and stamina rather than arbitrary ruble fees
+
+## 🧭 Fast Travel & Guides
+
+- Full compatibility with Fair Fast Travel (FFT) duration and pricing frameworks
+- "Hire guide (instant)" menu option on base and fast travel spots to bypass animations for a fee
+- Campfire and backpack fast travel support
+- Works across Vanilla Anomaly, G.A.M.M.A., and EFP
+
+## 🗺️ Custom Zone Maps
+
+- Included compatibility patch (`02 - New levels Patch`) adds full routing support for 5 custom community levels:
+  - **Promzona**
+  - **Grimwood**
+  - **Poselok UG**
+  - **Bunker A1**
+  - **Collider**
+- Dynamic graph injection seamlessly links custom maps into the Zone-wide navigation network
+
+## 🤖 Companion AI & Squad Sync
+
+- Authoritative multi-member companion teleportation via `axr_companions.companion_squads`
+- Offline object state cleanup prevents companions from desyncing or staying behind
+- Animation reset (`sim_squad_scripted.reset_animation`) ensures companions draw weapons and engage immediately upon ambush
+- Respects companion wait, patrol, and hostage states
+
+## 🏷️ Travel Presets
+
+| Stalker (Default) | Tourist (Casual) |
+|:---:|:---:|
+| Full danger · ALife threats · Encumbrance · Stamina drain · Calorie loss | Peaceful · 35 m/s speed · Zero ambushes · Zero stamina drain · Zero costs |
+
+## 🎛️ MCM — 20+ Options
+
+Travel presets, simulated walking speed, time acceleration, ALife threat detection toggles, safe zone protection radius, arrival offset distance, stealth dodge baseline and maximum caps, hunger/thirst/sleep drain scales, stamina exhaustion, weather and carry weight physics, border travel only, PDA path waypoint density, travel wind and vignette effects, and verbose debug logging.
+
+---
+
+## 📦 Required Mods
+
+**MODDED EXEs** — and the following base systems:
+
+1. **[Mod Configuration Menu (MCM)](https://www.moddb.com/mods/stalker-anomaly/addons/anomaly-mod-configuration-menu)** — settings interface and in-game tuning
+
+**Not required but recommended:**
+- **[Fair Fast Travel [FFT]](https://www.moddb.com/mods/stalker-anomaly/addons/fair-fast-travel)** — travel cost and duration calculation framework (use included patch in `01 - Fair Fast Travel Patch`)
+- **Diet System** — dynamic carbohydrates, fats, and protein reserve depletion during travel
+- **SafeSpawn** — clears hostile entities at destination nodes before fade-in
+- **Custom Levels Pack** — enables travel to Promzone, Grimwood, Poselok UG, Bunker A1, and Collider (use included patch in `02 - New levels Patch`)
 
 ## 📥 Installation
 
-1. Install **MCM (Mod Configuration Menu)**.
-2. Install **The Long Road Ahead** using **Mod Organizer 2** (the included **FOMOD** installer will guide you):
-   - **00 - Core**: Mandatory core files (scripts, configs, localization).
-   - **01 - Fair Fast Travel Patch**: Optional patch for Fair Fast Travel users.
-   - **02 - New levels Patch**: Optional patch adding Promzone, Grimwood, Poselok UG, Bunker A1, and Collider.
-3. Place in your mod load order after MCM and Fair Fast Travel.
+1. Install all required mods.
+2. Install The Long Road Ahead using the included **FOMOD** installer.
+3. **Mod Organizer 2** is strongly recommended.
+4. Launch the game.
+5. Configure your preferences under MCM → The Long Road Ahead.
 
-### Recommended Load Order
+### Load Order
 
-`
+```
 1. Mod Configuration Menu (MCM)
 2. Fair Fast Travel (if used)
 3. The Long Road Ahead (Core)
 4. The Long Road Ahead - Fair Fast Travel Patch (if used)
 5. The Long Road Ahead - New levels Patch (if used)
-`
+   Place anywhere after the above mods.
+```
+
+<p align="center"><img src="docs/images/hero_the_long_road_ahead.png" alt="The Long Road Ahead" width="75%"></p>
 
 ---
 
 ## 🙏 Credits
 
-- **Damage_Zedd** — Mod creator, continuous travel engine, and ongoing development
-- **Antigravity** — Custom levels compatibility patch contributor
-- **Fair Fast Travel Team** — Fast travel framework and ecosystem inspiration
-- **S.T.A.L.K.E.R. Anomaly & G.A.M.M.A. Communities** — Testing, feedback, and support
+- **Damage_Zedd** — The Long Road Ahead, creator, physics engine, and ongoing development
+- **Antigravity** — contributor: custom levels compatibility patch and routing definitions
+- **Fair Fast Travel Team** — framework inspiration and route calculation architecture
+- **S.T.A.L.K.E.R. Anomaly & G.A.M.M.A. Communities** — testing, feedback, and support
 
----
+## 📜 Changelog
 
-## 📜 Full Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for the complete version history from v1.0.0 through v2.3.
+See [CHANGELOG.md](CHANGELOG.md) for the full version history.
