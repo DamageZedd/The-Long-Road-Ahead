@@ -669,60 +669,158 @@ end
 -- Curated road splines & dynamic smart-terrain graph for realistic travel paths.
 -- ============================================================
 local ZONE_CURATED_ROADS = {
-    ["l01_escape"] = {
-        {-165.0, -30.0, -350.0}, {-135.0, -28.0, -320.0}, {-85.0, -22.0, -260.0},
-        {-120.0, -21.0, -245.0}, {-210.0, -20.0, -225.0}, {-245.0, -19.0, -247.0},
-        {-260.0, -18.0, -210.0}, {-45.0, -14.0, -175.0}, {-10.0, -6.0, -95.0},
-        {15.0, 1.0, -20.0}, {40.0, 1.0, -25.0}, {75.0, 1.0, -40.0},
-        {25.0, 2.0, 40.0}, {30.0, 2.0, 95.0}, {100.0, 3.0, 70.0},
-        {35.0, 2.0, 140.0}, {35.0, 3.0, 175.0}, {35.0, 2.0, 210.0},
-        {15.0, 2.0, 260.0}, {-10.0, 2.0, 290.0}, {-45.0, 2.0, 310.0},
-        {-35.0, 2.0, 350.0}, {-70.0, 2.0, 420.0}, {-105.0, 2.0, 480.0}
+    ['l01_escape'] = {
+        -- Main South-North Highway
+        {
+            {-165.0, -30.0, -350.0}, {-135.0, -28.0, -320.0}, {-85.0, -22.0, -260.0},
+            {-60.0, -18.0, -210.0},  {-45.0, -14.0, -175.0}, {-25.0, -10.0, -135.0},
+            {-10.0, -6.0, -95.0},    {5.0, -2.0, -55.0},     {15.0, 1.0, -20.0},
+            {20.0, 1.5, 20.0},       {25.0, 2.0, 60.0},      {30.0, 2.0, 95.0},
+            {35.0, 2.0, 140.0},      {35.0, 3.0, 175.0},     {35.0, 2.0, 210.0},
+            {25.0, 2.0, 240.0},      {15.0, 2.0, 260.0},     {-10.0, 2.0, 290.0},
+            {-45.0, 2.0, 310.0},     {-35.0, 2.0, 350.0},    {-70.0, 2.0, 420.0},
+            {-105.0, 2.0, 480.0},    {-130.0, 2.0, 530.0}
+        },
+        -- Rookie Village access road
+        {
+            {-245.0, -19.0, -247.0}, {-210.0, -20.0, -225.0}, {-160.0, -20.0, -220.0},
+            {-110.0, -19.0, -215.0}, {-60.0, -18.0, -210.0}
+        },
+        -- Car Park (ATP) branch
+        {
+            {15.0, 1.0, -20.0}, {45.0, 1.0, -25.0}, {75.0, 1.0, -40.0}
+        },
+        -- Farm branch
+        {
+            {35.0, 3.0, 175.0}, {80.0, 2.0, 180.0}, {120.0, 2.0, 185.0}
+        }
     },
-    ["l02_garbage"] = {
-        {35.0, 0.0, -300.0}, {15.0, 0.0, -220.0}, {-30.0, 8.0, -180.0},
-        {0.0, 0.0, -100.0}, {-15.0, 0.0, -20.0}, {-70.0, 0.0, 0.0},
-        {-15.0, 0.0, 20.0}, {-10.0, 0.0, 100.0}, {40.0, 0.0, 120.0},
-        {120.0, 0.0, 150.0}, {250.0, 0.0, 180.0}, {-60.0, 0.0, 50.0},
-        {-150.0, 0.0, 70.0}, {-250.0, 0.0, 50.0}, {-10.0, 0.0, 220.0},
-        {-10.0, 0.0, 320.0}, {0.0, 0.0, 420.0}
+    ['l02_garbage'] = {
+        -- Main North-South Highway
+        {
+            {35.0, 0.0, -300.0}, {25.0, 0.0, -250.0}, {15.0, 0.0, -200.0},
+            {0.0, 0.0, -120.0},  {-15.0, 0.0, -50.0}, {-20.0, 0.0, 0.0},
+            {-15.0, 0.0, 60.0},  {-10.0, 0.0, 120.0}, {-10.0, 0.0, 200.0},
+            {-10.0, 0.0, 280.0}, {-5.0, 0.0, 350.0},  {0.0, 0.0, 420.0}
+        },
+        -- West branch to Agroprom
+        {
+            {-20.0, 0.0, 0.0}, {-70.0, 0.0, 10.0}, {-140.0, 0.0, 40.0},
+            {-200.0, 0.0, 50.0}, {-270.0, 0.0, 50.0}
+        },
+        -- East branch to Dark Valley
+        {
+            {-10.0, 0.0, 120.0}, {50.0, 0.0, 130.0}, {120.0, 0.0, 150.0},
+            {190.0, 0.0, 160.0}, {260.0, 0.0, 170.0}
+        }
     },
-    ["l05_bar"] = {
-        {120.0, 0.0, -280.0}, {120.0, 0.0, -180.0}, {125.0, 0.0, -80.0},
-        {130.0, 0.0, 10.0}, {140.0, 0.0, 25.0}, {150.0, 0.0, 60.0},
-        {110.0, 0.0, 120.0}, {110.0, 0.0, 220.0}, {100.0, 0.0, 350.0},
-        {30.0, 0.0, -10.0}, {-60.0, 0.0, 0.0}
+    ['l05_bar'] = {
+        -- Main 100 Rads thoroughfare
+        {
+            {120.0, 0.0, -280.0}, {120.0, 0.0, -180.0}, {125.0, 0.0, -80.0},
+            {130.0, 0.0, 10.0},   {140.0, 0.0, 25.0},   {150.0, 0.0, 60.0},
+            {110.0, 0.0, 120.0},  {110.0, 0.0, 220.0},  {100.0, 0.0, 350.0}
+        },
+        -- West branch to Rostok
+        {
+            {130.0, 0.0, 10.0}, {30.0, 0.0, -10.0}, {-60.0, 0.0, 0.0}
+        }
     },
-    ["l04_darkvalley"] = {
-        {-40.0, 0.0, 250.0}, {-40.0, 0.0, 150.0}, {-45.0, 0.0, 50.0},
-        {-30.0, 0.0, 40.0}, {40.0, 0.0, 40.0}, {-50.0, 0.0, -50.0},
-        {-65.0, 0.0, -100.0}, {110.0, 0.0, -120.0}, {-50.0, 0.0, -250.0},
-        {-60.0, 0.0, -350.0}
+    ['l06_rostok'] = {
+        {60.0, 0.0, 0.0}, {-30.0, 0.0, 0.0}, {-100.0, 0.0, 10.0},
+        {-160.0, 0.0, 40.0}, {-220.0, 0.0, 60.0}, {-280.0, 0.0, 80.0}
     },
-    ["l03_agroprom"] = {
-        {280.0, 0.0, 20.0}, {120.0, 0.0, 20.0}, {-50.0, 0.0, 50.0},
-        {-100.0, 0.0, -50.0}, {-150.0, 0.0, -150.0}, {-240.0, 0.0, 120.0}
+    ['l04_darkvalley'] = {
+        -- Main North-South road
+        {
+            {-60.0, 0.0, -350.0}, {-50.0, 0.0, -250.0}, {-65.0, 0.0, -100.0},
+            {-50.0, 0.0, -50.0},  {-45.0, 0.0, 50.0},   {-40.0, 0.0, 150.0},
+            {-40.0, 0.0, 250.0}
+        },
+        -- Lab X-18 branch
+        {
+            {-50.0, 0.0, -50.0}, {40.0, 0.0, 40.0}, {110.0, 0.0, -120.0}
+        }
     },
-    ["l07_military"] = {
-        {-200.0, -20.0, -320.0}, {-180.0, -18.0, -200.0}, {-120.0, -15.0, -100.0},
-        {-40.0, -12.0, -20.0}, {-40.0, -10.0, 50.0}, {-20.0, -8.0, 120.0},
-        {-220.0, -15.0, 20.0}, {-300.0, -15.0, 80.0}, {80.0, -10.0, -20.0},
-        {180.0, -5.0, -10.0}
+    ['l03_agroprom'] = {
+        {280.0, 0.0, 20.0}, {200.0, 0.0, 20.0}, {120.0, 0.0, 20.0},
+        {-50.0, 0.0, 50.0}, {-100.0, 0.0, -50.0}, {-150.0, 0.0, -150.0},
+        {-240.0, 0.0, 120.0}
     },
-    ["l08_yantar"] = {
+    ['l07_military'] = {
+        -- Barrier road
+        {
+            {-200.0, -20.0, -320.0}, {-180.0, -18.0, -200.0}, {-120.0, -15.0, -100.0},
+            {-40.0, -12.0, -20.0},   {-40.0, -10.0, 50.0},    {-20.0, -8.0, 120.0}
+        },
+        -- Freedom Base
+        {
+            {-40.0, -12.0, -20.0}, {-220.0, -15.0, 20.0}, {-300.0, -15.0, 80.0}
+        },
+        -- Dead City pass
+        {
+            {-40.0, -10.0, 50.0}, {80.0, -10.0, -20.0}, {180.0, -5.0, -10.0}
+        }
+    },
+    ['l08_yantar'] = {
         {80.0, -10.0, -250.0}, {30.0, -11.0, -220.0}, {30.0, -11.0, -270.0},
         {30.0, -8.0, -120.0}, {-20.0, -5.0, 0.0}
     },
-    ["zaton"] = {
+    ['l09_deadcity'] = {
+        {-150.0, 0.0, -200.0}, {-50.0, 0.0, -80.0}, {0.0, 0.0, 0.0},
+        {50.0, 0.0, 120.0}, {150.0, 0.0, 250.0}
+    },
+    ['l10_radar'] = {
+        {300.0, 0.0, -250.0}, {200.0, 0.0, -150.0}, {50.0, 0.0, 0.0},
+        {-150.0, 0.0, 150.0}, {-300.0, 0.0, 300.0}
+    },
+    ['l11_pripyat'] = {
+        {100.0, 0.0, -300.0}, {50.0, 0.0, -150.0}, {0.0, 0.0, 0.0},
+        {-50.0, 0.0, 150.0}, {-100.0, 0.0, 300.0}
+    },
+    ['zaton'] = {
         {120.0, -5.0, -180.0}, {120.0, 0.0, -50.0}, {100.0, 5.0, 100.0},
         {-50.0, 8.0, 200.0}, {-150.0, 10.0, -250.0}, {-280.0, 15.0, -150.0},
         {300.0, 10.0, 150.0}
     },
-    ["jupiter"] = {
+    ['jupiter'] = {
         {-50.0, 3.0, 200.0}, {-150.0, 3.0, 150.0}, {50.0, 3.0, 250.0},
         {200.0, 5.0, 300.0}, {150.0, 0.0, -50.0}, {20.0, 0.0, -200.0}
+    },
+    ['k00_marsh'] = {
+        {150.0, 0.0, -350.0}, {80.0, 0.0, -220.0}, {20.0, 0.0, -100.0},
+        {-30.0, 0.0, 50.0}, {-120.0, 0.0, 180.0}, {-200.0, 0.0, 300.0}
+    },
+    ['k01_darkscape'] = {
+        {380.0, 0.0, -450.0}, {250.0, 0.0, -300.0}, {120.0, 0.0, -150.0},
+        {0.0, 0.0, 0.0}, {-150.0, 0.0, 150.0}, {-300.0, 0.0, 350.0}
+    },
+    ['k02_trucks_cemetery'] = {
+        {0.0, 0.0, -400.0}, {0.0, 0.0, -200.0}, {20.0, 0.0, 0.0},
+        {-50.0, 0.0, 200.0}, {-10.0, 0.0, 400.0}
+    },
+    ['l10_red_forest'] = {
+        {-100.0, 0.0, -250.0}, {-50.0, 0.0, -150.0}, {0.0, 0.0, 0.0},
+        {50.0, 0.0, 150.0}, {120.0, 0.0, 250.0}
     }
 }
+
+-- Short alias mirror to guarantee matching regardless of engine level.name() format
+ZONE_CURATED_ROADS['escape']          = ZONE_CURATED_ROADS['l01_escape']
+ZONE_CURATED_ROADS['garbage']         = ZONE_CURATED_ROADS['l02_garbage']
+ZONE_CURATED_ROADS['agroprom']        = ZONE_CURATED_ROADS['l03_agroprom']
+ZONE_CURATED_ROADS['darkvalley']      = ZONE_CURATED_ROADS['l04_darkvalley']
+ZONE_CURATED_ROADS['bar']             = ZONE_CURATED_ROADS['l05_bar']
+ZONE_CURATED_ROADS['rostok']          = ZONE_CURATED_ROADS['l06_rostok']
+ZONE_CURATED_ROADS['military']        = ZONE_CURATED_ROADS['l07_military']
+ZONE_CURATED_ROADS['yantar']          = ZONE_CURATED_ROADS['l08_yantar']
+ZONE_CURATED_ROADS['deadcity']        = ZONE_CURATED_ROADS['l09_deadcity']
+ZONE_CURATED_ROADS['radar']           = ZONE_CURATED_ROADS['l10_radar']
+ZONE_CURATED_ROADS['pripyat']         = ZONE_CURATED_ROADS['l11_pripyat']
+ZONE_CURATED_ROADS['marsh']           = ZONE_CURATED_ROADS['k00_marsh']
+ZONE_CURATED_ROADS['darkscape']       = ZONE_CURATED_ROADS['k01_darkscape']
+ZONE_CURATED_ROADS['trucks_cemetery'] = ZONE_CURATED_ROADS['k02_trucks_cemetery']
+ZONE_CURATED_ROADS['red_forest']      = ZONE_CURATED_ROADS['l10_red_forest']
 
 local level_road_graph = {}
 local cached_road_level = nil
@@ -735,25 +833,62 @@ end
 
 local function get_level_road_nodes()
     local cur_level = level.name()
+    if not cur_level then return {} end
     if cached_road_level == cur_level and level_road_graph[cur_level] then
         return level_road_graph[cur_level]
     end
 
-    local nodes = {}
-
-    -- 1. Curated Road Backbone for Current Level
     local curated = ZONE_CURATED_ROADS[cur_level]
-    if curated then
-        for i, c in ipairs(curated) do
-            table.insert(nodes, {
-                pos = vector():set(c[1], c[2], c[3]),
-                is_backbone = true,
-                seq = i
-            })
+    if not curated then
+        for k, v in pairs(ZONE_CURATED_ROADS) do
+            if string.find(k, cur_level) or string.find(cur_level, k) then
+                curated = v
+                break
+            end
         end
     end
 
-    -- 2. Dynamic Smart Terrain Anchors from SIMBOARD
+    local nodes = {}
+    local edges = {}
+
+    local function get_or_add_node(pos)
+        for idx, n in ipairs(nodes) do
+            if dist2d(n.pos, pos) < 3.0 then
+                return idx
+            end
+        end
+        local idx = #nodes + 1
+        nodes[idx] = { pos = vector():set(pos[1] or pos.x, pos[2] or pos.y, pos[3] or pos.z), is_backbone = true }
+        edges[idx] = {}
+        return idx
+    end
+
+    if curated and #curated > 0 then
+        local chains = (type(curated[1][1]) == 'number') and { curated } or curated
+        for _, chain in ipairs(chains) do
+            local prev_idx = nil
+            for _, pt in ipairs(chain) do
+                local c_idx = get_or_add_node(pt)
+                if prev_idx and prev_idx ~= c_idx then
+                    edges[prev_idx][c_idx] = true
+                    edges[c_idx][prev_idx] = true
+                end
+                prev_idx = c_idx
+            end
+        end
+
+        -- Auto-bridge road intersections and branch points within 45m
+        for i = 1, #nodes do
+            for j = i + 1, #nodes do
+                if dist2d(nodes[i].pos, nodes[j].pos) <= 45.0 then
+                    edges[i][j] = true
+                    edges[j][i] = true
+                end
+            end
+        end
+    end
+
+    -- Dynamic Smart Terrain Anchors from SIMBOARD
     pcall(function()
         if SIMBOARD and SIMBOARD.smarts then
             for id, smrt in pairs(SIMBOARD.smarts) do
@@ -762,20 +897,24 @@ local function get_level_road_nodes()
                     local ok_lid, lid = pcall(function() return game_graph():vertex(smrt.smrt.m_game_vertex_id):level_id() end)
                     if ok_lid and lid then
                         local lname = alife():level_name(lid)
-                        if lname == cur_level then
-                            -- Prevent duplicate placement if within 15m of curated node
+                        if lname == cur_level or string.find(lname, cur_level) or string.find(cur_level, lname) then
                             local is_dup = false
                             for _, en in ipairs(nodes) do
-                                if dist2d(en.pos, p) < 15.0 then
+                                if dist2d(en.pos, p) < 25.0 then
                                     is_dup = true
                                     break
                                 end
                             end
                             if not is_dup then
-                                table.insert(nodes, {
-                                    pos = vector():set(p.x, p.y, p.z),
-                                    is_smart = true
-                                })
+                                local s_idx = #nodes + 1
+                                nodes[s_idx] = { pos = vector():set(p.x, p.y, p.z), is_smart = true }
+                                edges[s_idx] = {}
+                                for r_idx = 1, s_idx - 1 do
+                                    if nodes[r_idx].is_backbone and dist2d(nodes[r_idx].pos, p) <= 120.0 then
+                                        edges[s_idx][r_idx] = true
+                                        edges[r_idx][s_idx] = true
+                                    end
+                                end
                             end
                         end
                     end
@@ -784,21 +923,24 @@ local function get_level_road_nodes()
         end
     end)
 
-    level_road_graph[cur_level] = nodes
+    level_road_graph[cur_level] = { nodes = nodes, edges = edges }
     cached_road_level = cur_level
-    tlra_log("Cached %d road network vertices for level %s", #nodes, cur_level)
-    return nodes
+    tlra_log('Cached %d road network vertices for level %s', #nodes, cur_level)
+    return level_road_graph[cur_level]
 end
 
 local function find_road_path(start_pos, dest_pos)
     if not (start_pos and dest_pos) then return nil end
     local direct_dist = dist2d(start_pos, dest_pos)
-    if direct_dist < 40.0 then return nil end
+    if direct_dist < 30.0 then return nil end
 
-    local nodes = get_level_road_nodes()
-    if not nodes or #nodes < 2 then return nil end
+    local graph_data = get_level_road_nodes()
+    if not graph_data or not graph_data.nodes or #graph_data.nodes < 2 then return nil end
 
-    -- Find nearest road node to start and destination (snap radius up to 350m)
+    local nodes = graph_data.nodes
+    local edges = graph_data.edges
+
+    -- Find nearest road node to start and destination (snap radius up to 550m)
     local s_idx, d_idx = nil, nil
     local min_s_dist, min_d_dist = 999999, 999999
 
@@ -816,13 +958,13 @@ local function find_road_path(start_pos, dest_pos)
         end
     end
 
-    if not (s_idx and d_idx) or min_s_dist > 350.0 or min_d_dist > 350.0 then
+    if not (s_idx and d_idx) or min_s_dist > 550.0 or min_d_dist > 550.0 then
         return nil
     end
 
     if s_idx == d_idx then return nil end
 
-    -- A* search over road nodes
+    -- A* search over road network graph edges
     local open_set = { [s_idx] = true }
     local came_from = {}
     local g_score = { [s_idx] = 0 }
@@ -849,7 +991,7 @@ local function find_road_path(start_pos, dest_pos)
 
             -- Validate road path efficiency against direct distance
             local total_road_len = dist2d(start_pos, raw_path[1]) + g_score[d_idx] + dist2d(raw_path[#raw_path], dest_pos)
-            if total_road_len <= direct_dist * 3.5 then
+            if total_road_len <= direct_dist * 4.5 then
                 local full_route = { start_pos }
                 for _, rpos in ipairs(raw_path) do
                     table.insert(full_route, rpos)
@@ -872,31 +1014,26 @@ local function find_road_path(start_pos, dest_pos)
                     end
                 end
 
-                tlra_log(" Road A* found %d-node route (Length: %.1fm vs Direct: %.1fm)", #full_route, total_road_len, direct_dist)
+                tlra_log(' Road A* found %d-node route (Length: %.1fm vs Direct: %.1fm)', #full_route, total_road_len, direct_dist)
                 return full_route
             else
-                tlra_log(" Road detour too large (%.1fm vs %.1fm), using organic wilderness curve", total_road_len, direct_dist)
+                tlra_log(' Road detour too large (%.1fm vs %.1fm), using organic wilderness curve', total_road_len, direct_dist)
                 return nil
             end
         end
 
         open_set[current] = nil
 
-        for nbr_idx = 1, #nodes do
-            if nbr_idx ~= current then
-                local n1 = nodes[current]
-                local n2 = nodes[nbr_idx]
-                local d = dist2d(n1.pos, n2.pos)
-                -- Connect adjacent backbone nodes up to 300m, other nodes up to 220m
-                local max_edge = (n1.is_backbone and n2.is_backbone and math.abs((n1.seq or 0) - (n2.seq or 0)) <= 2) and 300.0 or 220.0
-                if d <= max_edge then
-                    local tentative_g = g_score[current] + d
-                    if tentative_g < (g_score[nbr_idx] or 9999999) then
-                        came_from[nbr_idx] = current
-                        g_score[nbr_idx] = tentative_g
-                        f_score[nbr_idx] = tentative_g + dist2d(nodes[nbr_idx].pos, nodes[d_idx].pos)
-                        open_set[nbr_idx] = true
-                    end
+        local cur_edges = edges[current]
+        if cur_edges then
+            for nbr_idx in pairs(cur_edges) do
+                local d = dist2d(nodes[current].pos, nodes[nbr_idx].pos)
+                local tentative_g = g_score[current] + d
+                if tentative_g < (g_score[nbr_idx] or 9999999) then
+                    came_from[nbr_idx] = current
+                    g_score[nbr_idx] = tentative_g
+                    f_score[nbr_idx] = tentative_g + dist2d(nodes[nbr_idx].pos, nodes[d_idx].pos)
+                    open_set[nbr_idx] = true
                 end
             end
         end
