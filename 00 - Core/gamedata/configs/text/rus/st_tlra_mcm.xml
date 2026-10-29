@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<string_table>
+    <!-- MCM Menu Strings -->
+    <string id="ui_mcm_menu_tlra">
+        <text>Длинная дорога впереди</text>
+    </string>
+    <string id="ui_mcm_tlra_title">
+        <text>Длинная дорога впереди v2.3</text>
+    </string>
+
+    <string id="ui_mcm_tlra_mode">
+        <text>Режим путешествия</text>
+    </string>
+    <string id="ui_mcm_tlra_mode_desc">
+        <text>Сталкер: полный, опасный опыт.\nТурист: быстрое передвижение, без засад, без затрат и без расхода выносливости.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_map_dots">
+        <text>Детализация маршрута на КПК</text>
+    </string>
+    <string id="ui_mcm_tlra_map_dots_desc">
+        <text>Количество путевых точек, отображаемых на карте КПК во время путешествия. Большее значение — больше деталей.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_border_travel_only">
+        <text>Финальный отрезок</text>
+    </string>
+    <string id="ui_mcm_tlra_border_travel_only_desc">
+        <text>Если включено, быстрое перемещение между разными уровнями завершится сразу после входа в целевой уровень. Вы окажетесь у пограничного перехода и должны будете пройти оставшееся расстояние пешком (финальный отрезок).</text>
+    </string>
+
+    <string id="ui_mcm_tlra_wind_sound_enabled">
+        <text>Звук ветра при путешествии</text>
+    </string>
+    <string id="ui_mcm_tlra_wind_sound_enabled_desc">
+        <text>Воспроизводить атмосферный звук ветра во время анимированного путешествия.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_vignette_enabled">
+        <text>Виньетка экрана</text>
+    </string>
+    <string id="ui_mcm_tlra_vignette_enabled_desc">
+        <text>Применять тонкий кинематографический эффект виньетки во время движения.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_safe_zone_protection">
+        <text>Защита безопасной зоны</text>
+    </string>
+    <string id="ui_mcm_tlra_safe_zone_protection_desc">
+        <text>Если включено, засады не могут произойти в радиусе 100 м от точки отправления или назначения.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_enabled">
+        <text>Включить мод</text>
+    </string>
+    <string id="ui_mcm_tlra_enabled_desc">
+        <text>Полностью включить или отключить все механики путешествия.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_travel_speed">
+        <text>Скорость передвижения</text>
+    </string>
+    <string id="ui_mcm_tlra_travel_speed_desc">
+        <text>Симулируемая скорость ходьбы в метрах в секунду. Более высокие значения ускоряют путешествие, но увеличивают расход выносливости.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_time_factor">
+        <text>Ускорение времени</text>
+    </string>
+    <string id="ui_mcm_tlra_time_factor_desc">
+        <text>Множитель прохождения игрового времени во время путешествия. Большие значения — мир быстрее движется вперёд.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_interruption_enabled">
+        <text>Включить систему засад</text>
+    </string>
+    <string id="ui_mcm_tlra_interruption_enabled_desc">
+        <text>Если включено, ваше путешествие прервётся, если виртуальный маршрут проходит рядом с враждебными отрядами или мутантами (обнаружение угроз в реальном времени).</text>
+    </string>
+
+    <string id="ui_mcm_tlra_costs_enabled">
+        <text>Включить штрафы за выживание</text>
+    </string>
+    <string id="ui_mcm_tlra_costs_enabled_desc">
+        <text>Применять реалистичные штрафы к голоду, жажде и усталости на основе фактического времени путешествия.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_hunger_rate">
+        <text>Интенсивность голода</text>
+    </string>
+    <string id="ui_mcm_tlra_thirst_rate">
+        <text>Интенсивность жажды</text>
+    </string>
+    <string id="ui_mcm_tlra_sleep_rate">
+        <text>Интенсивность усталости</text>
+    </string>
+
+    <string id="ui_mcm_tlra_weather_impact_enabled">
+        <text>Влияние погоды</text>
+    </string>
+    <string id="ui_mcm_tlra_weather_impact_enabled_desc">
+        <text>Дождь и бури замедляют скорость передвижения и увеличивают расходы на выживание.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_weight_impact_enabled">
+        <text>Влияние веса снаряжения</text>
+    </string>
+    <string id="ui_mcm_tlra_weight_impact_enabled_desc">
+        <text>Перегруз значительно снижает скорость передвижения.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_stamina_drain_enabled">
+        <text>Расход выносливости</text>
+    </string>
+    <string id="ui_mcm_tlra_stamina_drain_enabled_desc">
+        <text>Долгие переходы изматывают. Если выносливость упадёт до нуля, вы будете вынуждены остановиться и отдохнуть.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_show_stats">
+        <text>Показывать итоги прибытия</text>
+    </string>
+    <string id="ui_mcm_tlra_show_stats_desc">
+        <text>Отображает пройденное расстояние и прошедшее время по достижении пункта назначения.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_debug_logging">
+        <text>Включить отладочный журнал</text>
+    </string>
+    <string id="ui_mcm_tlra_debug_logging_desc">
+        <text>Выводит подробную информацию о путешествии в журнал игры. Держите выключенным, если не выполняете диагностику.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_stealth_dodge_enabled">
+        <text>Включить скрытное уклонение</text>
+    </string>
+    <string id="ui_mcm_tlra_stealth_dodge_enabled_desc">
+        <text>Позволяет незаметно миновать обнаруженные угрозы во время путешествия, избегая прерывания маршрута. Шанс зависит от звания персонажа, времени суток (лучше ночью) и погоды (лучше в туман/дождь/бурю).</text>
+    </string>
+
+    <string id="ui_mcm_tlra_stealth_dodge_base">
+        <text>Базовый шанс скрытности</text>
+    </string>
+    <string id="ui_mcm_tlra_stealth_dodge_base_desc">
+        <text>Исходный процент шанса незаметно миновать встречу без бонусов за звание, время суток или погоду.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_stealth_dodge_max">
+        <text>Максимальный шанс скрытности</text>
+    </string>
+    <string id="ui_mcm_tlra_stealth_dodge_max_desc">
+        <text>Абсолютный предел суммарного шанса скрытности, предотвращающий автоматический успех даже при идеальных условиях.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_enable_guide_travel">
+        <text>Включить мгновенное путешествие с проводником</text>
+    </string>
+    <string id="ui_mcm_tlra_enable_guide_travel_desc">
+        <text>Если включено, на базах и точках быстрого перемещения появится опция «Нанять проводника (мгновенно)», минуя анимированную последовательность за рублёвую стоимость из системы Fair Fast Travel. (Требует Fair Fast Travel и патч совместимости TLRA)</text>
+    </string>
+
+    <string id="ui_mcm_tlra_arrival_offset">
+        <text>Смещение точки прибытия</text>
+    </string>
+    <string id="ui_mcm_tlra_arrival_offset_desc">
+        <text>Появляться на указанном количестве метров до цели, а не прямо на ней. Помогает избежать появления среди врагов. Установите 0, чтобы появляться точно в точке назначения.</text>
+    </string>
+
+    <!-- In-Game Message Strings -->
+    <string id="tlra_msg_too_wounded">
+        <text>Вы слишком тяжело ранены, чтобы начать этот путь.</text>
+    </string>
+    <string id="tlra_msg_must_stop_bleeding">
+        <text>Необходимо остановить кровотечение перед путешествием.</text>
+    </string>
+    <string id="tlra_msg_no_path">
+        <text>Дорога: путь к этой зоне не найден.</text>
+    </string>
+    <string id="tlra_msg_no_transition">
+        <text>Дорога: переход в %s не найден</text>
+    </string>
+    <string id="tlra_msg_too_close">
+        <text>Пункт назначения слишком близко.</text>
+    </string>
+    <string id="tlra_msg_cannot_afford">
+        <text>У вас не хватает денег на этот путь (%s руб.)</text>
+    </string>
+    <string id="tlra_msg_paid_fft">
+        <text>Путь оплачен через FFT: %s руб.</text>
+    </string>
+    <string id="tlra_msg_paid">
+        <text>Путь оплачен: %s руб.</text>
+    </string>
+    <string id="tlra_msg_heading_border">
+        <text>Движение к границе зоны...</text>
+    </string>
+    <string id="tlra_msg_journey_begins">
+        <text>Путь начат...</text>
+    </string>
+    <string id="tlra_msg_guide_border">
+        <text>Проводник ведёт вас к границе...</text>
+    </string>
+    <string id="tlra_msg_guide_way">
+        <text>Проводник указывает путь...</text>
+    </string>
+    <string id="tlra_msg_dest_reached">
+        <text>Зона назначения достигнута. Путешествие завершено.</text>
+    </string>
+    <string id="tlra_msg_final_zone">
+        <text>Конечная зона достигнута — завершение маршрута...</text>
+    </string>
+    <string id="tlra_msg_resuming">
+        <text>Продолжение путешествия...</text>
+    </string>
+    <string id="tlra_msg_entering_transition">
+        <text>Вход в переход между зонами...</text>
+    </string>
+    <string id="tlra_msg_ru_refunded">
+        <text>, %d руб. возвращено</text>
+    </string>
+    <string id="tlra_msg_aborted">
+        <text>Путь прерван на %d%%.%s</text>
+    </string>
+    <string id="tlra_msg_exhausted">
+        <text>Вы слишком измотаны, чтобы продолжать.</text>
+    </string>
+    <string id="tlra_msg_interrupted_guide">
+        <text>Путь прерван на %d%% — проводник сбежал!%s</text>
+    </string>
+    <string id="tlra_msg_interrupted">
+        <text>Путь прерван на %d%%.%s</text>
+    </string>
+    <string id="tlra_msg_dest_reached_stats">
+        <text>Пункт назначения достигнут. Расстояние: %d м. Время в пути: %d ч %d мин (ускорение времени: %dx).</text>
+    </string>
+    <string id="tlra_msg_events_summary">
+        <text>\nСобытия: пережито засад — %d, найдено удач — %d.</text>
+    </string>
+
+    <!-- Map Menu Strings -->
+    <string id="tlra_menu_travel_here">
+        <text>Отправиться сюда (TLRA)</text>
+    </string>
+    <string id="tlra_menu_hire_guide">
+        <text>Нанять проводника (мгновенно)</text>
+    </string>
+    <string id="tlra_menu_free">
+        <text>Бесплатно</text>
+    </string>
+
+    <!-- Road Event Messages (Non-Guide) -->
+    <string id="tlra_road_thick_brush">
+        <text>Вы продираетесь сквозь густой кустарник...</text>
+    </string>
+    <string id="tlra_road_dead_trees">
+        <text>Ветер воет среди мёртвых деревьев...</text>
+    </string>
+    <string id="tlra_road_muddy_ground">
+        <text>Земля здесь неровная и грязная...</text>
+    </string>
+    <string id="tlra_road_heavy_zone">
+        <text>Зона сегодня особенно давит...</text>
+    </string>
+    <string id="tlra_road_crows">
+        <text>Вы замечаете стаю воронов, кружащих в небе...</text>
+    </string>
+    <string id="tlra_road_mutant_howl">
+        <text>Где-то вдали воют мутанты...</text>
+    </string>
+    <string id="tlra_road_wipe_sweat">
+        <text>Вы вытираете пот со лба, не отрывая взгляда от горизонта...</text>
+    </string>
+    <string id="tlra_road_rustle_grass">
+        <text>Шорох в траве заставляет вас крепче сжать оружие...</text>
+    </string>
+    <string id="tlra_road_desolate_beauty">
+        <text>Вы на мгновение останавливаетесь, любуясь мрачной красотой Зоны...</text>
+    </string>
+    <string id="tlra_road_anomaly_hum">
+        <text>Далёкий гул аномального поля не даёт расслабиться...</text>
+    </string>
+
+    <!-- Road Event Messages (Guide) -->
+    <string id="tlra_guide_stay_low">
+        <text>Проводник знаком показывает держаться ниже, пока вы пересекаете открытое пространство...</text>
+    </string>
+    <string id="tlra_guide_steady_pace">
+        <text>«Держи темп», — бурчит проводник, — «нам ещё топать и топать».</text>
+    </string>
+    <string id="tlra_guide_sniffing_air">
+        <text>Проводник на секунду останавливается, нюхает воздух, затем кивает — можно идти...</text>
+    </string>
+    <string id="tlra_guide_hundred_times">
+        <text>«Я ходил этой дорогой сотни раз», — говорит проводник, — «она никогда не становится легче».</text>
+    </string>
+    <string id="tlra_guide_watch_step">
+        <text>«Осторожно здесь», — предупреждает проводник, — «земля мягче, чем кажется».</text>
+    </string>
+
+    <!-- Positive Event Messages -->
+    <string id="tlra_pos_peace">
+        <text>Вы находите момент покоя, переводя дыхание...</text>
+    </string>
+    <string id="tlra_pos_meditative">
+        <text>Ритмичный звук ваших шагов почти медитативен...</text>
+    </string>
+    <string id="tlra_pos_ru_stash">
+        <text>Вы находите небольшой забытый тайник с 150 руб. в дупле дерева.</text>
+    </string>
+    <string id="tlra_pos_sun_breaks">
+        <text>Солнце пробивается сквозь тучи, поднимая настроение.</text>
+    </string>
+    <string id="tlra_pos_med_stash">
+        <text>Вы находите медицинский схрон, спрятанный в расщелине.</text>
+    </string>
+    <string id="tlra_pos_ammo_crate">
+        <text>Вы замечаете брошенный ящик с боеприпасами среди руин.</text>
+    </string>
+    <string id="tlra_pos_artifact">
+        <text>Вы замечаете слабое мерцание в траве... артефакт!</text>
+    </string>
+    <string id="tlra_pos_ridge_view">
+        <text>Вид с этого гребня захватывает дух. Вы на мгновение останавливаетесь, чтобы насладиться им.</text>
+    </string>
+
+    <!-- Stealth Dodge Messages -->
+    <string id="tlra_stealth_night_weather">
+        <text>Скрытность удалась: используя покров ночи, плохую погоду и навыки %s, вы беззвучно обошли угрозу (%d%% шанс).</text>
+    </string>
+    <string id="tlra_stealth_darkness">
+        <text>Скрытность удалась: растворившись в кромешной тьме, ваши инстинкты %s помогли обойти угрозу (%d%% шанс).</text>
+    </string>
+    <string id="tlra_stealth_weather">
+        <text>Скрытность удалась: плохая погода скрыла ваше передвижение, и вы прошли мимо угрозы (%d%% шанс).</text>
+    </string>
+    <string id="tlra_stealth_experience">
+        <text>Скрытность удалась: опираясь на опыт %s, вам удалось прокрасться мимо угрозы (%d%% шанс).</text>
+    </string>
+
+    <!-- Orphan Dot Cleanup Messages -->
+    <string id="tlra_msg_cleared_markers">
+        <text>TLRA: Удалено застрявших маркеров: %d.</text>
+    </string>
+    <string id="tlra_msg_no_markers">
+        <text>TLRA: Застрявших маркеров не найдено.</text>
+    </string>
+</string_table>

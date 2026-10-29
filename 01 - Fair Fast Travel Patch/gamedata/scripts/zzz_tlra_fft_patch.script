@@ -1,0 +1,37 @@
+-- THE LONG ROAD AHEAD — Fair Fast Travel Patch
+-- Version: 1.9.0
+-- Author: Damage_Zedd
+
+function on_game_start()
+    RegisterScriptCallback("on_before_fast_travel", on_before_fast_travel)
+end
+
+function on_before_fast_travel(trip)
+    -- Safety check for main script and actor
+    if not (_G.tlra and db.actor) then return end
+
+    -- Only intercept when we are not already mid-journey.
+    if _G.tlra.is_traveling then return end
+
+    -- If this is a guide travel, let it pass through (instant travel via Fair Fast Travel)
+    if trip.mode == "guide" or trip.tt == "gt" or _G.tlra.force_instant_guide then
+        _G.tlra.force_instant_guide = nil
+        return
+    end
+
+    -- FFT may store the destination as trip.pos or trip.dpos depending on version.
+    local dest_pos = trip.pos or trip.dpos
+    if not dest_pos then return end
+
+    local lvid = trip.level_vertex_id or db.actor:level_vertex_id()
+    local gvid = trip.game_vertex_id  or db.actor:game_vertex_id()
+
+    -- Signal TLRA to start the physical journey using FFT specs
+    -- The actual specs (cost/time) will be pulled from FFT inside start_travel_sequence
+    local is_transition = (trip.level ~= level.name())
+    local is_guide = (trip.mode == "guide")
+    
+    if zzzz_the_long_road_ahead.start_travel_sequence(dest_pos, lvid, gvid, is_transition, gvid, is_guide) then
+        trip.cancel = true
+    end
+end

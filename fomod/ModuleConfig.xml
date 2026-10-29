@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://qconsulting.ca/fo3/ModConfig5.0.xsd">
+    <moduleName>The Long Road Ahead</moduleName>
+    <installSteps order="Explicit">
+        <installStep name="Selection">
+            <optionalFileGroups order="Explicit">
+                <group name="Core Files" type="SelectAll">
+                    <plugins order="Explicit">
+                        <plugin name="Core Logic">
+                            <description>Mandatory core files.</description>
+                            <files>
+                                <folder source="00 - Core" destination="" priority="0"/>
+                            </files>
+                            <typeDescriptor>
+                                <type name="Required"/>
+                            </typeDescriptor>
+                        </plugin>
+                    </plugins>
+                </group>
+                <group name="Compatibility Patches" type="SelectAny">
+                    <plugins order="Explicit">
+                        <plugin name="Fair Fast Travel Patch">
+                            <description>Enable TLRA handling for Fair Fast Travel (FFT) trips.</description>
+                            <files>
+                                <folder source="01 - Fair Fast Travel Patch" destination="" priority="1"/>
+                            </files>
+                            <typeDescriptor>
+                                <type name="Optional"/>
+                            </typeDescriptor>
+                        </plugin>
+                        <plugin name="New levels Compatibility Patch">
+                            <description>Enable support and fast-travel connections for 5 new custom levels (Promzone, Grimwood, Poselok UG, Bunker A1, and Collider).</description>
+                            <files>
+                                <folder source="02 - New levels Patch" destination="" priority="2"/>
+                            </files>
+                            <typeDescriptor>
+                                <type name="Optional"/>
+                            </typeDescriptor>
+                        </plugin>
+                    </plugins>
+                </group>
+            </optionalFileGroups>
+        </installStep>
+    </installSteps>
+</config>

@@ -1,0 +1,50 @@
+-- THE LONG ROAD AHEAD MCM
+function on_mcm_load()
+    local options = { id = "tlra", sh = true, gr = {
+        { id = "title",        type = "slide", link = "ui_options_slider_player",
+          text = "ui_mcm_tlra_title", size = {512, 50}, spacing = 20 },
+        
+        -- Core Settings
+        { id = "enabled",      type = "check", val = 1, def = true },
+        { id = "mode",         type = "list", val = 2, content={{"stalker", "Stalker (Default)"}, {"tourist", "Tourist (Easy)"}}, def = "stalker" },
+        { id = "travel_speed", type = "track", val = 2, min = 10, max = 50, step = 1, def = 25 },
+        { id = "time_factor",  type = "track", val = 2, min = 1,  max = 50,  step = 1, def = 10 },
+        { id = "line",         type = "line" },
+
+        -- Danger & Safety
+        { id = "interruption_enabled", type = "check", val = 1, def = true },
+        { id = "safe_zone_protection", type = "check", val = 1, def = true },
+        { id = "arrival_offset",       type = "track", val = 2, min = 0,  max = 50,  step = 5, def = 10 },
+        { id = "stealth_dodge_enabled", type = "check", val = 1, def = true },
+        { id = "stealth_dodge_base",    type = "track", val = 2, min = 0, max = 100, step = 5, def = 15 },
+        { id = "stealth_dodge_max",     type = "track", val = 2, min = 0, max = 100, step = 5, def = 75 },
+        { id = "line",         type = "line" },
+
+        -- Survival Impact
+        { id = "costs_enabled",        type = "check", val = 1, def = true },
+        { id = "stamina_drain_enabled",  type = "check", val = 1, def = true },
+        { id = "hunger_rate",          type = "track", val = 2, min = 0, max = 1.5, step = 0.01, def = 0.5 },
+        { id = "thirst_rate",          type = "track", val = 2, min = 0, max = 1.5, step = 0.01, def = 0.8 },
+        { id = "sleep_rate",           type = "track", val = 2, min = 0, max = 1.5, step = 0.01, def = 0.9 },
+        { id = "line",         type = "line" },
+
+        -- Visuals & Feedback
+        { id = "map_dots",               type = "track", val = 2, min = 4,  max = 24,  step = 1, def = 12 },
+        { id = "border_travel_only",     type = "check", val = 1, def = false },
+        { id = "weather_impact_enabled", type = "check", val = 1, def = true },
+        { id = "weight_impact_enabled",  type = "check", val = 1, def = true },
+        { id = "show_stats",             type = "check", val = 1, def = true },
+        { id = "line",         type = "line" },
+
+        -- Troubleshooting
+        { id = "debug_logging",          type = "check", val = 1, def = false },
+    }}
+
+    -- FFT Guide Option Toggle (only if FFT patch is present)
+    if game_fast_travel and zzz_tlra_fft_patch then
+        table.insert(options.gr, #options.gr, { id = "line", type = "line" })
+        table.insert(options.gr, #options.gr, { id = "enable_guide_travel", type = "check", val = 1, def = false })
+    end
+
+    return options
+end

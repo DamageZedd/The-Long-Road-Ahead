@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<string_table>
+    <!-- MCM Menu Strings -->
+    <string id="ui_mcm_menu_tlra">
+        <text>The Long Road Ahead</text>
+    </string>
+    <string id="ui_mcm_tlra_title">
+        <text>The Long Road Ahead v2.3</text>
+    </string>
+
+    <string id="ui_mcm_tlra_mode">
+        <text>Travel Preset</text>
+    </string>
+    <string id="ui_mcm_tlra_mode_desc">
+        <text>Stalker: The full, dangerous experience.\nTourist: Faster travel, no ambushes, no costs, and no stamina drain.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_map_dots">
+        <text>PDA Path Detail</text>
+    </string>
+    <string id="ui_mcm_tlra_map_dots_desc">
+        <text>Number of waypoints displayed on the PDA map during travel. Higher values show more detail.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_border_travel_only">
+        <text>The Final Leg</text>
+    </string>
+    <string id="ui_mcm_tlra_border_travel_only_desc">
+        <text>When enabled, fast travel between different levels will terminate immediately upon entering the destination level. You will be left at the transition border and must walk the remaining distance (the final leg) to your clicked destination.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_wind_sound_enabled">
+        <text>Travel Wind Sound</text>
+    </string>
+    <string id="ui_mcm_tlra_wind_sound_enabled_desc">
+        <text>Play an immersive wind sound effect during animated travel.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_vignette_enabled">
+        <text>Screen Vignette</text>
+    </string>
+    <string id="ui_mcm_tlra_vignette_enabled_desc">
+        <text>Apply a subtle cinematic vignette effect while on the road.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_safe_zone_protection">
+        <text>Safe Zone Protection</text>
+    </string>
+    <string id="ui_mcm_tlra_safe_zone_protection_desc">
+        <text>If enabled, ambushes cannot occur within 100m of your starting or destination points.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_enabled">
+        <text>Enable Mod</text>
+    </string>
+    <string id="ui_mcm_tlra_enabled_desc">
+        <text>Completely enable or disable all travel mechanics.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_travel_speed">
+        <text>Travel Speed</text>
+    </string>
+    <string id="ui_mcm_tlra_travel_speed_desc">
+        <text>Simulated walking speed in meters per second. Higher values result in faster journeys but higher stamina drain.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_time_factor">
+        <text>Time Acceleration</text>
+    </string>
+    <string id="ui_mcm_tlra_time_factor_desc">
+        <text>Multiplier for game-time passage during travel. Higher values make the world pass faster while you move.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_interruption_enabled">
+        <text>Enable Ambush Tech</text>
+    </string>
+    <string id="ui_mcm_tlra_interruption_enabled_desc">
+        <text>If enabled, your journey will be interrupted if your virtual path passes near hostile squads or mutants (Real-Time Threat Detection).</text>
+    </string>
+
+    <string id="ui_mcm_tlra_costs_enabled">
+        <text>Enable Survival Costs</text>
+    </string>
+    <string id="ui_mcm_tlra_costs_enabled_desc">
+        <text>Apply realistic hunger, thirst, and sleepiness based on the total time spent traveling.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_hunger_rate">
+        <text>Hunger Drain Scale</text>
+    </string>
+    <string id="ui_mcm_tlra_thirst_rate">
+        <text>Thirst Drain Scale</text>
+    </string>
+    <string id="ui_mcm_tlra_sleep_rate">
+        <text>Sleep Drain Scale</text>
+    </string>
+
+    <string id="ui_mcm_tlra_weather_impact_enabled">
+        <text>Weather Impact</text>
+    </string>
+    <string id="ui_mcm_tlra_weather_impact_enabled_desc">
+        <text>Rain and storms will slow your travel speed and increase survival costs.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_weight_impact_enabled">
+        <text>Carry Weight Impact</text>
+    </string>
+    <string id="ui_mcm_tlra_weight_impact_enabled_desc">
+        <text>Being over-encumbered will significantly slow your travel speed.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_stamina_drain_enabled">
+        <text>Stamina Consumption</text>
+    </string>
+    <string id="ui_mcm_tlra_stamina_drain_enabled_desc">
+        <text>Traveling long distances is exhausting. If your stamina hits zero, you will be forced to stop and rest.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_show_stats">
+        <text>Show Arrival Summary</text>
+    </string>
+    <string id="ui_mcm_tlra_show_stats_desc">
+        <text>Displays distance traveled and time elapsed upon reaching your destination.</text>
+    </string>
+
+    <string id="ui_mcm_tlra_debug_logging">
+        <text>Enable Debug Logging</text>
+    </string>
+    <string id="ui_mcm_tlra_debug_logging_desc">
+        <text>Prints detailed journey information to the game log. Keep disabled unless troubleshooting.</text>
+    </string>
+    <string id="ui_mcm_tlra_stealth_dodge_enabled">
+        <text>Enable Encounter Dodging</text>
+    </string>
+    <string id="ui_mcm_tlra_stealth_dodge_enabled_desc">
+        <text>Allows a chance to sneak past detected threats during travel, avoiding journey interruption. Chance scales dynamically based on character rank, time of day (better at night), and weather (better in fog/rain/storms).</text>
+    </string>
+    <string id="ui_mcm_tlra_stealth_dodge_base">
+        <text>Base Sneak Chance</text>
+    </string>
+    <string id="ui_mcm_tlra_stealth_dodge_base_desc">
+        <text>The baseline percentage chance to sneak past an encounter without rank, time, or weather bonuses.</text>
+    </string>
+    <string id="ui_mcm_tlra_stealth_dodge_max">
+        <text>Maximum Sneak Chance</text>
+    </string>
+    <string id="ui_mcm_tlra_stealth_dodge_max_desc">
+        <text>The absolute limit for the total stealth chance, preventing automatic success even with perfect bonuses.</text>
+    </string>
+    <string id="ui_mcm_tlra_enable_guide_travel">
+        <text>Enable Instant Guide Travel</text>
+    </string>
+    <string id="ui_mcm_tlra_enable_guide_travel_desc">
+        <text>If enabled, a "Hire guide (instant)" option will be available on base and fast travel spots, bypassing the animated travel sequence for a ruble cost calculated directly from Fair Fast Travel's guide options. (Requires Fair Fast Travel and its TLRA Compatibility Patch)</text>
+    </string>
+    <string id="ui_mcm_tlra_arrival_offset">
+        <text>Arrival Offset</text>
+    </string>
+    <string id="ui_mcm_tlra_arrival_offset_desc">
+        <text>Spawn this many meters before your destination instead of right on it. Helps avoid spawning on top of enemies. Set to 0 to disable and spawn exactly at the destination.</text>
+    </string>
+
+    <!-- In-Game Message Strings -->
+    <string id="tlra_msg_too_wounded">
+        <text>You are too wounded to begin this journey.</text>
+    </string>
+    <string id="tlra_msg_must_stop_bleeding">
+        <text>You must stop the bleeding before traveling.</text>
+    </string>
+    <string id="tlra_msg_no_path">
+        <text>Road: No path found to that zone.</text>
+    </string>
+    <string id="tlra_msg_no_transition">
+        <text>Road: No transition found to %s</text>
+    </string>
+    <string id="tlra_msg_too_close">
+        <text>Destination is too close.</text>
+    </string>
+    <string id="tlra_msg_cannot_afford">
+        <text>You cannot afford this journey (%s RU)</text>
+    </string>
+    <string id="tlra_msg_paid_fft">
+        <text>Journey paid via FFT: %s RU</text>
+    </string>
+    <string id="tlra_msg_paid">
+        <text>Journey paid: %s RU</text>
+    </string>
+    <string id="tlra_msg_heading_border">
+        <text>Heading to zone border...</text>
+    </string>
+    <string id="tlra_msg_journey_begins">
+        <text>The journey begins...</text>
+    </string>
+    <string id="tlra_msg_guide_border">
+        <text>Your guide leads you toward the border...</text>
+    </string>
+    <string id="tlra_msg_guide_way">
+        <text>Your guide leads the way...</text>
+    </string>
+    <string id="tlra_msg_dest_reached">
+        <text>Destination zone reached. Travel completed.</text>
+    </string>
+    <string id="tlra_msg_final_zone">
+        <text>Final zone reached - completing journey...</text>
+    </string>
+    <string id="tlra_msg_resuming">
+        <text>Resuming journey...</text>
+    </string>
+    <string id="tlra_msg_entering_transition">
+        <text>Entering zone transition...</text>
+    </string>
+    <string id="tlra_msg_ru_refunded">
+        <text>, %d RU refunded</text>
+    </string>
+    <string id="tlra_msg_aborted">
+        <text>Journey aborted at %d%%.%s</text>
+    </string>
+    <string id="tlra_msg_exhausted">
+        <text>You are too exhausted to continue.</text>
+    </string>
+    <string id="tlra_msg_interrupted_guide">
+        <text>Journey interrupted at %d%% — guide has fled!%s</text>
+    </string>
+    <string id="tlra_msg_interrupted">
+        <text>Journey interrupted at %d%%.%s</text>
+    </string>
+    <string id="tlra_msg_dest_reached_stats">
+        <text>Destination reached. Distance: %dm. Time elapsed: %dh %dm (Time Factor: %dx).</text>
+    </string>
+    <string id="tlra_msg_events_summary">
+        <text>\nEvents: Survived %d ambushes, found %d positive events.</text>
+    </string>
+
+    <!-- Map Menu Strings -->
+    <string id="tlra_menu_travel_here">
+        <text>Travel here (TLRA)</text>
+    </string>
+    <string id="tlra_menu_hire_guide">
+        <text>Hire guide (instant)</text>
+    </string>
+    <string id="tlra_menu_free">
+        <text>Free</text>
+    </string>
+
+    <!-- Road Event Messages (Non-Guide) -->
+    <string id="tlra_road_thick_brush">
+        <text>You push forward through the thick brush...</text>
+    </string>
+    <string id="tlra_road_dead_trees">
+        <text>The wind howls through the dead trees...</text>
+    </string>
+    <string id="tlra_road_muddy_ground">
+        <text>The ground is uneven and muddy here...</text>
+    </string>
+    <string id="tlra_road_heavy_zone">
+        <text>The zone feels particularly heavy today...</text>
+    </string>
+    <string id="tlra_road_crows">
+        <text>You spot a group of crows circling overhead...</text>
+    </string>
+    <string id="tlra_road_mutant_howl">
+        <text>Distant mutants howl in the distance...</text>
+    </string>
+    <string id="tlra_road_wipe_sweat">
+        <text>You wipe sweat from your brow, keeping your eyes on the horizon...</text>
+    </string>
+    <string id="tlra_road_rustle_grass">
+        <text>A rustle in the grass makes you tighten your grip on your weapon...</text>
+    </string>
+    <string id="tlra_road_desolate_beauty">
+        <text>You pause for a second, admiring the desolate beauty of the Zone...</text>
+    </string>
+    <string id="tlra_road_anomaly_hum">
+        <text>The distant hum of an anomaly field keeps you on edge...</text>
+    </string>
+
+    <!-- Road Event Messages (Guide) -->
+    <string id="tlra_guide_stay_low">
+        <text>Your guide signals for you to stay low as you cross the open ground...</text>
+    </string>
+    <string id="tlra_guide_steady_pace">
+        <text>"Keep your pace steady," the guide mutters, "we've still got ground to cover."</text>
+    </string>
+    <string id="tlra_guide_sniffing_air">
+        <text>The guide pauses for a second, sniffing the air, then nods for you to continue...</text>
+    </string>
+    <string id="tlra_guide_hundred_times">
+        <text>"I've walked this path a hundred times," your guide says, "it never gets easier."</text>
+    </string>
+    <string id="tlra_guide_watch_step">
+        <text>"Watch your step here," the guide warns, "the ground is softer than it looks."</text>
+    </string>
+
+    <!-- Positive Event Messages -->
+    <string id="tlra_pos_peace">
+        <text>You find a moment of peace, catching your breath...</text>
+    </string>
+    <string id="tlra_pos_meditative">
+        <text>The rhythmic sound of your footsteps is almost meditative...</text>
+    </string>
+    <string id="tlra_pos_ru_stash">
+        <text>You find a small, forgotten stash of 150 RU in a hollow log.</text>
+    </string>
+    <string id="tlra_pos_sun_breaks">
+        <text>The sun breaks through the clouds, raising your spirits.</text>
+    </string>
+    <string id="tlra_pos_med_stash">
+        <text>You find a medical stash tucked into a crevice.</text>
+    </string>
+    <string id="tlra_pos_ammo_crate">
+        <text>You spot an abandoned ammunition crate in the ruins.</text>
+    </string>
+    <string id="tlra_pos_artifact">
+        <text>You discover a faint shimmer in a patch of grass... an artifact!</text>
+    </string>
+    <string id="tlra_pos_ridge_view">
+        <text>The view from this ridge is breathtaking. You take a moment to soak it in.</text>
+    </string>
+
+    <!-- Stealth Dodge Messages -->
+    <string id="tlra_stealth_night_weather">
+        <text>Stealth Success: Using the cover of night, bad weather, and your %s skills, you silently slipped past a threat (%d%% chance).</text>
+    </string>
+    <string id="tlra_stealth_darkness">
+        <text>Stealth Success: Melding into the pitch-black darkness, your %s instincts helped you bypass a threat (%d%% chance).</text>
+    </string>
+    <string id="tlra_stealth_weather">
+        <text>Stealth Success: The heavy weather conditions masked your movement as you slipped past a threat (%d%% chance).</text>
+    </string>
+    <string id="tlra_stealth_experience">
+        <text>Stealth Success: Drawing upon your experience as a %s, you managed to sneak past a threat (%d%% chance).</text>
+    </string>
+
+    <!-- Orphan Dot Cleanup Messages -->
+    <string id="tlra_msg_cleared_markers">
+        <text>TLRA: Cleared %d stuck map marker(s).</text>
+    </string>
+    <string id="tlra_msg_no_markers">
+        <text>TLRA: No stuck markers found.</text>
+    </string>
+</string_table>

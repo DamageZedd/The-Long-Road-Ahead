@@ -1,0 +1,15 @@
+﻿# Antigravity IDE configuration
+.agents/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS artifacts
+Thumbs.db
+.DS_Store
+
+# Backups & Temp
+*.bak
+*.tmp
+*.log

@@ -1,0 +1,75 @@
+-- THE LONG ROAD AHEAD — Custom Levels Compatibility Patch (v0.53+)
+-- Author: Antigravity & Damage_Zedd
+-- Dynamically injects new custom maps (promzona, grimwood, poselok_ug, bunker_a1, collaider)
+-- into the TLRA routing database and keyword dictionary.
+
+function on_game_start()
+    RegisterScriptCallback("actor_on_first_update", actor_on_first_update)
+end
+
+function actor_on_first_update()
+    if not (_G.tlra and _G.tlra.STATIC_ZONE_MAP and _G.tlra.DOOR_KEYWORDS) then
+        return
+    end
+
+    local szm = _G.tlra.STATIC_ZONE_MAP
+    local dkw = _G.tlra.DOOR_KEYWORDS
+
+    -- 1. Define custom maps connection list
+    local custom_connections = {
+        promzona     = {"l07_military", "k02_trucks_cemetery", "bunker_a1", "collaider"},
+        grimwood     = {"l07_military", "l09_deadcity", "l10_red_forest"},
+        poselok_ug   = {"l02_garbage", "l04_darkvalley", "k02_trucks_cemetery", "l07_military"},
+        bunker_a1    = {"promzona", "collaider"},
+        collaider    = {"promzona", "bunker_a1"},
+    }
+
+    -- 2. Inject connections into the main database
+    for src, dsts in pairs(custom_connections) do
+        if not szm[src] then
+            szm[src] = dsts
+        end
+    end
+
+    -- 3. Update reciprocal connections for existing maps
+    local reciprocal_links = {
+        l07_military        = {"promzona", "grimwood", "poselok_ug"},
+        k02_trucks_cemetery = {"promzona", "poselok_ug"},
+        l09_deadcity        = {"grimwood"},
+        l10_red_forest      = {"grimwood"},
+        l02_garbage         = {"poselok_ug"},
+        l04_darkvalley      = {"poselok_ug"},
+    }
+
+    for src, dsts in pairs(reciprocal_links) do
+        if szm[src] then
+            for _, d in ipairs(dsts) do
+                local found = false
+                for _, existing in ipairs(szm[src]) do
+                    if existing == d then
+                        found = true
+                        break
+                    end
+                end
+                if not found then
+                    table.insert(szm[src], d)
+                end
+            end
+        end
+    end
+
+    -- 4. Inject map keywords for proximity transition matching
+    local custom_keywords = {
+        promzona   = {"promzona", "prom"},
+        grimwood   = {"grimwood", "grim"},
+        poselok_ug = {"poselok_ug", "pos", "town"},
+        bunker_a1  = {"bunker_a1", "bunk"},
+        collaider  = {"collaider", "col"},
+    }
+
+    for k, v in pairs(custom_keywords) do
+        if not dkw[k] then
+            dkw[k] = v
+        end
+    end
+end
