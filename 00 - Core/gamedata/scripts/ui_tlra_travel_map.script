@@ -799,19 +799,48 @@ function UIRoadAheadTravelMap:UpdateSurvivalVitals()
 
     local cal_str = "Calories: 2,500 kcal"
     if zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.get_diet_calories then
-        local c = zzzz_the_long_road_ahead.get_diet_calories()
-        if c then cal_str = string.format("Calories: %d kcal (-14 kcal/min)", math.floor(c)) end
+        pcall(function()
+            local c = zzzz_the_long_road_ahead.get_diet_calories()
+            if c then cal_str = string.format("Calories: %d kcal (-14 kcal/min)", math.floor(c)) end
+        end)
     end
     self.txt_calories:SetText(cal_str)
 
-    local hyd = math.floor((actor.thirst or 1.0) * 100)
-    self.txt_hydration:SetText(string.format("Hydration: %d%%", math.min(100, hyd)))
+    local hyd = 99
+    pcall(function()
+        if actor.thirst then
+            hyd = math.floor(actor.thirst * 100)
+        end
+    end)
+    self.txt_hydration:SetText(string.format("Hydration: %d%%", math.max(0, math.min(100, hyd))))
 
-    local sta = math.floor(actor.power * 100)
-    self.txt_stamina:SetText(string.format("Stamina: %d%%", math.min(100, sta)))
+    local sta = 100
+    pcall(function()
+        if actor.power then
+            sta = math.floor(actor.power * 100)
+        end
+    end)
+    self.txt_stamina:SetText(string.format("Stamina: %d%%", math.max(0, math.min(100, sta))))
 
-    local weight = math.floor(actor:get_total_weight() * 10) / 10
-    local max_w  = math.floor(actor:get_max_walk_weight() * 10) / 10
+    local weight = 35.0
+    pcall(function()
+        if actor.get_total_weight then
+            weight = math.floor(actor:get_total_weight() * 10) / 10
+        end
+    end)
+
+    local max_w = 60.0
+    pcall(function()
+        if zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.get_real_max_weight then
+            max_w = zzzz_the_long_road_ahead.get_real_max_weight()
+        elseif actor.get_actor_max_walk_weight then
+            max_w = actor:get_actor_max_walk_weight()
+        elseif actor.get_actor_max_weight then
+            max_w = actor:get_actor_max_weight()
+        end
+    end)
+    max_w = math.floor(max_w * 10) / 10
+
     self.txt_encumbrance:SetText(string.format("Pack: %.1f kg / %.0f kg [Stride: 3.4 m/s]", weight, max_w))
 end
 
