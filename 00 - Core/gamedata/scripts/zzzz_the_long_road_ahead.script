@@ -853,10 +853,10 @@ local function tlra_restore_weapons(force_equip)
             level.enable_input()
         end
 
-        -- Decrement and clear any engine hide-weapon counter locks
+        -- Decrement and thoroughly flush engine hide-weapon counter locks (m_iDisableWeapon)
         pcall(function()
             if db.actor and db.actor.restore_weapon then
-                for i = 1, 3 do
+                for i = 1, 10 do
                     db.actor:restore_weapon()
                 end
             end
@@ -892,6 +892,26 @@ local function tlra_restore_weapons(force_equip)
     tlra_log(" tlra_restore_weapons called: UI/Input/Weapons unlocked.")
 end
 
+-- Multi-pulse unlock sequence to prevent engine weapon/item lockout on arrival.
+-- Fires across multiple ticks so level transitions, camera effectors (fade_in.ppe),
+-- and item holster animations cannot leave the player stuck empty-handed.
+local function schedule_arrival_weapon_unlock(is_arrival)
+    CreateTimeEvent("tlra", "unlock_pulse_1", 0.3, function()
+        tlra_restore_weapons(true)
+        return true
+    end)
+    CreateTimeEvent("tlra", "unlock_pulse_2", 0.9, function()
+        tlra_restore_weapons(true)
+        return true
+    end)
+    CreateTimeEvent("tlra", "unlock_pulse_3", 1.8, function()
+        tlra_restore_weapons(true)
+        tlra.safety_until = 0
+        pcall(function() save_var(db.actor, "surge_immuned", false) end)
+        tlra_log(" Safety and surge immunity cleared on final weapon unlock pulse.")
+        return true
+    end)
+end
 local function tlra_clear()
     local actor = db.actor
     if not actor then return end
@@ -2276,12 +2296,7 @@ function actor_on_first_update()
                 end)
 
                 tlra_clear()
-                -- Delay weapon restore so engine finishes processing level load weapon hide
-                CreateTimeEvent("tlra", "arrival_weapon_restore", 1.5, function()
-                    tlra_restore_weapons(true)
-                    tlra.safety_until = 0
-                    return true
-                end)
+                schedule_arrival_weapon_unlock(true)
             else
                 tlra_msg(tlra_str("tlra_msg_final_zone"), 4)
                 start_travel_sequence(f_pos or db.actor:position(), f_lvid or db.actor:level_vertex_id(), final_gvid, false, final_gvid)
@@ -2434,14 +2449,7 @@ function abort_travel_safe()
         db.actor:set_actor_position(final_pos)
         teleport_companions(final_pos, lvid, gvid)
         
-        -- Delay weapon restore so engine finishes processing teleport hide_weapon
-        CreateTimeEvent("tlra", "abort_weapon_restore", 0.5, function()
-            tlra_restore_weapons(true)
-            tlra.safety_until = 0
-            pcall(function() save_var(db.actor, "surge_immuned", false) end)
-            tlra_log(" Safety and surge immunity cleared on weapon restore (abort).")
-            return true
-        end)
+        schedule_arrival_weapon_unlock(false)
         return true
     end)
 end
@@ -2587,6 +2595,9 @@ function actor_on_update()
                 pcall(function()
                     level.show_weapon(true)
                     level.enable_input()
+                    if db.actor and db.actor.restore_weapon then
+                        db.actor:restore_weapon()
+                    end
                 end)
             end
         elseif tlra._was_invuln then
@@ -2991,14 +3002,8 @@ function complete_travel_sequence()
                 end
             end)
 
-            -- Delay weapon restore so engine finishes processing teleport hide_weapon
-            CreateTimeEvent("tlra", "arrival_weapon_restore", 1.5, function()
-                tlra_restore_weapons(true)
-                tlra.safety_until = 0
-                pcall(function() save_var(db.actor, "surge_immuned", false) end)
-                tlra_log(" Safety and surge immunity cleared on weapon restore (arrival).")
-                return true
-            end)
+            -- Multi-pulse unlock so effectors/animations cannot leave weapons locked
+            schedule_arrival_weapon_unlock(true)
             -- Final Arrival Summary
             local game_time_elapsed = game.get_game_time():diffSec(tlra.start_game_time or game.get_game_time())
             local hours = mfloor(game_time_elapsed / 3600)
@@ -3468,14 +3473,7 @@ function trigger_encounter()
         set_safety_active(60.0)
         
         -- Actor is already physically at safe_landing, just handle UI updates
-        -- Delay weapon restore so engine finishes processing teleport hide_weapon
-        CreateTimeEvent("tlra", "encounter_weapon_restore", 0.5, function()
-            tlra_restore_weapons(true)
-            tlra.safety_until = 0
-            pcall(function() save_var(db.actor, "surge_immuned", false) end)
-            tlra_log(" Safety and surge immunity cleared on weapon restore (encounter).")
-            return true
-        end)
+        schedule_arrival_weapon_unlock(false)
         return true
     end)
 end

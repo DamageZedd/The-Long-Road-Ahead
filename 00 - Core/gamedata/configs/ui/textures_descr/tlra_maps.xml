@@ -1,4 +1,8 @@
 <w>
+    <!-- Solid Black Canvas Texture -->
+    <file name="ui\ui_actor_sleep_screen">
+        <texture id="tlra_black_solid" x="0" y="0" width="1024" height="1024"/>
+    </file>
     <file name="ui\ui_global_map">
         <texture id="tlra_map_global" x="0" y="0" width="4096" height="8192"/>
     </file>

@@ -4,7 +4,10 @@
 
 ### 🗺️ Kingdom Come: Deliverance Style Animated Travel Map
 - **Full-Screen Expedition Map Interface (`ui_tlra_travel_map`)**: Initiating travel now launches a full-screen expedition map viewport featuring genuine S.T.A.L.K.E.R. cartographic aesthetics, displaying high-resolution level maps for regional journeys and the global Zone map for cross-level transitions.
-- **Animated Stalker Pawn & Dynamic Breadcrumb Trail**: A custom stalker traveler pawn smoothly traverses the map from your departure outpost to your destination along the calculated route in real time. Breadcrumb trail waypoints illuminate behind your pawn as progress is made, visually replicating *Kingdom Come: Deliverance*'s travel mechanics.
+- **Edge-to-Edge Pure Solid Black Canvas**: Fullscreen backdrop now renders in 100% solid pitch black (`tlra_black_solid`) scaled across widescreen and ultrawide displays (16:9, 16:10, 21:9, 32:9), completely eliminating game world bleeding or background translucency around the UI.
+- **Native Aspect Ratio Preservation & Auto-Centering**: Regional maps now automatically maintain their true cartographic aspect ratios (1:2 vertical for Cordon, Bar, Dark Valley, Global Map; 1:1 square for Garbage, Agroprom, Jupiter, Zaton, Military; 2:1 horizontal for ChNPP-2) centered neatly within the expedition frame. Eliminates horizontal stretching and squishing.
+- **Dynamic Gold Border Hugging & Coordinate Mapping**: Frame borders and breadcrumb trajectory dots dynamically hug the actual map dimensions, ensuring start points, mission markers, and stalker pawns align 1:1 with real physical terrain, roads, and hills.
+- **Animated Stalker Pawn & Dynamic Breadcrumb Trail**: A custom stalker traveler pawn smoothly traverses the map from your departure outpost to your destination along the calculated route in real time. Breadcrumb trail waypoints illuminate behind your pawn as progress is made, visually replicating *Kingdom Come: Deliverance*'s travel mechanics. Pawn arrow dynamically rotates to match your journey heading.
 - **Trip Telemetry & Accelerated World Clock**: Digital header readout showcases the active journey route, real-time trip progress gauge (`%` and `meters remaining`), weather and environmental concealment ratings, and an accelerated world clock with real-time minute progression.
 - **Live Survival & Metabolism Readout**: Real-time bottom telemetry tracks active calorie expenditure and metabolic burn rate (with native Diet System support), hydration level, stamina reserve, and current encumbrance weight and walking pace.
 - **Ambient Roadside Expedition Log**: Scrolling dynamic roadside ticker provides atmospheric real-time narrative updates on terrain progress, weather changes, distance milestones, and distant Zone gunfire.
@@ -17,6 +20,11 @@
   - `[Drop Out & Fight]`: Instantly exits the map screen, drops the player and companion squad into the 3D world with weapons unholstered, and engages the hostile force.
 - **Safe Journey Halt (`ESC` / Button)**: Players can safely halt their journey at any moment to cancel travel and drop to terrain at their current interpolated coordinate with validated AI node snapping.
 - **Configurable in MCM**: Added `Animated Travel Map (KCD Style)` toggle to MCM settings (default `true`) allowing players to toggle between the animated map interface and classic background travel. Complete English and Russian localization included.
+
+### 🛠️ Bug Fixes & Engine Stability
+- **Resolved Weapon & Item Lockout on Arrival**: Fixed a critical engine issue reported on ModDB where players arriving at destinations (or border transitions) were unable to equip weapons, use meds/food, draw detectors, or open their PDA until manually saving and reloading. Implemented a robust 3-pulse delayed unlock sequence and thorough `m_iDisableWeapon` engine counter flushing across normal arrivals, border transitions, safe aborts, and combat ambushes.
+- **Purged Rogue Bump Texture**: Deleted accidental stray texture `02 - New levels Patch/gamedata/textures/crete/crete_walls_02_bump.dds` that caused concrete walls across multiple Zone levels to render with visual distortions.
+- **Level Vertex Crash Fix (`valid_vertex_id`)**: Resolved fatal engine crash in companion teleportation logic (`attempt to call field 'valid_vertex_id' (a nil value)`) by enforcing valid level vertex boundary checks.
 
 ---
 

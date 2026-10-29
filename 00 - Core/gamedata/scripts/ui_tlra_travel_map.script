@@ -49,6 +49,40 @@ local LEVEL_MAP_TEXTURES = {
     ["hospital"]                = "tlra_map_hospital",
 }
 
+-- Native map texture aspect ratios (width / height) to prevent squishing
+local MAP_ASPECT_RATIOS = {
+    ["tlra_map_global"]               = 0.5,
+    ["tlra_map_escape"]               = 0.5,
+    ["tlra_map_garbage"]              = 1.0,
+    ["tlra_map_agroprom"]             = 1.0,
+    ["tlra_map_agroprom_underground"] = 0.5,
+    ["tlra_map_darkvalley"]           = 0.5,
+    ["tlra_map_bar"]                  = 0.5,
+    ["tlra_map_l05_bar"]              = 0.5,
+    ["tlra_map_rostok"]               = 0.5,
+    ["tlra_map_military"]             = 1.0,
+    ["tlra_map_l07_military"]         = 1.0,
+    ["tlra_map_yantar"]               = 1.0,
+    ["tlra_map_l08_yantar"]           = 1.0,
+    ["tlra_map_deadcity"]             = 1.0,
+    ["tlra_map_radar"]                = 1.0,
+    ["tlra_map_l10_radar"]            = 1.0,
+    ["tlra_map_pripyat"]              = 1.0,
+    ["tlra_map_l11_pripyat"]          = 1.0,
+    ["tlra_map_zaton"]                = 1.0,
+    ["tlra_map_jupiter"]              = 1.0,
+    ["tlra_map_jupiter_underground"]  = 1.0,
+    ["tlra_map_marsh"]                = 1.0,
+    ["tlra_map_k01_darkscape"]        = 1.0,
+    ["tlra_map_k02_trucks_cemetery"]  = 1.0,
+    ["tlra_map_red_forest"]           = 1.0,
+    ["tlra_map_limansk"]              = 0.5,
+    ["tlra_map_hospital"]             = 0.5,
+    ["tlra_map_generators"]           = 1.0,
+    ["tlra_map_stancia"]              = 1.0,
+    ["tlra_map_stancia_2"]            = 2.0,
+}
+
 -- Fallback level bounds in meters (x1, z1, x2, z2)
 local FALLBACK_LEVEL_BOUNDS = {
     ["l01_escape"]              = { x1 = -388, z1 = -640, x2 = 398, z2 = 820 },
@@ -163,8 +197,11 @@ function UIRoadAheadTravelMap:InitControls()
     local xml = CScriptXmlInit()
     xml:ParseFile("ui_tlra_travel_map.xml")
 
-    -- Background
+    -- Background: pure black canvas extending edge-to-edge across widescreen/ultrawide viewports
     self.bg = xml:InitStatic("background", self)
+    pcall(function()
+        self.bg:SetWndRect(Frect():set(-600, -200, 1624, 1000))
+    end)
 
     -- Top Header Panel
     self.header_frame   = xml:InitStatic("header_frame", self)
@@ -178,14 +215,15 @@ function UIRoadAheadTravelMap:InitControls()
 
     -- Map Canvas Frame
     self.map_frame      = xml:InitStatic("map_frame", self)
+    self.map_frame_bg   = xml:InitStatic("map_frame:map_frame_bg", self.map_frame)
     self.map_canvas     = xml:InitStatic("map_frame:map_canvas", self.map_frame)
     self.map_canvas:SetStretchTexture(true)
 
     -- Decorative gold outline statics
-    xml:InitStatic("map_frame:frame_top", self.map_frame)
-    xml:InitStatic("map_frame:frame_bottom", self.map_frame)
-    xml:InitStatic("map_frame:frame_left", self.map_frame)
-    xml:InitStatic("map_frame:frame_right", self.map_frame)
+    self.frame_top      = xml:InitStatic("map_frame:frame_top", self.map_frame)
+    self.frame_bottom   = xml:InitStatic("map_frame:frame_bottom", self.map_frame)
+    self.frame_left     = xml:InitStatic("map_frame:frame_left", self.map_frame)
+    self.frame_right    = xml:InitStatic("map_frame:frame_right", self.map_frame)
 
     -- Trail & Marker Statics (Parented directly inside map_frame)
     self.start_marker   = xml:InitStatic("map_frame:start_marker", self.map_frame)
@@ -250,9 +288,11 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
     self.last_log_step  = 0
     self.log_history    = {}
 
-    -- Viewport geometry inside map_frame: 928 x 570
-    local canvas_w = 928
-    local canvas_h = 570
+    -- Frame geometry inside map_frame: 928 x 570
+    local FRAME_W = 928
+    local FRAME_H = 570
+    local MAX_W   = 912
+    local MAX_H   = 554
 
     -- Select map texture
     local tex_id = LEVEL_MAP_TEXTURES[self.level_name] or "tlra_map_global"
@@ -265,26 +305,53 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
         self.map_canvas:SetStretchTexture(true)
     end)
 
+    -- Dynamic Aspect-Ratio Calculations (no squishing or horizontal stretching!)
+    local ar = MAP_ASPECT_RATIOS[tex_id] or 1.0
+    local disp_h = MAX_H
+    local disp_w = math.floor(disp_h * ar)
+    if disp_w > MAX_W then
+        disp_w = MAX_W
+        disp_h = math.floor(MAX_W / ar)
+    end
+
+    local ox = math.floor((FRAME_W - disp_w) / 2)
+    local oy = math.floor((FRAME_H - disp_h) / 2)
+
+    self.map_canvas:SetWndPos(vector2():set(ox, oy))
+    self.map_canvas:SetWndSize(vector2():set(disp_w, disp_h))
+
+    -- Gold frame borders tightly hug the true map boundaries
+    if self.frame_top and self.frame_bottom and self.frame_left and self.frame_right then
+        self.frame_top:SetWndPos(vector2():set(ox, oy))
+        self.frame_top:SetWndSize(vector2():set(disp_w, 2))
+        self.frame_bottom:SetWndPos(vector2():set(ox, oy + disp_h - 2))
+        self.frame_bottom:SetWndSize(vector2():set(disp_w, 2))
+        self.frame_left:SetWndPos(vector2():set(ox, oy))
+        self.frame_left:SetWndSize(vector2():set(2, disp_h))
+        self.frame_right:SetWndPos(vector2():set(ox + disp_w - 2, oy))
+        self.frame_right:SetWndSize(vector2():set(2, disp_h))
+    end
+
     -- Coordinate mapping
     local sx, sy, dx, dy
     local bounds = get_level_bounds(self.level_name)
 
     if bounds and not self.is_transition and bounds.x2 > bounds.x1 and bounds.z2 > bounds.z1 then
-        local u_start = math.min(math.max((self.start_pos.x - bounds.x1) / (bounds.x2 - bounds.x1), 0.08), 0.92)
-        local v_start = math.min(math.max((bounds.z2 - self.start_pos.z) / (bounds.z2 - bounds.z1), 0.08), 0.92)
-        local u_dest  = math.min(math.max((self.dest_pos.x - bounds.x1) / (bounds.x2 - bounds.x1), 0.08), 0.92)
-        local v_dest  = math.min(math.max((bounds.z2 - self.dest_pos.z) / (bounds.z2 - bounds.z1), 0.08), 0.92)
+        local u_start = math.min(math.max((self.start_pos.x - bounds.x1) / (bounds.x2 - bounds.x1), 0.04), 0.96)
+        local v_start = math.min(math.max((bounds.z2 - self.start_pos.z) / (bounds.z2 - bounds.z1), 0.04), 0.96)
+        local u_dest  = math.min(math.max((self.dest_pos.x - bounds.x1) / (bounds.x2 - bounds.x1), 0.04), 0.96)
+        local v_dest  = math.min(math.max((bounds.z2 - self.dest_pos.z) / (bounds.z2 - bounds.z1), 0.04), 0.96)
 
-        sx = u_start * canvas_w
-        sy = v_start * canvas_h
-        dx = u_dest  * canvas_w
-        dy = v_dest  * canvas_h
+        sx = ox + u_start * disp_w
+        sy = oy + v_start * disp_h
+        dx = ox + u_dest  * disp_w
+        dy = oy + v_dest  * disp_h
     else
-        -- Elegant diagonal trek across region
-        sx = canvas_w * 0.18
-        sy = canvas_h * 0.76
-        dx = canvas_w * 0.82
-        dy = canvas_h * 0.24
+        -- Elegant diagonal trek across region / global map
+        sx = ox + disp_w * 0.22
+        sy = oy + disp_h * 0.78
+        dx = ox + disp_w * 0.78
+        dy = oy + disp_h * 0.22
     end
 
     self.screen_start = { x = sx, y = sy }
@@ -305,8 +372,14 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
         self.trail_dots[i]:Show(false)
     end
 
-    -- Initial pawn position
+    -- Initial pawn position & heading
     self.pawn_marker:SetWndPos(vector2():set(sx - 14, sy - 14))
+    pcall(function()
+        if self.pawn_marker.SetHeading then
+            local angle = math.atan2(dx - sx, -(dy - sy))
+            self.pawn_marker:SetHeading(angle)
+        end
+    end)
 
     -- Header Route Title
     local lvl_str = game.translate_string(self.level_name) or self.level_name

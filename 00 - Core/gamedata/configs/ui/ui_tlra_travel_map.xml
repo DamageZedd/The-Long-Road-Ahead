@@ -4,9 +4,9 @@
     <!-- Base Resolution: 1024x768 (Clean military aesthetics, no icon bleed)-->
     <!-- =================================================================== -->
 
-    <!-- Main Fullscreen Background Dimmer / Vignette Base -->
-    <background x="0" y="0" width="1024" height="768" stretch="1">
-        <texture>ui_options_background</texture>
+    <!-- Fullscreen Pure Solid Pitch Black Backdrop (covers widescreen and ultrawide) -->
+    <background x="-600" y="-200" width="2224" height="1168" stretch="1">
+        <texture r="0" g="0" b="0">tlra_black_solid</texture>
     </background>
 
     <!-- Top Telemetry Header Frame -->
@@ -46,8 +46,13 @@
 
     <!-- Map Canvas Window Frame -->
     <map_frame x="48" y="70" width="928" height="570">
-        <!-- Dynamic Map Viewport Canvas: stretched across entire 928x570 frame -->
-        <map_canvas x="0" y="0" width="928" height="570" stretch="1">
+        <!-- Frame background plate: pure dark backing for aspect ratio margins -->
+        <map_frame_bg x="0" y="0" width="928" height="570" stretch="1">
+            <texture r="8" g="8" b="8">tlra_black_solid</texture>
+        </map_frame_bg>
+
+        <!-- Dynamic Map Viewport Canvas: dynamically centered with true aspect ratio -->
+        <map_canvas x="184" y="10" width="560" height="550" stretch="1">
             <texture>tlra_map_global</texture>
         </map_canvas>
 
