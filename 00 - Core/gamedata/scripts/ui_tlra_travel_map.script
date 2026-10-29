@@ -935,6 +935,13 @@ function UIRoadAheadTravelMap:Update()
 
     if self.travel_paused then return end
 
+    local ok, err = pcall(self.ProcessUpdate, self, tlra_core)
+    if not ok then
+        tlra_log("ERROR in UIRoadAheadTravelMap:Update: %s", tostring(err))
+    end
+end
+
+function UIRoadAheadTravelMap:ProcessUpdate(tlra_core)
     local current_dist = tlra_core.current_dist or 0
     local total_dist   = math.max(1, tlra_core.travel_dist or self.travel_dist or 1)
     local ratio        = math.min(current_dist / total_dist, 1.0)
@@ -1106,7 +1113,6 @@ function UIRoadAheadTravelMap:PromptEncounter(threat_name, threat_dist, evasion_
     self.txt_threat_stealth_info:SetText("Tactical Cover: " .. mod_text)
 
     self.txt_evasion_odds:SetText(string.format("STEALTH EVASION: %d%%", self.evasion_chance))
-    if level then level.enable_input() end
     self:Enable(true)
     self:Show(true)
     self.btn_attempt_evade:Enable(true)
@@ -1246,28 +1252,9 @@ function show_map(start_pos, dest_pos, level_name, is_transition, travel_dist, d
     end
     GUI = UIRoadAheadTravelMap()
 
-    -- Engage full screen post-processing blackout shader
-    pcall(function()
-        level.add_pp_effector("sleep_fade.ppe", 8877, false)
-    end)
-
-    -- Force close PDA and other conflicting dialogs so travel map has exclusive input
-    pcall(function()
-        if ActorMenu and ActorMenu.get_pda_menu then
-            local pda = ActorMenu.get_pda_menu()
-            if pda and pda:IsShown() then
-                pda:HideDialog()
-            end
-        end
-        if hide_hud_pda then hide_hud_pda() end
-    end)
-    if level then level.enable_input() end
-
     GUI:StartJourney(start_pos, dest_pos, level_name, is_transition, travel_dist, dest_level_name)
-    GUI:Enable(true)
-    GUI:Show(true)
     GUI:ShowDialog(true)
-    Register_UI("UIRoadAheadTravelMap", "ui_tlra_travel_map")
+    Register_UI("UIRoadAheadTravelMap", "ui_sleep_dialog")
     return GUI
 end
 

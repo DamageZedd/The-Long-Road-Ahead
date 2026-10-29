@@ -6,7 +6,7 @@
 
     <!-- Fullscreen Pure Solid Pitch Black Backdrop (covers all aspect ratios) -->
     <background x="-1200" y="-600" width="3424" height="1968" stretch="1">
-        <texture r="0" g="0" b="0">tlra_black_solid</texture>
+        <texture r="0" g="0" b="0" a="255">tlra_black_solid</texture>
     </background>
 
     <!-- =================================================================== -->
@@ -15,7 +15,7 @@
     <map_frame x="0" y="0" width="1024" height="768">
         <!-- Frame background plate -->
         <map_frame_bg x="0" y="0" width="1024" height="768" stretch="1">
-            <texture r="10" g="12" b="14">tlra_white_solid</texture>
+            <texture r="10" g="12" b="14" a="255">tlra_white_solid</texture>
         </map_frame_bg>
 
         <!-- Base Layer: Continuous Zone Global Map -->
@@ -39,18 +39,18 @@
         </dest_marker>
 
         <!-- Breadcrumb Trail Waypoint Dots (1..12) - Bright Amber Tactical Dots -->
-        <trail_dot_1  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_1>
-        <trail_dot_2  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_2>
-        <trail_dot_3  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_3>
-        <trail_dot_4  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_4>
-        <trail_dot_5  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_5>
-        <trail_dot_6  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_6>
-        <trail_dot_7  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_7>
-        <trail_dot_8  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_8>
-        <trail_dot_9  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_9>
-        <trail_dot_10 x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_10>
-        <trail_dot_11 x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_11>
-        <trail_dot_12 x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50">tlra_white_solid</texture></trail_dot_12>
+        <trail_dot_1  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_1>
+        <trail_dot_2  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_2>
+        <trail_dot_3  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_3>
+        <trail_dot_4  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_4>
+        <trail_dot_5  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_5>
+        <trail_dot_6  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_6>
+        <trail_dot_7  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_7>
+        <trail_dot_8  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_8>
+        <trail_dot_9  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_9>
+        <trail_dot_10 x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_10>
+        <trail_dot_11 x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_11>
+        <trail_dot_12 x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_12>
 
         <!-- Stalker Traveler Pawn: Anchored Dead-Center at (498, 370) -->
         <pawn_marker x="498" y="370" width="28" height="28" stretch="1">
@@ -63,13 +63,13 @@
     <!-- =================================================================== -->
     <dossier_tab x="20" y="16" width="310" height="74">
         <dossier_bg x="0" y="0" width="310" height="74" stretch="1">
-            <texture r="18" g="22" b="28">tlra_white_solid</texture>
+            <texture r="18" g="22" b="28" a="240">tlra_white_solid</texture>
         </dossier_bg>
-        <dossier_bt x="0" y="0" width="310" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></dossier_bt>
-        <dossier_bb x="0" y="72" width="310" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></dossier_bb>
-        <dossier_bl x="0" y="0" width="2" height="74" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></dossier_bl>
-        <dossier_br x="308" y="0" width="2" height="74" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></dossier_br>
-        <dossier_top_bar x="2" y="2" width="306" height="3" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></dossier_top_bar>
+        <dossier_bt x="0" y="0" width="310" height="2" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></dossier_bt>
+        <dossier_bb x="0" y="72" width="310" height="2" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></dossier_bb>
+        <dossier_bl x="0" y="0" width="2" height="74" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></dossier_bl>
+        <dossier_br x="308" y="0" width="2" height="74" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></dossier_br>
+        <dossier_top_bar x="2" y="2" width="306" height="3" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></dossier_top_bar>
 
         <txt_title x="12" y="8" width="286" height="22">
             <text font="letterica18" r="245" g="195" b="75">EXPEDITION: CORDON</text>
@@ -87,12 +87,12 @@
     <!-- =================================================================== -->
     <top_center x="377" y="16" width="270" height="74">
         <top_center_bg x="0" y="0" width="270" height="74" stretch="1">
-            <texture r="18" g="22" b="28">tlra_white_solid</texture>
+            <texture r="18" g="22" b="28" a="240">tlra_white_solid</texture>
         </top_center_bg>
-        <top_center_bt x="0" y="0" width="270" height="2" stretch="1"><texture r="140" g="135" b="115">tlra_white_solid</texture></top_center_bt>
-        <top_center_bb x="0" y="72" width="270" height="2" stretch="1"><texture r="140" g="135" b="115">tlra_white_solid</texture></top_center_bb>
-        <top_center_bl x="0" y="0" width="2" height="74" stretch="1"><texture r="140" g="135" b="115">tlra_white_solid</texture></top_center_bl>
-        <top_center_br x="268" y="0" width="2" height="74" stretch="1"><texture r="140" g="135" b="115">tlra_white_solid</texture></top_center_br>
+        <top_center_bt x="0" y="0" width="270" height="2" stretch="1"><texture r="140" g="135" b="115" a="255">tlra_white_solid</texture></top_center_bt>
+        <top_center_bb x="0" y="72" width="270" height="2" stretch="1"><texture r="140" g="135" b="115" a="255">tlra_white_solid</texture></top_center_bb>
+        <top_center_bl x="0" y="0" width="2" height="74" stretch="1"><texture r="140" g="135" b="115" a="255">tlra_white_solid</texture></top_center_bl>
+        <top_center_br x="268" y="0" width="2" height="74" stretch="1"><texture r="140" g="135" b="115" a="255">tlra_white_solid</texture></top_center_br>
 
         <txt_clock x="6" y="8" width="258" height="20">
             <text font="letterica18" r="255" g="230" b="130" align="c">[10x SPEED] 11:26</text>
@@ -110,33 +110,33 @@
     <!-- =================================================================== -->
     <top_right x="724" y="16" width="280" height="74">
         <top_right_bg x="0" y="0" width="280" height="74" stretch="1">
-            <texture r="18" g="22" b="28">tlra_white_solid</texture>
+            <texture r="18" g="22" b="28" a="240">tlra_white_solid</texture>
         </top_right_bg>
-        <top_right_bt x="0" y="0" width="280" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></top_right_bt>
-        <top_right_bb x="0" y="72" width="280" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></top_right_bb>
-        <top_right_bl x="0" y="0" width="2" height="74" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></top_right_bl>
-        <top_right_br x="278" y="0" width="2" height="74" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></top_right_br>
+        <top_right_bt x="0" y="0" width="280" height="2" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></top_right_bt>
+        <top_right_bb x="0" y="72" width="280" height="2" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></top_right_bb>
+        <top_right_bl x="0" y="0" width="2" height="74" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></top_right_bl>
+        <top_right_br x="278" y="0" width="2" height="74" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></top_right_br>
 
         <txt_progress x="10" y="8" width="260" height="20">
             <text font="letterica18" r="245" g="195" b="75" align="r">0% (0m / 0m)</text>
         </txt_progress>
         <progress_border x="10" y="32" width="260" height="14" stretch="1">
-            <texture r="90" g="95" b="105">tlra_white_solid</texture>
+            <texture r="90" g="95" b="105" a="255">tlra_white_solid</texture>
         </progress_border>
         <progress_bg x="11" y="33" width="258" height="12" stretch="1">
-            <texture r="34" g="38" b="46">tlra_white_solid</texture>
+            <texture r="34" g="38" b="46" a="255">tlra_white_solid</texture>
         </progress_bg>
         <progress_fill x="11" y="33" width="0" height="12" stretch="1">
-            <texture r="224" g="164" b="60">tlra_white_solid</texture>
+            <texture r="224" g="164" b="60" a="255">tlra_white_solid</texture>
         </progress_fill>
         <threat_border x="10" y="52" width="260" height="10" stretch="1">
-            <texture r="70" g="75" b="85">tlra_white_solid</texture>
+            <texture r="70" g="75" b="85" a="255">tlra_white_solid</texture>
         </threat_border>
         <threat_bg x="11" y="53" width="258" height="8" stretch="1">
-            <texture r="28" g="32" b="38">tlra_white_solid</texture>
+            <texture r="28" g="32" b="38" a="255">tlra_white_solid</texture>
         </threat_bg>
         <threat_fill x="11" y="53" width="258" height="8" stretch="1">
-            <texture r="75" g="185" b="140">tlra_white_solid</texture>
+            <texture r="75" g="185" b="140" a="255">tlra_white_solid</texture>
         </threat_fill>
     </top_right>
 
@@ -145,13 +145,13 @@
     <!-- =================================================================== -->
     <vitals_panel x="20" y="618" width="280" height="132">
         <vitals_bg x="0" y="0" width="280" height="132" stretch="1">
-            <texture r="18" g="22" b="28">tlra_white_solid</texture>
+            <texture r="18" g="22" b="28" a="240">tlra_white_solid</texture>
         </vitals_bg>
-        <vitals_bt x="0" y="0" width="280" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></vitals_bt>
-        <vitals_bb x="0" y="130" width="280" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></vitals_bb>
-        <vitals_bl x="0" y="0" width="2" height="132" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></vitals_bl>
-        <vitals_br x="278" y="0" width="2" height="132" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></vitals_br>
-        <vitals_hdr_bg x="2" y="2" width="276" height="20" stretch="1"><texture r="32" g="38" b="48">tlra_white_solid</texture></vitals_hdr_bg>
+        <vitals_bt x="0" y="0" width="280" height="2" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></vitals_bt>
+        <vitals_bb x="0" y="130" width="280" height="2" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></vitals_bb>
+        <vitals_bl x="0" y="0" width="2" height="132" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></vitals_bl>
+        <vitals_br x="278" y="0" width="2" height="132" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></vitals_br>
+        <vitals_hdr_bg x="2" y="2" width="276" height="20" stretch="1"><texture r="32" g="38" b="48" a="255">tlra_white_solid</texture></vitals_hdr_bg>
 
         <vitals_hdr_txt x="10" y="3" width="260" height="18">
             <text font="letterica16" r="245" g="195" b="75">SURVIVAL TELEMETRY</text>
@@ -177,13 +177,13 @@
             <text font="letterica16" r="110" g="215" b="200">Psy-Health</text>
         </txt_psy>
         <psy_border x="175" y="70" width="95" height="14" stretch="1">
-            <texture r="50" g="60" b="70">tlra_white_solid</texture>
+            <texture r="50" g="60" b="70" a="255">tlra_white_solid</texture>
         </psy_border>
         <psy_bg x="176" y="71" width="93" height="12" stretch="1">
-            <texture r="20" g="30" b="35">tlra_white_solid</texture>
+            <texture r="20" g="30" b="35" a="255">tlra_white_solid</texture>
         </psy_bg>
         <psy_fill x="176" y="71" width="93" height="12" stretch="1">
-            <texture r="60" g="190" b="180">tlra_white_solid</texture>
+            <texture r="60" g="190" b="180" a="255">tlra_white_solid</texture>
         </psy_fill>
     </vitals_panel>
 
@@ -192,13 +192,13 @@
     <!-- =================================================================== -->
     <journal_card x="315" y="618" width="480" height="132">
         <journal_bg x="0" y="0" width="480" height="132" stretch="1">
-            <texture r="18" g="22" b="28">tlra_white_solid</texture>
+            <texture r="18" g="22" b="28" a="240">tlra_white_solid</texture>
         </journal_bg>
-        <journal_bt x="0" y="0" width="480" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></journal_bt>
-        <journal_bb x="0" y="130" width="480" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></journal_bb>
-        <journal_bl x="0" y="0" width="2" height="132" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></journal_bl>
-        <journal_br x="478" y="0" width="2" height="132" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></journal_br>
-        <journal_hdr_bg x="2" y="2" width="476" height="20" stretch="1"><texture r="32" g="38" b="48">tlra_white_solid</texture></journal_hdr_bg>
+        <journal_bt x="0" y="0" width="480" height="2" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></journal_bt>
+        <journal_bb x="0" y="130" width="480" height="2" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></journal_bb>
+        <journal_bl x="0" y="0" width="2" height="132" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></journal_bl>
+        <journal_br x="478" y="0" width="2" height="132" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></journal_br>
+        <journal_hdr_bg x="2" y="2" width="476" height="20" stretch="1"><texture r="32" g="38" b="48" a="255">tlra_white_solid</texture></journal_hdr_bg>
 
         <journal_hdr_txt x="12" y="3" width="456" height="18">
             <text font="letterica16" r="245" g="195" b="75">ROAD RECONNAISSANCE LOG</text>
@@ -226,13 +226,13 @@
     <!-- =================================================================== -->
     <action_panel x="815" y="618" width="189" height="132">
         <action_bg x="0" y="0" width="189" height="132" stretch="1">
-            <texture r="18" g="22" b="28">tlra_white_solid</texture>
+            <texture r="18" g="22" b="28" a="240">tlra_white_solid</texture>
         </action_bg>
-        <action_bt x="0" y="0" width="189" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></action_bt>
-        <action_bb x="0" y="130" width="189" height="2" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></action_bb>
-        <action_bl x="0" y="0" width="2" height="132" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></action_bl>
-        <action_br x="187" y="0" width="2" height="132" stretch="1"><texture r="200" g="150" b="60">tlra_white_solid</texture></action_br>
-        <action_hdr_bg x="2" y="2" width="185" height="20" stretch="1"><texture r="32" g="38" b="48">tlra_white_solid</texture></action_hdr_bg>
+        <action_bt x="0" y="0" width="189" height="2" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></action_bt>
+        <action_bb x="0" y="130" width="189" height="2" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></action_bb>
+        <action_bl x="0" y="0" width="2" height="132" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></action_bl>
+        <action_br x="187" y="0" width="2" height="132" stretch="1"><texture r="200" g="150" b="60" a="255">tlra_white_solid</texture></action_br>
+        <action_hdr_bg x="2" y="2" width="185" height="20" stretch="1"><texture r="32" g="38" b="48" a="255">tlra_white_solid</texture></action_hdr_bg>
 
         <action_hdr_txt x="6" y="3" width="177" height="18">
             <text font="letterica16" r="245" g="195" b="75" align="c">COMMAND</text>
@@ -252,19 +252,19 @@
     <!-- =================================================================== -->
     <encounter_modal x="182" y="154" width="660" height="410">
         <modal_bg x="0" y="0" width="660" height="410" stretch="1">
-            <texture r="28" g="24" b="22">tlra_white_solid</texture>
+            <texture r="28" g="24" b="22" a="240">tlra_white_solid</texture>
         </modal_bg>
         <modal_top_line x="0" y="0" width="660" height="4" stretch="1">
-            <texture r="235" g="60" b="45">tlra_white_solid</texture>
+            <texture r="235" g="60" b="45" a="255">tlra_white_solid</texture>
         </modal_top_line>
         <modal_bot_line x="0" y="406" width="660" height="4" stretch="1">
-            <texture r="235" g="60" b="45">tlra_white_solid</texture>
+            <texture r="235" g="60" b="45" a="255">tlra_white_solid</texture>
         </modal_bot_line>
         <modal_left_line x="0" y="0" width="2" height="410" stretch="1">
-            <texture r="235" g="60" b="45">tlra_white_solid</texture>
+            <texture r="235" g="60" b="45" a="255">tlra_white_solid</texture>
         </modal_left_line>
         <modal_right_line x="658" y="0" width="2" height="410" stretch="1">
-            <texture r="235" g="60" b="45">tlra_white_solid</texture>
+            <texture r="235" g="60" b="45" a="255">tlra_white_solid</texture>
         </modal_right_line>
 
         <!-- Pulsing Threat Title -->
@@ -288,13 +288,13 @@
         <!-- Center Evasion Gauge & Odds Readout -->
         <evasion_box x="155" y="165" width="350" height="64">
             <evasion_bg x="0" y="0" width="350" height="64" stretch="1">
-                <texture r="40" g="34" b="30">tlra_white_solid</texture>
+                <texture r="40" g="34" b="30" a="240">tlra_white_solid</texture>
             </evasion_bg>
             <evasion_top_line x="0" y="0" width="350" height="2" stretch="1">
-                <texture r="224" g="164" b="60">tlra_white_solid</texture>
+                <texture r="224" g="164" b="60" a="255">tlra_white_solid</texture>
             </evasion_top_line>
             <evasion_bot_line x="0" y="62" width="350" height="2" stretch="1">
-                <texture r="224" g="164" b="60">tlra_white_solid</texture>
+                <texture r="224" g="164" b="60" a="255">tlra_white_solid</texture>
             </evasion_bot_line>
             <txt_evasion_odds x="10" y="14" width="330" height="36">
                 <text font="graffiti22" r="235" g="175" b="65" align="c">STEALTH EVASION: 65%</text>
