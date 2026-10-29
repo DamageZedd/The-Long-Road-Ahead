@@ -2252,6 +2252,36 @@ function actor_on_before_hit(shit, bone_id)
 end
 
 function on_game_start()
+    -- Engine Hardening: Guard ranks.get_se_obj_rank_name against NULL profile crashes
+    if ranks then
+        if ranks.get_se_obj_rank_name then
+            local og_get_se_obj_rank_name = ranks.get_se_obj_rank_name
+            ranks.get_se_obj_rank_name = function(obj)
+                if not obj then return "novice" end
+                local id = obj.id
+                if id and alife() and not alife_object(id) then return "novice" end
+                if obj.profile_name then
+                    local ok_prof, prof = pcall(function() return obj:profile_name() end)
+                    if (not ok_prof) or (not prof) or prof == "" or prof == "(null)" or prof == "nil" then
+                        return "novice"
+                    end
+                end
+                local ok, res = pcall(og_get_se_obj_rank_name, obj)
+                if ok and res then return res end
+                return "novice"
+            end
+        end
+        if ranks.get_obj_rank_name then
+            local og_get_obj_rank_name = ranks.get_obj_rank_name
+            ranks.get_obj_rank_name = function(obj)
+                if not obj then return "novice" end
+                local ok, res = pcall(og_get_obj_rank_name, obj)
+                if ok and res then return res end
+                return "novice"
+            end
+        end
+    end
+
     tlra_log(" Starting on_game_start registration...")
     build_level_names_registry()
     RegisterScriptCallback("actor_on_update",                actor_on_update)
