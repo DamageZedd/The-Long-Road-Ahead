@@ -1,5 +1,25 @@
 # The Long Road Ahead - Changelog
 
+## v2.4.0 — Kingdom Come Animated Travel Map & Interactive Road Encounters
+
+### 🗺️ Kingdom Come: Deliverance Style Animated Travel Map
+- **Full-Screen Expedition Map Interface (`ui_tlra_travel_map`)**: Initiating travel now launches a full-screen expedition map viewport featuring genuine S.T.A.L.K.E.R. cartographic aesthetics, displaying high-resolution level maps for regional journeys and the global Zone map for cross-level transitions.
+- **Animated Stalker Pawn & Dynamic Breadcrumb Trail**: A custom stalker traveler pawn smoothly traverses the map from your departure outpost to your destination along the calculated route in real time. Breadcrumb trail waypoints illuminate behind your pawn as progress is made, visually replicating *Kingdom Come: Deliverance*'s travel mechanics.
+- **Trip Telemetry & Accelerated World Clock**: Digital header readout showcases the active journey route, real-time trip progress gauge (`%` and `meters remaining`), weather and environmental concealment ratings, and an accelerated world clock with real-time minute progression.
+- **Live Survival & Metabolism Readout**: Real-time bottom telemetry tracks active calorie expenditure and metabolic burn rate (with native Diet System support), hydration level, stamina reserve, and current encumbrance weight and walking pace.
+- **Ambient Roadside Expedition Log**: Scrolling dynamic roadside ticker provides atmospheric real-time narrative updates on terrain progress, weather changes, distance milestones, and distant Zone gunfire.
+
+### ⚔️ Interactive Road Encounters & Stealth Evasion Decisions
+- **Real-Time ALife Interception & Pawn Halt**: When moving hostile ALife simulation squads or mutant packs cross your travel path within threat range, the stalker pawn immediately halts and triggers an alarming tactical alert.
+- **Kingdom Come Ambush Decision Modal**: Displays an interactive tactical decision card detailing the intersecting hostile faction or mutant pack, estimated range, and tactical cover modifiers (night darkness, storm/rain cover).
+- **Interactive Stealth Evasion Choice**:
+  - `[Attempt Evasion]`: Rolls an interactive sneak check based on player rank, nighttime darkness, storm/fog weather cover, and encumbrance. If successful, your stalker slips past the patrol under cover and resumes traveling along the map! If failed, an alarm sounds and you are forcefully dropped into terrain combat.
+  - `[Drop Out & Fight]`: Instantly exits the map screen, drops the player and companion squad into the 3D world with weapons unholstered, and engages the hostile force.
+- **Safe Journey Halt (`ESC` / Button)**: Players can safely halt their journey at any moment to cancel travel and drop to terrain at their current interpolated coordinate with validated AI node snapping.
+- **Configurable in MCM**: Added `Animated Travel Map (KCD Style)` toggle to MCM settings (default `true`) allowing players to toggle between the animated map interface and classic background travel. Complete English and Russian localization included.
+
+---
+
 ## v2.3.1 — Companion Manual Recall & Useful Idiots Stance Synchronization
 
 ### 👥 Companion Squad Recall & Stance Synchronization

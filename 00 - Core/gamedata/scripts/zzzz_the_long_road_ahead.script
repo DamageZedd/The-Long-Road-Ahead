@@ -1670,6 +1670,20 @@ end
 -- ============================================================
 -- 4. Travel Sequence
 -- ============================================================
+
+function get_diet_calories()
+    if diet_system and diet_system.get_nutrients then
+        local nut = diet_system.get_nutrients()
+        if nut and nut.carbohydrates and nut.fats and nut.proteins then
+            return (nut.carbohydrates * 4) + (nut.proteins * 4) + (nut.fats * 9)
+        end
+    end
+    if db.actor and db.actor.satiety then
+        return math.floor(db.actor.satiety * 2500)
+    end
+    return 2200
+end
+
 function start_travel_sequence(pos, lvid, gvid, is_transition, final_gvid, is_guide)
     local mfloor = math.floor
     local sformat = string.format
@@ -1895,6 +1909,16 @@ function start_travel_sequence(pos, lvid, gvid, is_transition, final_gvid, is_gu
         start_msg = tlra.is_transition and tlra_str("tlra_msg_guide_border") or tlra_str("tlra_msg_guide_way")
     end
     tlra_msg(start_msg, 5)
+
+    -- Launch Kingdom Come style animated travel map if enabled
+    local show_map = true
+    if ui_mcm then
+        local v = ui_mcm.get("tlra/animated_travel_map")
+        if v ~= nil then show_map = v end
+    end
+    if show_map and ui_tlra_travel_map and ui_tlra_travel_map.show_map then
+        ui_tlra_travel_map.show_map(tlra.start_pos, tlra.dest_pos, level.name(), tlra.is_transition, tlra.travel_dist)
+    end
     return true
 end
 
@@ -2368,60 +2392,65 @@ function on_map_spot_menu_property_clicked(pui, id, ln, t)
     end
 end
 
-function on_key_press(key)
-    local sformat = string.format
-    tlra.player_ready = true
-    
-
-
+function abort_travel_safe()
     if not tlra.is_traveling then return end
     local actor = db.actor
     if not (actor and db.actor:alive()) then return end
 
-    if key == DIK_keys.DIK_BACK or key == DIK_keys.DIK_ESCAPE then
-        local ratio = math.min(tlra.current_dist / tlra.travel_dist, 1.0)
-        
-        -- v1.8.7: Use AI Node Snap for Safe Abort
-        local spawn_pos = get_safe_lvid_pos(ratio) or tlra.start_pos
-        
-        -- Process Refund
-        local refund = process_refund(ratio)
-        
+    if ui_tlra_travel_map and ui_tlra_travel_map.close_map then
+        ui_tlra_travel_map.close_map()
+    end
+
+    local sformat = string.format
+    local ratio = math.min(tlra.current_dist / tlra.travel_dist, 1.0)
+    
+    -- v1.8.7: Use AI Node Snap for Safe Abort
+    local spawn_pos = get_safe_lvid_pos(ratio) or tlra.start_pos
+    
+    -- Process Refund
+    local refund = process_refund(ratio)
+    
+    set_safety_active(60.0)
+    if actor then
+        tlra_log(" Surge immunity set on journey abort.")
+    end
+    advance_travel_time(ratio)
+    cleanup_dots()
+    stop_travel_logic()
+    tlra_clear()
+
+    local refund_str = (refund and refund > 0) and sformat(tlra_str("tlra_msg_ru_refunded"), refund) or ""
+    tlra_msg(sformat(tlra_str("tlra_msg_aborted"), math.floor(ratio * 100), refund_str))
+    
+    -- Safe Teleport Sequence (1.0s delay for stabilization)
+    pcall(function() level.remove_pp_effector(202); level.add_pp_effector("fade_in.ppe", 202, false) end)
+    CreateTimeEvent("tlra", "safe_abort", 1.0, function()
+        if not db.actor then return true end
         set_safety_active(60.0)
-        if actor then
-            -- surge_immuned removed: it causes GAMMA to loop surges via start(true)
-            tlra_log(" Surge immunity set on journey abort.")
-        end
-		advance_travel_time(ratio)
-        cleanup_dots()
-        stop_travel_logic()
-        tlra_clear()
+        local final_pos = get_safe_pos(spawn_pos)
+        local lvid = level.vertex_id(final_pos)
+        local gvid = db.actor:game_vertex_id()
 
-        local refund_str = (refund and refund > 0) and sformat(tlra_str("tlra_msg_ru_refunded"), refund) or ""
-        tlra_msg(sformat(tlra_str("tlra_msg_aborted"), math.floor(ratio * 100), refund_str))
+        db.actor:set_actor_position(final_pos)
+        teleport_companions(final_pos, lvid, gvid)
         
-        -- Safe Teleport Sequence (1.0s delay for stabilization)
-        pcall(function() level.remove_pp_effector(202); level.add_pp_effector("fade_in.ppe", 202, false) end)
-        CreateTimeEvent("tlra", "safe_abort", 1.0, function()
-            if not db.actor then return true end
-            set_safety_active(60.0)
-            local final_pos = get_safe_pos(spawn_pos)
-            local lvid = level.vertex_id(final_pos)
-            local gvid = db.actor:game_vertex_id()
-
-            db.actor:set_actor_position(final_pos)
-            teleport_companions(final_pos, lvid, gvid)
-            
-            -- Delay weapon restore so engine finishes processing teleport hide_weapon
-            CreateTimeEvent("tlra", "abort_weapon_restore", 0.5, function()
-                tlra_restore_weapons(true)
-                tlra.safety_until = 0
-                pcall(function() save_var(db.actor, "surge_immuned", false) end)
-                tlra_log(" Safety and surge immunity cleared on weapon restore (abort).")
-                return true
-            end)
+        -- Delay weapon restore so engine finishes processing teleport hide_weapon
+        CreateTimeEvent("tlra", "abort_weapon_restore", 0.5, function()
+            tlra_restore_weapons(true)
+            tlra.safety_until = 0
+            pcall(function() save_var(db.actor, "surge_immuned", false) end)
+            tlra_log(" Safety and surge immunity cleared on weapon restore (abort).")
             return true
         end)
+        return true
+    end)
+end
+
+function on_key_press(key)
+    tlra.player_ready = true
+    if not tlra.is_traveling then return end
+    if key == DIK_keys.DIK_BACK or key == DIK_keys.DIK_ESCAPE then
+        abort_travel_safe()
     end
 end
 
@@ -2732,7 +2761,7 @@ function actor_on_update()
     end
 
     -- Encounter logic (Ambush Tech)
-    if cfg.interruption_enabled then
+    if cfg.interruption_enabled and not tlra.is_paused then
         if tg > (tlra.last_encounter_check or 0) + 12000 then
             tlra.last_encounter_check = tg
             
@@ -2742,14 +2771,46 @@ function actor_on_update()
             lerp_pos(tlra.start_pos, tlra.dest_pos, cur_ratio, virtual_pos)
             
             -- Check for enemies near virtual path
-            if detect_ambush(virtual_pos) then
-                trigger_encounter()
-                return
+            local ambush_info = detect_ambush(virtual_pos)
+            if ambush_info then
+                if type(ambush_info) == "table" and ambush_info.detected then
+                    if ui_tlra_travel_map and ui_tlra_travel_map.is_open() then
+                        tlra.is_paused = true
+                        ui_tlra_travel_map.trigger_encounter(
+                            ambush_info.name,
+                            ambush_info.dist,
+                            ambush_info.evasion_chance,
+                            function(evaded)
+                                tlra.is_paused = false
+                                if evaded then
+                                    tlra.last_encounter_check = time_global() + 25000
+                                    tlra.stats_stealth_dodges = (tlra.stats_stealth_dodges or 0) + 1
+                                    tlra_log(" Ambush evaded via KCD interactive decision!")
+                                else
+                                    trigger_encounter()
+                                end
+                            end,
+                            function()
+                                tlra.is_paused = false
+                                trigger_encounter()
+                            end
+                        )
+                        return
+                    else
+                        trigger_encounter()
+                        return
+                    end
+                elseif ambush_info == true then
+                    trigger_encounter()
+                    return
+                end
             end
         end
     end
 
-    tlra.current_dist = tlra.current_dist + ((cfg.travel_speed or 35) * dt * speed_mod)
+    if not tlra.is_paused then
+        tlra.current_dist = tlra.current_dist + ((cfg.travel_speed or 35) * dt * speed_mod)
+    end
     local ratio = mmin(tlra.current_dist / tlra.travel_dist, 1.0)
 
     local d_count = tlra.dot_count or TLRA_DOT_COUNT
@@ -2787,7 +2848,8 @@ function spawn_dot(index)
 end
 
 function complete_travel_sequence()
-  local actor = db.actor
+  if ui_tlra_travel_map and ui_tlra_travel_map.close_map then ui_tlra_travel_map.close_map() end
+    local actor = db.actor
     set_safety_active(60.0)  -- Strong GAMMA protection
     if actor then
         -- surge_immuned removed: it causes GAMMA to loop surges via start(true)
@@ -3013,8 +3075,10 @@ function detect_ambush(virtual_pos)
         end
     end
 
-    local radius = tlra.is_guide and 50 or 70 -- Detection radius in meters (Guides are better at avoiding threats)
+    local radius = tlra.is_guide and 50 or 70 -- Detection radius in meters
     local ambush_triggered = false
+    local ambush_name = nil
+    local ambush_dist = nil
     
     -- Check sim_board for hostile squads near virtual position
     local board = SIMBOARD
@@ -3023,8 +3087,6 @@ function detect_ambush(virtual_pos)
             for id, _ in pairs(board.squads) do
                 local squad = alife_object(id)
                 if squad and (type(squad) == "userdata") and squad.position then
-                    
-                    -- Level Check: Only check squads on the same level as the actor
                     local squad_lid = -1
                     local ok_lid, res_lid = pcall(function() return gg:vertex(squad.m_game_vertex_id):level_id() end)
                     if ok_lid then squad_lid = res_lid end
@@ -3032,7 +3094,6 @@ function detect_ambush(virtual_pos)
                     if squad_lid == actor_lid then
                         local ok_dist, dist = pcall(function() return virtual_pos:distance_to(squad.position) end)
                         if ok_dist and dist < radius then
-                            -- Relation Check: Check if squad community is actually hostile
                             local community = "none"
                             local ok_comm, res_comm = pcall(function() return squad:get_squad_community() end)
                             if ok_comm then community = res_comm end
@@ -3041,8 +3102,6 @@ function detect_ambush(virtual_pos)
                             if community == "monster" or community == "zombied" or community == "monolith" then
                                 is_hostile = true
                             else
-                                -- Dynamic relation check for human factions
-                                -- community_relation returns -1.0 to 1.0; anything negative is hostile
                                 local rel = relation_registry.community_relation(community, db.actor:character_community())
                                 if rel and rel < 0 then
                                     is_hostile = true
@@ -3050,7 +3109,10 @@ function detect_ambush(virtual_pos)
                             end
 
                             if is_hostile then
-                                tlra_log(" AMBUSH DETECTED! %s near virtual path (dist: %f)", tostring(community), dist)
+                                local squad_name = (tostring(community):gsub("^%l", string.upper)) .. " Squad"
+                                ambush_name = squad_name
+                                ambush_dist = dist
+                                tlra_log(" AMBUSH DETECTED! %s near virtual path (dist: %f)", squad_name, dist)
                                 ambush_triggered = true
                                 tlra.stats_ambushes = (tlra.stats_ambushes or 0) + 1
                                 break
@@ -3062,7 +3124,7 @@ function detect_ambush(virtual_pos)
         end)
     end
 
-    -- v1.9.1: Expand check to online objects (catch individual mutants/NPCs not in squads)
+    -- Expand check to online objects
     if not ambush_triggered then
         for id, obj in pairs(db.storage) do
             local npc = level.object_by_id(id)
@@ -3080,7 +3142,10 @@ function detect_ambush(virtual_pos)
                     end
                     
                     if is_hostile then
-                        tlra_log(" AMBUSH DETECTED (Online)! %s near virtual path (dist: %f)", npc:name(), dist)
+                        local hostile_label = (IsMonster(npc) and "Mutant Pack") or ((npc.character_name and npc:character_name()) or npc:name() or "Hostile Stalker")
+                        ambush_name = hostile_label
+                        ambush_dist = dist
+                        tlra_log(" AMBUSH DETECTED (Online)! %s near virtual path (dist: %f)", hostile_label, dist)
                         ambush_triggered = true
                         tlra.stats_ambushes = (tlra.stats_ambushes or 0) + 1
                         break
@@ -3092,18 +3157,20 @@ function detect_ambush(virtual_pos)
 
     if ambush_triggered then
         local cfg = tlra.active_config or {}
+        local total_chance = 50
+        local time_bonus = 0
+        local weather_bonus = 0
+
         if cfg.stealth_dodge_enabled then
-            -- Calculate dynamic stealth chance
             local base_chance = cfg.stealth_dodge_base or 15
 
-            -- 1. Player Rank scaling (Novice -> Legend, up to +25%)
+            -- 1. Player Rank scaling
             local rank_points = db.actor:character_rank() or 0
             local rank_factor = math.min(rank_points / 15000, 1.0)
             local rank_bonus = rank_factor * 25
 
-            -- 2. Time of Day scaling (Night: 21:00 to 05:00, up to +25%)
+            -- 2. Time of Day scaling
             local hours = level.get_time_hours() or 12
-            local time_bonus = 0
             if hours >= 21 or hours < 5 then
                 time_bonus = 25
             elseif hours >= 20 and hours < 21 then
@@ -3112,8 +3179,7 @@ function detect_ambush(virtual_pos)
                 time_bonus = (6 - hours) * 25
             end
 
-            -- 3. Weather scaling (Rain, Fog, Storm, up to +25%)
-            local weather_bonus = 0
+            -- 3. Weather scaling
             local w = level.get_weather()
             if w then
                 w = string.lower(w)
@@ -3130,26 +3196,32 @@ function detect_ambush(virtual_pos)
                 weather_bonus = rain * 25
             end
 
-            local total_chance = base_chance + rank_bonus + time_bonus + weather_bonus
+            total_chance = base_chance + rank_bonus + time_bonus + weather_bonus
             local max_chance = cfg.stealth_dodge_max or 75
             if total_chance > max_chance then
                 total_chance = max_chance
             end
+        end
 
-            -- Roll the check
+        -- If KCD Animated Map is currently open, return threat data for the interactive modal!
+        if ui_tlra_travel_map and ui_tlra_travel_map.is_open and ui_tlra_travel_map.is_open() then
+            return {
+                detected = true,
+                name = ambush_name or "Hostile ALife Patrol",
+                dist = ambush_dist or 70,
+                evasion_chance = math.floor(total_chance)
+            }
+        end
+
+        -- Legacy / Map-disabled automatic stealth roll
+        if cfg.stealth_dodge_enabled then
             local roll = math.random(1, 100)
             if roll <= total_chance then
-                tlra_log("STEALTH SUCCESS: Dodged encounter! Roll: %d <= Chance: %d (Base: %d, Rank: %.1f, Time: %.1f, Weather: %.1f)", roll, total_chance, base_chance, rank_bonus, time_bonus, weather_bonus)
+                tlra_log("STEALTH SUCCESS: Dodged encounter! Roll: %d <= Chance: %d", roll, total_chance)
+                pcall(function() xr_sound.set_sound_play(db.actor:id(), "pda_tips") end)
 
-                -- Play subtle PDA notification sound
-                pcall(function()
-                    xr_sound.set_sound_play(db.actor:id(), "pda_tips")
-                end)
-
-                -- Dynamic, highly premium descriptive feedback
                 local rank_name = ranks.get_obj_rank_name(actor) or "stalker"
                 rank_name = string.gsub(rank_name, "^%l", string.upper)
-
                 local msg_text = ""
                 if time_bonus > 0 and weather_bonus > 0 then
                     msg_text = string.format(tlra_str("tlra_stealth_night_weather"), rank_name, math.floor(total_chance))
@@ -3162,14 +3234,9 @@ function detect_ambush(virtual_pos)
                 end
 
                 tlra_msg(msg_text, 5)
-
-                -- Stats
                 tlra.stats_stealth_dodges = (tlra.stats_stealth_dodges or 0) + 1
-                
-                -- Decrement/reset the stats_ambushes addition that detect_ambush did so statistics remain clean
                 tlra.stats_ambushes = math.max((tlra.stats_ambushes or 0) - 1, 0)
-
-                return false -- Dodge successfully, no ambush!
+                return false
             else
                 tlra_log("STEALTH FAILURE: Failed to dodge encounter. Roll: %d > Chance: %d", roll, total_chance)
             end
@@ -3277,6 +3344,8 @@ function apply_final_stats(skipped_sec)
 end
 
 function stop_travel_logic()
+    if ui_tlra_travel_map and ui_tlra_travel_map.close_map then ui_tlra_travel_map.close_map() end
+    tlra.is_paused = false
     tlra.last_travel_end_tg = time_global()
     tlra.is_traveling = false
     tlra_is_traveling = false -- Sync legacy global
@@ -3332,6 +3401,8 @@ function purge_orphan_dots()
 end
 
 function trigger_encounter()
+    if ui_tlra_travel_map and ui_tlra_travel_map.close_map then ui_tlra_travel_map.close_map() end
+    tlra.is_paused = false
     set_safety_active(60.0)
     local pct   = math.floor(math.min(tlra.current_dist / tlra.travel_dist, 1.0) * 100)
     local ratio = math.min(tlra.current_dist / tlra.travel_dist, 1.0)

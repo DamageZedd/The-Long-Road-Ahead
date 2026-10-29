@@ -15,6 +15,13 @@
         <text>Сталкер: полный, опасный опыт.\nТурист: быстрое передвижение, без засад, без затрат и без расхода выносливости.</text>
     </string>
 
+    <string id="ui_mcm_tlra_animated_travel_map">
+        <text>Анимированная карта путешествия (KCD)</text>
+    </string>
+    <string id="ui_mcm_tlra_animated_travel_map_desc">
+        <text>Отображает полноэкранную анимированную карту экспедиции в стиле Kingdom Come: Deliverance с движущейся фишкой сталкера, мониторингом метаболизма, ускоренными часами и интерактивными засадами.</text>
+    </string>
+
     <string id="ui_mcm_tlra_map_dots">
         <text>Детализация маршрута на КПК</text>
     </string>

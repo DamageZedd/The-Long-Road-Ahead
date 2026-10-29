@@ -29,6 +29,7 @@ function on_mcm_load()
         { id = "line",         type = "line" },
 
         -- Visuals & Feedback
+        { id = "animated_travel_map",    type = "check", val = 1, def = true },
         { id = "map_dots",               type = "track", val = 2, min = 4,  max = 24,  step = 1, def = 12 },
         { id = "border_travel_only",     type = "check", val = 1, def = false },
         { id = "weather_impact_enabled", type = "check", val = 1, def = true },

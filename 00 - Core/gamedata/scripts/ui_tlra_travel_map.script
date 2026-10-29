@@ -1,0 +1,555 @@
+-- ===================================================================
+-- THE LONG ROAD AHEAD - KINGDOM COME STYLE ANIMATED EXPEDITION MAP UI
+-- Fast travel simulation map screen with animated pawn, real-time
+-- survival vitals, accelerated world clock, and interactive ambushes.
+-- ===================================================================
+
+GUI = nil
+
+-- Standard level map texture lookup table (resilient fallback)
+local LEVEL_MAP_TEXTURES = {
+    l01_escape              = "map\\map_escape",
+    l02_garbage             = "map\\map_garbage",
+    l03_agroprom            = "map\\map_agroprom",
+    l04_darkvalley          = "map\\map_darkvalley",
+    l05_bar                 = "map\\map_bar",
+    l06_rostok              = "map\\map_rostok",
+    l07_military            = "map\\map_military",
+    l08_yantar              = "map\\map_yantar",
+    l09_deadcity            = "map\\map_deadcity",
+    l10_radar               = "map\\map_radar",
+    l11_pripyat             = "map\\map_pripyat",
+    l12_stancia             = "map\\map_stancia",
+    l12_stancia_2           = "map\\map_stancia_2",
+    l13_generators          = "map\\map_generators",
+    k00_marsh               = "map\\map_marsh",
+    k01_darkscape           = "map\\map_k01_darkscape",
+    k02_trucks_cemetery     = "map\\map_k02_trucks_cemetery",
+    jupiter                 = "map\\map_jupiter",
+    zaton                   = "map\\map_zaton",
+    pripyat                 = "map\\map_pripyat",
+    jupiter_underground     = "map\\map_jupiter_underground",
+    l03u_agr_underground    = "map\\map_agroprom_underground",
+    l04u_labx18             = "map\\map_l04u_labx18",
+    l08u_brainlab           = "map\\map_l08u_brainlab",
+    l10u_bunker             = "map\\map_radar",
+    l12u_sarcofag           = "map\\map_aes_1",
+    l12u_control_monolith   = "map\\map_l12u_control_monolith",
+    labx8                   = "map\\map_labx8",
+    limansk                 = "map\\map_limansk",
+    red_forest              = "map\\map_red_forest",
+    hospital                = "map\\map_hospital",
+}
+
+-- Safe sound object loader
+local function safe_sound(snd_path)
+    local snd = nil
+    pcall(function()
+        snd = sound_object(snd_path)
+    end)
+    return snd
+end
+
+-- Parse level bound_rect string into coordinate numbers
+local function parse_bound_rect(raw)
+    if type(raw) ~= "string" then return nil end
+    local x1, z1, x2, z2 = string.match(raw, "^%s*(-?[%d%.]+)%s*,%s*(-?[%d%.]+)%s*,%s*(-?[%d%.]+)%s*,%s*(-?[%d%.]+)")
+    x1, z1, x2, z2 = tonumber(x1), tonumber(z1), tonumber(x2), tonumber(z2)
+    if not (x1 and z1 and x2 and z2) then return nil end
+    if x2 <= x1 or z2 <= z1 then return nil end
+    return { x1 = x1, z1 = z1, x2 = x2, z2 = z2 }
+end
+
+-- Read level bounds and texture from level.ltx
+local function get_level_info(level_name)
+    level_name = level_name or (level and level.name and level.name())
+    if not level_name then return nil end
+
+    local tex = LEVEL_MAP_TEXTURES[level_name] or ("map\\map_" .. level_name)
+    local bounds = nil
+
+    pcall(function()
+        local fs = getFS()
+        if fs and fs.r_open then
+            local reader = fs:r_open("$game_levels$", level_name .. "\\level.ltx")
+            if reader then
+                local ini = ini_file(reader, "$game_levels$")
+                if ini then
+                    local raw = ini:r_string_ex("level_map", "bound_rect")
+                    if raw then bounds = parse_bound_rect(raw) end
+                    local cfg_tex = ini:r_string_ex("level_map", "texture")
+                    if cfg_tex and cfg_tex ~= "" then tex = cfg_tex end
+                end
+            end
+        end
+    end)
+
+    return { bounds = bounds, texture = tex }
+end
+
+-- ===================================================================
+-- UI WINDOW CLASS
+-- ===================================================================
+class "UIRoadAheadTravelMap" (CUIScriptWnd)
+
+function UIRoadAheadTravelMap:__init() super()
+    self.travel_paused      = false
+    self.encounter_active   = false
+    self.last_log_step      = 0
+    self.log_history        = {}
+    self.wide               = (device().width / device().height) > (1024 / 768 + 0.01)
+
+    -- Sound feedback
+    self.snd_alarm  = safe_sound([[detectors\contact_1]])
+    self.snd_evade  = safe_sound([[interface\mp_reward]])
+    self.snd_click  = safe_sound([[interface\inv_open]])
+
+    self:InitControls()
+    self:InitCallbacks()
+end
+
+function UIRoadAheadTravelMap:__finalize()
+    GUI = nil
+end
+
+function UIRoadAheadTravelMap:InitControls()
+    self:SetWndRect(Frect():set(0, 0, 1024, 768))
+    self:SetAutoDelete(true)
+
+    local xml = CScriptXmlInit()
+    xml:ParseFile("ui_tlra_travel_map.xml")
+
+    -- Background
+    self.bg = xml:InitStatic("background", self)
+
+    -- Top Header Panel
+    self.header_frame   = xml:InitStatic("header_frame", self)
+    self.txt_title      = xml:InitTextWnd("header_frame:txt_title", self.header_frame)
+    self.txt_route      = xml:InitTextWnd("header_frame:txt_route", self.header_frame)
+    self.txt_clock      = xml:InitTextWnd("header_frame:txt_clock", self.header_frame)
+    self.txt_env        = xml:InitTextWnd("header_frame:txt_environment", self.header_frame)
+    self.txt_progress   = xml:InitTextWnd("header_frame:txt_progress", self.header_frame)
+    self.progress_bg    = xml:InitStatic("header_frame:progress_bg", self.header_frame)
+    self.progress_fill  = xml:InitStatic("header_frame:progress_fill", self.header_frame)
+
+    -- Map Canvas Frame
+    self.map_frame      = xml:InitStatic("map_frame", self)
+    self.map_canvas     = xml:InitStatic("map_frame:map_canvas", self.map_frame)
+    self.map_border     = xml:InitStatic("map_frame:map_border", self.map_frame)
+
+    -- Trail & Marker Statics
+    self.start_marker   = xml:InitStatic("map_frame:start_marker", self.map_frame)
+    self.dest_marker    = xml:InitStatic("map_frame:dest_marker", self.map_frame)
+
+    self.trail_dots = {}
+    for i = 1, 12 do
+        self.trail_dots[i] = xml:InitStatic("map_frame:trail_dot_" .. i, self.map_frame)
+    end
+
+    -- Stalker Traveler Pawn
+    self.pawn_marker    = xml:InitStatic("map_frame:pawn_marker", self.map_frame)
+
+    -- Bottom Telemetry & Survival Panel
+    self.bottom_frame   = xml:InitStatic("bottom_frame", self)
+    self.txt_calories   = xml:InitTextWnd("bottom_frame:txt_calories", self.bottom_frame)
+    self.txt_hydration  = xml:InitTextWnd("bottom_frame:txt_hydration", self.bottom_frame)
+    self.txt_stamina    = xml:InitTextWnd("bottom_frame:txt_stamina", self.bottom_frame)
+    self.txt_encumbrance= xml:InitTextWnd("bottom_frame:txt_encumbrance", self.bottom_frame)
+
+    self.txt_logs = {}
+    for i = 1, 4 do
+        self.txt_logs[i] = xml:InitTextWnd("bottom_frame:txt_log_" .. i, self.bottom_frame)
+    end
+
+    self.btn_halt       = xml:Init3tButton("bottom_frame:btn_halt", self.bottom_frame)
+    self:Register(self.btn_halt, "btn_halt")
+
+    -- KCD Ambush / Encounter Modal Card
+    self.encounter_modal        = xml:InitStatic("encounter_modal", self)
+    self.txt_threat_title       = xml:InitTextWnd("encounter_modal:txt_threat_title", self.encounter_modal)
+    self.txt_threat_desc        = xml:InitTextWnd("encounter_modal:txt_threat_desc", self.encounter_modal)
+    self.txt_threat_range       = xml:InitTextWnd("encounter_modal:txt_threat_range", self.encounter_modal)
+    self.txt_threat_stealth_info= xml:InitTextWnd("encounter_modal:txt_threat_stealth_info", self.encounter_modal)
+    self.txt_evasion_odds       = xml:InitTextWnd("encounter_modal:evasion_box:txt_evasion_odds", self.encounter_modal)
+
+    self.btn_attempt_evade      = xml:Init3tButton("encounter_modal:btn_attempt_evade", self.encounter_modal)
+    self:Register(self.btn_attempt_evade, "btn_attempt_evade")
+
+    self.btn_drop_and_fight     = xml:Init3tButton("encounter_modal:btn_drop_and_fight", self.encounter_modal)
+    self:Register(self.btn_drop_and_fight, "btn_drop_and_fight")
+
+    -- Initially hide encounter card
+    self.encounter_modal:Show(false)
+end
+
+function UIRoadAheadTravelMap:InitCallbacks()
+    self:AddCallback("btn_halt", ui_events.BUTTON_CLICKED, self.OnHaltClicked, self)
+    self:AddCallback("btn_attempt_evade", ui_events.BUTTON_CLICKED, self.OnAttemptEvade, self)
+    self:AddCallback("btn_drop_and_fight", ui_events.BUTTON_CLICKED, self.OnDropAndFight, self)
+end
+
+-- Setup and launch expedition display
+function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_transition, travel_dist)
+    self.start_pos      = start_pos or (db.actor and db.actor:position()) or vector():set(0, 0, 0)
+    self.dest_pos       = dest_pos or self.start_pos
+    self.level_name     = level_name or (level and level.name and level.name()) or "Zone"
+    self.is_transition  = is_transition or false
+    self.travel_dist    = travel_dist or math.max(1, self.start_pos:distance_to(self.dest_pos))
+    self.travel_paused  = false
+    self.encounter_active = false
+    self.last_log_step  = 0
+    self.log_history    = {}
+
+    -- Viewport geometry inside map_frame:
+    -- map_canvas is placed at x=8, y=8, w=912, h=554 relative to map_frame
+    local canvas_x = 8
+    local canvas_y = 8
+    local canvas_w = 912
+    local canvas_h = 554
+
+    -- Select map texture & coordinate projection
+    local lvl_info = get_level_info(self.level_name)
+    local tex_path = lvl_info and lvl_info.texture or "ui\\ui_global_map"
+    if self.is_transition then
+        tex_path = "ui\\ui_global_map"
+    end
+
+    pcall(function()
+        self.map_canvas:InitTexture(tex_path)
+    end)
+
+    -- Coordinate mapping
+    local sx, sy, dx, dy
+    local b = lvl_info and lvl_info.bounds
+
+    if b and not self.is_transition then
+        local u_start = math.min(math.max((self.start_pos.x - b.x1) / (b.x2 - b.x1), 0.05), 0.95)
+        local v_start = math.min(math.max((b.z2 - self.start_pos.z) / (b.z2 - b.z1), 0.05), 0.95)
+        local u_dest  = math.min(math.max((self.dest_pos.x - b.x1) / (b.x2 - b.x1), 0.05), 0.95)
+        local v_dest  = math.min(math.max((b.z2 - self.dest_pos.z) / (b.z2 - b.z1), 0.05), 0.95)
+
+        sx = canvas_x + u_start * canvas_w
+        sy = canvas_y + v_start * canvas_h
+        dx = canvas_x + u_dest  * canvas_w
+        dy = canvas_y + v_dest  * canvas_h
+    else
+        -- High aesthetic diagonal route across territory
+        sx = canvas_x + canvas_w * 0.18
+        sy = canvas_y + canvas_h * 0.78
+        dx = canvas_x + canvas_w * 0.82
+        dy = canvas_y + canvas_h * 0.22
+    end
+
+    self.screen_start = { x = sx, y = sy }
+    self.screen_dest  = { x = dx, y = dy }
+
+    -- Place origin & target markers
+    self.start_marker:SetWndPos(vector2():set(sx - 12, sy - 12))
+    self.dest_marker:SetWndPos(vector2():set(dx - 13, dy - 13))
+
+    -- Place breadcrumb dots evenly spaced along the line
+    self.dot_coords = {}
+    for i = 1, 12 do
+        local frac = i / 13
+        local px = sx + (dx - sx) * frac
+        local py = sy + (dy - sy) * frac
+        self.dot_coords[i] = { x = px, y = py }
+        self.trail_dots[i]:SetWndPos(vector2():set(px - 5, py - 5))
+        self.trail_dots[i]:Show(false) -- hidden until traveled
+    end
+
+    -- Initial pawn position
+    self.pawn_marker:SetWndPos(vector2():set(sx - 14, sy - 14))
+
+    -- Header Route Title
+    local lvl_str = game.translate_string(self.level_name) or self.level_name
+    self.txt_title:SetText("EXPEDITION: " .. string.upper(lvl_str))
+    self.txt_route:SetText(string.format("Trek Distance: %dm | Safe Stride Mode Active", math.floor(self.travel_dist)))
+
+    -- Initialize road log messages
+    local h = level.get_time_hours()
+    local m = level.get_time_minutes()
+    local t_str = string.format("%02d:%02d", h, m)
+
+    self:AddLog(string.format("%s - Departed staging outpost on foot.", t_str))
+    self:AddLog(string.format("%s - Route plotted: heading towards destination beacon.", t_str))
+    self:AddLog(string.format("%s - ALife Threat Radar scanning road ahead (100m radius).", t_str))
+    self:AddLog(string.format("%s - Weather clear. Steady walking rhythm established.", t_str))
+
+    self.encounter_modal:Show(false)
+end
+
+-- Add entry to road log ticker
+function UIRoadAheadTravelMap:AddLog(entry)
+    table.insert(self.log_history, 1, entry)
+    if #self.log_history > 10 then
+        table.remove(self.log_history)
+    end
+    for i = 1, 4 do
+        if self.txt_logs[i] then
+            self.txt_logs[i]:SetText(self.log_history[i] or "")
+        end
+    end
+end
+
+-- Per-frame update
+function UIRoadAheadTravelMap:Update()
+    CUIScriptWnd.Update(self)
+    if not self:IsShown() then return end
+
+    -- Read live travel state from TLRA core
+    local tlra_core = zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.tlra
+    if not tlra_core then return end
+
+    -- If journey finished or cancelled elsewhere, close
+    if not tlra_core.is_traveling and not self.encounter_active then
+        self:Close()
+        return
+    end
+
+    -- Don't advance visuals if paused for encounter decision
+    if self.travel_paused then return end
+
+    local current_dist = tlra_core.current_dist or 0
+    local total_dist   = math.max(1, tlra_core.travel_dist or self.travel_dist or 1)
+    local ratio        = math.min(current_dist / total_dist, 1.0)
+
+    -- Interpolate pawn position smoothly
+    if self.screen_start and self.screen_dest then
+        local px = self.screen_start.x + (self.screen_dest.x - self.screen_start.x) * ratio
+        local py = self.screen_start.y + (self.screen_dest.y - self.screen_start.y) * ratio
+        self.pawn_marker:SetWndPos(vector2():set(px - 14, py - 14))
+
+        -- Light up breadcrumbs trail as pawn passes them
+        for i = 1, 12 do
+            local threshold = i / 13
+            if ratio >= threshold then
+                self.trail_dots[i]:Show(true)
+            end
+        end
+    end
+
+    -- Update progress text & gauge
+    local pct = math.floor(ratio * 100)
+    self.txt_progress:SetText(string.format("%d%% (%dm / %dm)", pct, math.floor(current_dist), math.floor(total_dist)))
+    self.progress_fill:SetWndSize(vector2():set(math.floor(202 * ratio), 10))
+
+    -- Update accelerated world clock
+    local h = level.get_time_hours()
+    local m = level.get_time_minutes()
+    local tf = tlra_core.target_time_factor or 15
+    self.txt_clock:SetText(string.format("%02d:%02d [%dx SPEED]", h, m, tf))
+
+    -- Update weather environment
+    local rain = (level.rain_factor and level.rain_factor()) or 0
+    local env_desc = "Weather: Clear Skies"
+    if rain > 0.4 then
+        env_desc = "Weather: Heavy Storm (Cover +15%)"
+    elseif rain > 0.1 then
+        env_desc = "Weather: Light Rain (Cover +10%)"
+    elseif h < 5 or h >= 21 then
+        env_desc = "Weather: Night Darkness (Cover +20%)"
+    end
+    self.txt_env:SetText(env_desc)
+
+    -- Update survival metabolism
+    self:UpdateSurvivalVitals()
+
+    -- Generate ambient road ticker logs based on milestones
+    local current_step = math.floor(ratio * 6)
+    if current_step > self.last_log_step then
+        self.last_log_step = current_step
+        local t_str = string.format("%02d:%02d", h, m)
+        local ambient_msgs = {
+            [1] = "Crossing open terrain... Maintaining low profile.",
+            [2] = "Passing abandoned vehicle wrecks. No movement detected.",
+            [3] = "Midpoint reached. Checking compass bearing and stride.",
+            [4] = "Distant gunfire reverberating across adjacent hills.",
+            [5] = "Approaching target perimeter. Slowing to safe approach.",
+            [6] = "Destination in visual range. Finalizing expedition.",
+        }
+        if ambient_msgs[current_step] then
+            self:AddLog(string.format("%s - %s", t_str, ambient_msgs[current_step]))
+        end
+    end
+end
+
+-- Refresh survival gauges
+function UIRoadAheadTravelMap:UpdateSurvivalVitals()
+    local actor = db.actor
+    if not actor then return end
+
+    -- Calories (Diet System or standard Anomaly)
+    local cal_str = "Calories: 2,200 kcal"
+    if zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.get_diet_calories then
+        local c = zzzz_the_long_road_ahead.get_diet_calories()
+        if c then cal_str = string.format("Calories: %d kcal (-14 kcal/min)", math.floor(c)) end
+    end
+    self.txt_calories:SetText(cal_str)
+
+    -- Hydration
+    local thirst_val = 100
+    if actor_status_thirst and actor_status_thirst.get_water_deprivation then
+        thirst_val = math.floor(math.max(0, 100 - (actor_status_thirst.get_water_deprivation() / 10)))
+    end
+    self.txt_hydration:SetText(string.format("Hydration: %d%%", thirst_val))
+
+    -- Stamina
+    local pwr = math.floor((actor.power or 1.0) * 100)
+    self.txt_stamina:SetText(string.format("Stamina: %d%%", pwr))
+
+    -- Encumbrance
+    local w = (actor.get_total_weight and actor:get_total_weight()) or 0
+    local max_w = (actor.get_max_walk_weight and actor:get_max_walk_weight()) or 60
+    self.txt_encumbrance:SetText(string.format("Pack: %.1f kg / %.0f kg (Stride: 3.4 m/s)", w, max_w))
+end
+
+-- ===================================================================
+-- KCD AMBUSH & ENCOUNTER MODAL SYSTEM
+-- ===================================================================
+function UIRoadAheadTravelMap:PromptEncounter(threat_name, threat_dist, evasion_chance, on_evade_cb, on_engage_cb)
+    self.travel_paused      = true
+    self.encounter_active   = true
+    self.evasion_chance     = math.min(math.max(evasion_chance or 50, 15), 85)
+    self.on_evade_cb        = on_evade_cb
+    self.on_engage_cb       = on_engage_cb
+
+    -- Play warning alarm
+    if self.snd_alarm then
+        pcall(function() self.snd_alarm:play(db.actor, 0, sound_object.s2d) end)
+    end
+
+    -- Format threat info
+    local name_str = threat_name or "Hostile ALife Patrol"
+    self.txt_threat_desc:SetText(string.format("%s spotted intersecting your path!", name_str))
+    self.txt_threat_range:SetText(string.format("Threat Proximity: %d meters", math.floor(threat_dist or 75)))
+
+    -- Calculate environment stealth breakdown
+    local h = level.get_time_hours()
+    local rain = (level.rain_factor and level.rain_factor()) or 0
+    local bonus_str = "Tactical Cover: "
+    if h < 5 or h >= 21 then bonus_str = bonus_str .. "Night Darkness (+20%) " end
+    if rain > 0.2 then bonus_str = bonus_str .. "Rain/Fog Concealment (+15%) " end
+    if bonus_str == "Tactical Cover: " then bonus_str = "Tactical Cover: Standard Visibility" end
+    self.txt_threat_stealth_info:SetText(bonus_str)
+
+    -- Display odds
+    self.txt_evasion_odds:SetText(string.format("STEALTH EVASION: %d%%", self.evasion_chance))
+
+    -- Add urgent alert to ticker
+    local t_str = string.format("%02d:%02d", h, level.get_time_minutes())
+    self:AddLog(string.format("%s - [⚠️ ALERT] %s detected at %dm!", t_str, name_str, math.floor(threat_dist or 75)))
+
+    -- Show card
+    self.encounter_modal:Show(true)
+end
+
+function UIRoadAheadTravelMap:OnAttemptEvade()
+    if not self.encounter_active then return end
+    local roll = math.random(100)
+    local success = (roll <= self.evasion_chance)
+
+    if success then
+        -- Play evasion chime
+        if self.snd_evade then
+            pcall(function() self.snd_evade:play(db.actor, 0, sound_object.s2d) end)
+        end
+
+        local h = level.get_time_hours()
+        local m = level.get_time_minutes()
+        self:AddLog(string.format("%02d:%02d - Slipped past hostile squad undetected! Resuming travel.", h, m))
+
+        self.encounter_modal:Show(false)
+        self.encounter_active = false
+        self.travel_paused = false
+
+        if self.on_evade_cb then
+            self.on_evade_cb(true)
+        end
+    else
+        -- Failed evasion: spotted!
+        local h = level.get_time_hours()
+        local m = level.get_time_minutes()
+        self:AddLog(string.format("%02d:%02d - SPOTTED! Hostiles opened fire!", h, m))
+
+        self:Close()
+        if self.on_evade_cb then
+            self.on_evade_cb(false)
+        end
+    end
+end
+
+function UIRoadAheadTravelMap:OnDropAndFight()
+    if not self.encounter_active then return end
+    local h = level.get_time_hours()
+    local m = level.get_time_minutes()
+    self:AddLog(string.format("%02d:%02d - Dropping to terrain. Weapons hot!", h, m))
+
+    self:Close()
+    if self.on_engage_cb then
+        self.on_engage_cb()
+    end
+end
+
+function UIRoadAheadTravelMap:OnHaltClicked()
+    self:Close()
+    if zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.abort_travel_safe then
+        zzzz_the_long_road_ahead.abort_travel_safe()
+    end
+end
+
+function UIRoadAheadTravelMap:OnKeyboard(dik, keyboard_action)
+    local res = CUIScriptWnd.OnKeyboard(self, dik, keyboard_action)
+    if res == false and keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+        if dik == DIK_keys.DIK_ESCAPE then
+            if self.encounter_active then
+                self:OnDropAndFight()
+            else
+                self:OnHaltClicked()
+            end
+            return true
+        end
+    end
+    return res
+end
+
+function UIRoadAheadTravelMap:Close()
+    if self:IsShown() then
+        self:HideDialog()
+        Unregister_UI("UIRoadAheadTravelMap")
+    end
+    self.travel_paused = false
+    self.encounter_active = false
+    GUI = nil
+end
+
+-- ===================================================================
+-- GLOBAL ACCESS API
+-- ===================================================================
+function is_open()
+    return GUI ~= nil and GUI:IsShown()
+end
+
+function show_map(start_pos, dest_pos, level_name, is_transition, travel_dist)
+    if not GUI then
+        GUI = UIRoadAheadTravelMap()
+    end
+    GUI:StartJourney(start_pos, dest_pos, level_name, is_transition, travel_dist)
+    GUI:ShowDialog(true)
+    Register_UI("UIRoadAheadTravelMap", "ui_sleep_dialog")
+    return GUI
+end
+
+function close_map()
+    if GUI and GUI:IsShown() then
+        GUI:Close()
+    end
+end
+
+function trigger_encounter(threat_name, threat_dist, evasion_chance, on_evade_cb, on_engage_cb)
+    if GUI and GUI:IsShown() then
+        GUI:PromptEncounter(threat_name, threat_dist, evasion_chance, on_evade_cb, on_engage_cb)
+        return true
+    end
+    return false
+end

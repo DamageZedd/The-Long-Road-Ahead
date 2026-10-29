@@ -1,0 +1,211 @@
+<w>
+    <!-- =================================================================== -->
+    <!-- THE LONG ROAD AHEAD: KINGDOM COME STYLE ANIMATED EXPEDITION MAP UI  -->
+    <!-- Base Resolution: 1024x768 (Scales across standard & ultrawide)     -->
+    <!-- =================================================================== -->
+
+    <!-- Main Fullscreen Background Dimmer / Vignette Frame -->
+    <background x="0" y="0" width="1024" height="768" stretch="1">
+        <texture>ui_options_background</texture>
+    </background>
+
+    <!-- Top Telemetry Header Frame -->
+    <header_frame x="48" y="14" width="928" height="52" stretch="1">
+        <texture>ui_inGame2_inventory_back</texture>
+        <auto_static x="0" y="50" width="928" height="2" stretch="1">
+            <texture r="224" g="164" b="60">ui_inGame2_opt_slider_bar_back</texture>
+        </auto_static>
+
+        <!-- Expedition Title & Route -->
+        <txt_title x="16" y="6" width="460" height="22">
+            <text font="letterica18" r="235" g="175" b="65">EXPEDITION IN PROGRESS</text>
+        </txt_title>
+        <txt_route x="16" y="28" width="460" height="18">
+            <text font="letterica16" r="200" g="190" b="170">Crossing Zone Territory...</text>
+        </txt_route>
+
+        <!-- Digital Accelerated Clock & Time Factor -->
+        <txt_clock x="480" y="6" width="220" height="22">
+            <text font="letterica18" r="245" g="240" b="230">00:00 [15x SPEED]</text>
+        </txt_clock>
+        <txt_environment x="480" y="28" width="220" height="18">
+            <text font="letterica16" r="160" g="195" b="220">Zone Weather: Clear</text>
+        </txt_environment>
+
+        <!-- Trip Progress Text & Gauge -->
+        <txt_progress x="710" y="6" width="202" height="22">
+            <text font="letterica18" r="235" g="175" b="65" align="r">0% (0m / 0m)</text>
+        </txt_progress>
+        <progress_bg x="710" y="32" width="202" height="10" stretch="1">
+            <texture>ui_inGame2_opt_slider_bar_back</texture>
+        </progress_bg>
+        <progress_fill x="710" y="32" width="0" height="10" stretch="1">
+            <texture r="224" g="164" b="60">ui_inGame2_opt_slider_bar_back</texture>
+        </progress_fill>
+    </header_frame>
+
+    <!-- Map Canvas Window Frame -->
+    <map_frame x="48" y="70" width="928" height="570" stretch="1">
+        <texture>ui_inGame2_inventory_back</texture>
+
+        <!-- Dynamic Map Viewport Canvas (Texture set at runtime: level map or global map) -->
+        <map_canvas x="8" y="8" width="912" height="554" stretch="1">
+            <texture>ui\ui_global_map</texture>
+        </map_canvas>
+
+        <!-- Map Border & Vignette Shading Overlay -->
+        <map_border x="4" y="4" width="920" height="562" stretch="1">
+            <texture>ui_inGame2_inventory_back</texture>
+        </map_border>
+
+        <!-- Origin Departure Marker (Campfire/Outpost Icon) -->
+        <start_marker x="0" y="0" width="24" height="24" stretch="1">
+            <texture>ui_inGame2_PDA_icon_Place_to_rest</texture>
+        </start_marker>
+
+        <!-- Target Destination Marker (Mission Target Icon) -->
+        <dest_marker x="0" y="0" width="26" height="26" stretch="1">
+            <texture>ui_inGame2_PDA_icon_Primary_mission</texture>
+        </dest_marker>
+
+        <!-- Breadcrumb Waypoint Dots (Trail appearing behind pawn) -->
+        <trail_dot_1  x="-50" y="-50" width="10" height="10" stretch="1"><texture>ui_pda2_squad_leader</texture></trail_dot_1>
+        <trail_dot_2  x="-50" y="-50" width="10" height="10" stretch="1"><texture>ui_pda2_squad_leader</texture></trail_dot_2>
+        <trail_dot_3  x="-50" y="-50" width="10" height="10" stretch="1"><texture>ui_pda2_squad_leader</texture></trail_dot_3>
+        <trail_dot_4  x="-50" y="-50" width="10" height="10" stretch="1"><texture>ui_pda2_squad_leader</texture></trail_dot_4>
+        <trail_dot_5  x="-50" y="-50" width="10" height="10" stretch="1"><texture>ui_pda2_squad_leader</texture></trail_dot_5>
+        <trail_dot_6  x="-50" y="-50" width="10" height="10" stretch="1"><texture>ui_pda2_squad_leader</texture></trail_dot_6>
+        <trail_dot_7  x="-50" y="-50" width="10" height="10" stretch="1"><texture>ui_pda2_squad_leader</texture></trail_dot_7>
+        <trail_dot_8  x="-50" y="-50" width="10" height="10" stretch="1"><texture>ui_pda2_squad_leader</texture></trail_dot_8>
+        <trail_dot_9  x="-50" y="-50" width="10" height="10" stretch="1"><texture>ui_pda2_squad_leader</texture></trail_dot_9>
+        <trail_dot_10 x="-50" y="-50" width="10" height="10" stretch="1"><texture>ui_pda2_squad_leader</texture></trail_dot_10>
+        <trail_dot_11 x="-50" y="-50" width="10" height="10" stretch="1"><texture>ui_pda2_squad_leader</texture></trail_dot_11>
+        <trail_dot_12 x="-50" y="-50" width="10" height="10" stretch="1"><texture>ui_pda2_squad_leader</texture></trail_dot_12>
+
+        <!-- The Animated Stalker Pawn (Traveler Token) -->
+        <pawn_marker x="0" y="0" width="28" height="28" stretch="1">
+            <texture>ui_hud_map_arrow</texture>
+        </pawn_marker>
+    </map_frame>
+
+    <!-- Bottom Telemetry & Survival Status Panel -->
+    <bottom_frame x="48" y="644" width="928" height="112" stretch="1">
+        <texture>ui_inGame2_inventory_back</texture>
+        <auto_static x="0" y="0" width="928" height="2" stretch="1">
+            <texture r="224" g="164" b="60">ui_inGame2_opt_slider_bar_back</texture>
+        </auto_static>
+
+        <!-- Left Sub-Panel: Survival Vitals & Metabolism -->
+        <vitals_header x="16" y="8" width="290" height="18">
+            <text font="letterica16" r="235" g="175" b="65">EXPEDITION METABOLISM</text>
+        </vitals_header>
+        <txt_calories x="16" y="28" width="290" height="18">
+            <text font="letterica16" r="225" g="200" b="140">Calories: 2,200 kcal (-14 kcal/min)</text>
+        </txt_calories>
+        <txt_hydration x="16" y="48" width="290" height="18">
+            <text font="letterica16" r="140" g="195" b="235">Hydration: 92%</text>
+        </txt_hydration>
+        <txt_stamina x="16" y="68" width="290" height="18">
+            <text font="letterica16" r="160" g="225" b="140">Stamina: 100%</text>
+        </txt_stamina>
+        <txt_encumbrance x="16" y="88" width="290" height="18">
+            <text font="letterica16" r="190" g="185" b="170">Pack: 35.4 kg (Speed: 3.4 m/s)</text>
+        </txt_encumbrance>
+
+        <!-- Vertical Divider 1 -->
+        <divider_1 x="312" y="10" width="2" height="92" stretch="1">
+            <texture r="90" g="80" b="65">ui_inGame2_opt_slider_bar_back</texture>
+        </divider_1>
+
+        <!-- Center Sub-Panel: Ambient Roadside Event Ticker -->
+        <ticker_header x="326" y="8" width="430" height="18">
+            <text font="letterica16" r="235" g="175" b="65">ROADSIDE EXPEDITION LOG</text>
+        </ticker_header>
+        <txt_log_1 x="326" y="28" width="430" height="18">
+            <text font="letterica16" r="235" g="230" b="215">08:00 - Departed staging area on foot.</text>
+        </txt_log_1>
+        <txt_log_2 x="326" y="48" width="430" height="18">
+            <text font="letterica16" r="185" g="180" b="170">08:12 - Moving along secondary dirt trail.</text>
+        </txt_log_2>
+        <txt_log_3 x="326" y="68" width="430" height="18">
+            <text font="letterica16" r="145" g="140" b="135">08:24 - Scanning terrain for ALife patrol activity.</text>
+        </txt_log_3>
+        <txt_log_4 x="326" y="88" width="430" height="18">
+            <text font="letterica16" r="115" g="110" b="105">Route clear. Maintaining steady pace.</text>
+        </txt_log_4>
+
+        <!-- Vertical Divider 2 -->
+        <divider_2 x="768" y="10" width="2" height="92" stretch="1">
+            <texture r="90" g="80" b="65">ui_inGame2_opt_slider_bar_back</texture>
+        </divider_2>
+
+        <!-- Right Sub-Panel: Safe Halt Button -->
+        <btn_halt x="782" y="32" width="134" height="46" stretch="1">
+            <texture>ui_button_ordinary</texture>
+            <text font="letterica18" align="c" vert_align="c">HALT (ESC)</text>
+        </btn_halt>
+    </bottom_frame>
+
+    <!-- =================================================================== -->
+    <!-- KINGDOM COME: DELIVERANCE RANDOM ENCOUNTER / AMBUSH MODAL CARD     -->
+    <!-- Appears only when hostile squads or mutant packs intercept path     -->
+    <!-- =================================================================== -->
+    <encounter_modal x="187" y="174" width="650" height="380" stretch="1">
+        <!-- Dark warning backplate with weathered red border -->
+        <texture>ui_inGame2_inventory_back</texture>
+        <auto_static x="0" y="0" width="650" height="4" stretch="1">
+            <texture r="235" g="60" b="45">ui_inGame2_opt_slider_bar_back</texture>
+        </auto_static>
+        <auto_static x="0" y="376" width="650" height="4" stretch="1">
+            <texture r="235" g="60" b="45">ui_inGame2_opt_slider_bar_back</texture>
+        </auto_static>
+
+        <!-- Pulsing Threat Title -->
+        <txt_threat_title x="20" y="22" width="610" height="30">
+            <text font="graffiti22" r="255" g="65" b="50" align="c">⚠️ HOSTILE CONTACT DETECTED ON ROAD!</text>
+        </txt_threat_title>
+
+        <!-- Threat Description -->
+        <txt_threat_desc x="30" y="68" width="590" height="24">
+            <text font="letterica18" r="240" g="230" b="210" align="c">Unknown ALife Hostile Squad in proximity!</text>
+        </txt_threat_desc>
+
+        <!-- Threat Range & Tactical Environment Info -->
+        <txt_threat_range x="30" y="98" width="590" height="20">
+            <text font="letterica16" r="225" g="165" b="65" align="c">Estimated Distance: 75m</text>
+        </txt_threat_range>
+        <txt_threat_stealth_info x="30" y="122" width="590" height="20">
+            <text font="letterica16" r="170" g="205" b="150" align="c">Stealth Modifiers: Night Darkness + Weather Concealment</text>
+        </txt_threat_stealth_info>
+
+        <!-- Center Evasion Gauge & Odds Readout -->
+        <evasion_box x="150" y="160" width="350" height="64" stretch="1">
+            <texture>ui_inGame2_inventory_back</texture>
+            <auto_static x="0" y="0" width="350" height="2" stretch="1">
+                <texture r="224" g="164" b="60">ui_inGame2_opt_slider_bar_back</texture>
+            </auto_static>
+            <auto_static x="0" y="62" width="350" height="2" stretch="1">
+                <texture r="224" g="164" b="60">ui_inGame2_opt_slider_bar_back</texture>
+            </auto_static>
+            <txt_evasion_odds x="10" y="14" width="330" height="36">
+                <text font="graffiti22" r="235" g="175" b="65" align="c">STEALTH EVASION: 65%</text>
+            </txt_evasion_odds>
+        </evasion_box>
+
+        <!-- Tactical Advice -->
+        <txt_threat_advice x="30" y="238" width="590" height="20">
+            <text font="letterica16" r="200" g="190" b="175" align="c">Attempt to sneak past undetected, or drop down and engage the enemy?</text>
+        </txt_threat_advice>
+
+        <!-- Action Choice Buttons -->
+        <btn_attempt_evade x="45" y="280" width="260" height="52" stretch="1">
+            <texture>ui_button_ordinary</texture>
+            <text font="letterica18" align="c" vert_align="c">ATTEMPT EVASION</text>
+        </btn_attempt_evade>
+
+        <btn_drop_and_fight x="345" y="280" width="260" height="52" stretch="1">
+            <texture>ui_button_ordinary</texture>
+            <text font="letterica18" align="c" vert_align="c">DROP OUT &amp; FIGHT</text>
+        </btn_drop_and_fight>
+    </encounter_modal>
+</w>

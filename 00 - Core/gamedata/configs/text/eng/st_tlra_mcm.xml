@@ -15,6 +15,13 @@
         <text>Stalker: The full, dangerous experience.\nTourist: Faster travel, no ambushes, no costs, and no stamina drain.</text>
     </string>
 
+    <string id="ui_mcm_tlra_animated_travel_map">
+        <text>Animated Travel Map (KCD Style)</text>
+    </string>
+    <string id="ui_mcm_tlra_animated_travel_map_desc">
+        <text>Displays a full-screen Kingdom Come: Deliverance style animated travel map with a moving stalker pawn, live survival vitals, accelerated world clock, and interactive roadside encounters.</text>
+    </string>
+
     <string id="ui_mcm_tlra_map_dots">
         <text>PDA Path Detail</text>
     </string>
