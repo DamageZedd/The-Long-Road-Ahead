@@ -1,0 +1,92 @@
+<w>
+    <file name="ui\ui_global_map">
+        <texture id="tlra_map_global" x="0" y="0" width="4096" height="8192"/>
+    </file>
+    <file name="map\map_escape">
+        <texture id="tlra_map_escape" x="0" y="0" width="2048" height="4096"/>
+    </file>
+    <file name="map\map_garbage">
+        <texture id="tlra_map_garbage" x="0" y="0" width="2048" height="2048"/>
+    </file>
+    <file name="map\map_agroprom">
+        <texture id="tlra_map_agroprom" x="0" y="0" width="2048" height="2048"/>
+    </file>
+    <file name="map\map_agroprom_underground">
+        <texture id="tlra_map_agroprom_underground" x="0" y="0" width="512" height="1024"/>
+    </file>
+    <file name="map\map_darkvalley">
+        <texture id="tlra_map_darkvalley" x="0" y="0" width="1024" height="2048"/>
+    </file>
+    <file name="map\map_bar">
+        <texture id="tlra_map_bar" x="0" y="0" width="1024" height="2048"/>
+    </file>
+    <file name="map\map_l05_bar">
+        <texture id="tlra_map_l05_bar" x="0" y="0" width="1024" height="2048"/>
+    </file>
+    <file name="map\map_l06_rostok">
+        <texture id="tlra_map_rostok" x="0" y="0" width="1024" height="2048"/>
+    </file>
+    <file name="map\map_military">
+        <texture id="tlra_map_military" x="0" y="0" width="2048" height="2048"/>
+    </file>
+    <file name="map\map_l07_military">
+        <texture id="tlra_map_l07_military" x="0" y="0" width="2048" height="2048"/>
+    </file>
+    <file name="map\map_yantar">
+        <texture id="tlra_map_yantar" x="0" y="0" width="2048" height="2048"/>
+    </file>
+    <file name="map\map_l08_yantar">
+        <texture id="tlra_map_l08_yantar" x="0" y="0" width="2048" height="2048"/>
+    </file>
+    <file name="map\map_l09_deadcity">
+        <texture id="tlra_map_deadcity" x="0" y="0" width="2048" height="2048"/>
+    </file>
+    <file name="map\map_radar">
+        <texture id="tlra_map_radar" x="0" y="0" width="2048" height="2048"/>
+    </file>
+    <file name="map\map_l10_radar">
+        <texture id="tlra_map_l10_radar" x="0" y="0" width="2048" height="2048"/>
+    </file>
+    <file name="map\map_pripyat">
+        <texture id="tlra_map_pripyat" x="0" y="0" width="4096" height="4096"/>
+    </file>
+    <file name="map\map_l11_pripyat">
+        <texture id="tlra_map_l11_pripyat" x="0" y="0" width="2048" height="2048"/>
+    </file>
+    <file name="map\map_zaton">
+        <texture id="tlra_map_zaton" x="0" y="0" width="4096" height="4096"/>
+    </file>
+    <file name="map\map_jupiter">
+        <texture id="tlra_map_jupiter" x="0" y="0" width="4096" height="4096"/>
+    </file>
+    <file name="map\map_jupiter_underground">
+        <texture id="tlra_map_jupiter_underground" x="0" y="0" width="1024" height="1024"/>
+    </file>
+    <file name="map\map_marsh">
+        <texture id="tlra_map_marsh" x="0" y="0" width="4096" height="4096"/>
+    </file>
+    <file name="map\map_k01_darkscape">
+        <texture id="tlra_map_k01_darkscape" x="0" y="0" width="2048" height="2048"/>
+    </file>
+    <file name="map\map_k02_trucks_cemetery">
+        <texture id="tlra_map_k02_trucks_cemetery" x="0" y="0" width="4096" height="4096"/>
+    </file>
+    <file name="map\map_red_forest">
+        <texture id="tlra_map_red_forest" x="0" y="0" width="2048" height="2048"/>
+    </file>
+    <file name="map\map_limansk">
+        <texture id="tlra_map_limansk" x="0" y="0" width="1024" height="2048"/>
+    </file>
+    <file name="map\map_hospital">
+        <texture id="tlra_map_hospital" x="0" y="0" width="512" height="1024"/>
+    </file>
+    <file name="map\map_l13_generators">
+        <texture id="tlra_map_generators" x="0" y="0" width="2048" height="2048"/>
+    </file>
+    <file name="map\map_l12_stancia">
+        <texture id="tlra_map_stancia" x="0" y="0" width="2048" height="2048"/>
+    </file>
+    <file name="map\map_stancia_2">
+        <texture id="tlra_map_stancia_2" x="0" y="0" width="2048" height="1024"/>
+    </file>
+</w>

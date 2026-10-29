@@ -1,17 +1,17 @@
 <w>
     <!-- =================================================================== -->
     <!-- THE LONG ROAD AHEAD: KINGDOM COME STYLE ANIMATED EXPEDITION MAP UI  -->
-    <!-- Base Resolution: 1024x768 (Scales across standard & ultrawide)     -->
+    <!-- Base Resolution: 1024x768 (Clean military aesthetics, no icon bleed)-->
     <!-- =================================================================== -->
 
-    <!-- Main Fullscreen Background Dimmer / Vignette Frame -->
+    <!-- Main Fullscreen Background Dimmer / Vignette Base -->
     <background x="0" y="0" width="1024" height="768" stretch="1">
         <texture>ui_options_background</texture>
     </background>
 
     <!-- Top Telemetry Header Frame -->
     <header_frame x="48" y="14" width="928" height="52" stretch="1">
-        <texture>ui_inGame2_inventory_back</texture>
+        <texture>ui_inGame2_pda_buttons_background</texture>
         <auto_static x="0" y="50" width="928" height="2" stretch="1">
             <texture r="224" g="164" b="60">ui_inGame2_opt_slider_bar_back</texture>
         </auto_static>
@@ -45,25 +45,32 @@
     </header_frame>
 
     <!-- Map Canvas Window Frame -->
-    <map_frame x="48" y="70" width="928" height="570" stretch="1">
-        <texture>ui_inGame2_inventory_back</texture>
-
-        <!-- Dynamic Map Viewport Canvas (Texture set at runtime: level map or global map) -->
-        <map_canvas x="8" y="8" width="912" height="554" stretch="1">
-            <texture>ui\ui_global_map</texture>
+    <map_frame x="48" y="70" width="928" height="570">
+        <!-- Dynamic Map Viewport Canvas: stretched across entire 928x570 frame -->
+        <map_canvas x="0" y="0" width="928" height="570" stretch="1">
+            <texture>tlra_map_global</texture>
         </map_canvas>
 
-        <!-- Map Border & Vignette Shading Overlay -->
-        <map_border x="4" y="4" width="920" height="562" stretch="1">
-            <texture>ui_inGame2_inventory_back</texture>
-        </map_border>
+        <!-- Thin gold decorative frame outline -->
+        <frame_top x="0" y="0" width="928" height="2" stretch="1">
+            <texture r="224" g="164" b="60">ui_inGame2_opt_slider_bar_back</texture>
+        </frame_top>
+        <frame_bottom x="0" y="568" width="928" height="2" stretch="1">
+            <texture r="224" g="164" b="60">ui_inGame2_opt_slider_bar_back</texture>
+        </frame_bottom>
+        <frame_left x="0" y="0" width="2" height="570" stretch="1">
+            <texture r="224" g="164" b="60">ui_inGame2_opt_slider_bar_back</texture>
+        </frame_left>
+        <frame_right x="926" y="0" width="2" height="570" stretch="1">
+            <texture r="224" g="164" b="60">ui_inGame2_opt_slider_bar_back</texture>
+        </frame_right>
 
-        <!-- Origin Departure Marker (Campfire/Outpost Icon) -->
+        <!-- Origin Departure Marker (Campfire/Rest Point Icon) -->
         <start_marker x="0" y="0" width="24" height="24" stretch="1">
             <texture>ui_inGame2_PDA_icon_Place_to_rest</texture>
         </start_marker>
 
-        <!-- Target Destination Marker (Mission Target Icon) -->
+        <!-- Target Destination Marker (Mission Objective Icon) -->
         <dest_marker x="0" y="0" width="26" height="26" stretch="1">
             <texture>ui_inGame2_PDA_icon_Primary_mission</texture>
         </dest_marker>
@@ -90,7 +97,7 @@
 
     <!-- Bottom Telemetry & Survival Status Panel -->
     <bottom_frame x="48" y="644" width="928" height="112" stretch="1">
-        <texture>ui_inGame2_inventory_back</texture>
+        <texture>ui_inGame2_pda_buttons_background</texture>
         <auto_static x="0" y="0" width="928" height="2" stretch="1">
             <texture r="224" g="164" b="60">ui_inGame2_opt_slider_bar_back</texture>
         </auto_static>
@@ -151,8 +158,7 @@
     <!-- Appears only when hostile squads or mutant packs intercept path     -->
     <!-- =================================================================== -->
     <encounter_modal x="187" y="174" width="650" height="380" stretch="1">
-        <!-- Dark warning backplate with weathered red border -->
-        <texture>ui_inGame2_inventory_back</texture>
+        <texture>ui_inGame2_pda_buttons_background</texture>
         <auto_static x="0" y="0" width="650" height="4" stretch="1">
             <texture r="235" g="60" b="45">ui_inGame2_opt_slider_bar_back</texture>
         </auto_static>
@@ -180,7 +186,7 @@
 
         <!-- Center Evasion Gauge & Odds Readout -->
         <evasion_box x="150" y="160" width="350" height="64" stretch="1">
-            <texture>ui_inGame2_inventory_back</texture>
+            <texture>ui_inGame2_pda_buttons_background</texture>
             <auto_static x="0" y="0" width="350" height="2" stretch="1">
                 <texture r="224" g="164" b="60">ui_inGame2_opt_slider_bar_back</texture>
             </auto_static>

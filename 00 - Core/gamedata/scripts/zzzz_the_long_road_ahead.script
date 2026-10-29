@@ -3630,9 +3630,12 @@ function teleport_companions(pos, lvid, gvid, forced)
                 local final_pos = anchor_pos
                 local final_lvid = lvid
 
-                if offset_lvid and offset_lvid < 4294967295 and level.valid_vertex_id(offset_lvid) then
-                    final_pos = offset_pos
-                    final_lvid = offset_lvid
+                if offset_lvid and offset_lvid ~= 4294967295 and offset_lvid ~= -1 then
+                    local ok_vpos, vpos = pcall(function() return level.vertex_position(offset_lvid) end)
+                    if ok_vpos and vpos and offset_pos:distance_to_sqr(vpos) < 16.0 then
+                        final_pos = vpos
+                        final_lvid = offset_lvid
+                    end
                 end
 
                 -- Clear stale offline position caches

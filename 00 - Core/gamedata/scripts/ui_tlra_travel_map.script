@@ -6,39 +6,69 @@
 
 GUI = nil
 
--- Standard level map texture lookup table (resilient fallback)
+-- Standard level map texture ID lookup (registered in textures_descr/tlra_maps.xml)
 local LEVEL_MAP_TEXTURES = {
-    l01_escape              = "map\\map_escape",
-    l02_garbage             = "map\\map_garbage",
-    l03_agroprom            = "map\\map_agroprom",
-    l04_darkvalley          = "map\\map_darkvalley",
-    l05_bar                 = "map\\map_bar",
-    l06_rostok              = "map\\map_rostok",
-    l07_military            = "map\\map_military",
-    l08_yantar              = "map\\map_yantar",
-    l09_deadcity            = "map\\map_deadcity",
-    l10_radar               = "map\\map_radar",
-    l11_pripyat             = "map\\map_pripyat",
-    l12_stancia             = "map\\map_stancia",
-    l12_stancia_2           = "map\\map_stancia_2",
-    l13_generators          = "map\\map_generators",
-    k00_marsh               = "map\\map_marsh",
-    k01_darkscape           = "map\\map_k01_darkscape",
-    k02_trucks_cemetery     = "map\\map_k02_trucks_cemetery",
-    jupiter                 = "map\\map_jupiter",
-    zaton                   = "map\\map_zaton",
-    pripyat                 = "map\\map_pripyat",
-    jupiter_underground     = "map\\map_jupiter_underground",
-    l03u_agr_underground    = "map\\map_agroprom_underground",
-    l04u_labx18             = "map\\map_l04u_labx18",
-    l08u_brainlab           = "map\\map_l08u_brainlab",
-    l10u_bunker             = "map\\map_radar",
-    l12u_sarcofag           = "map\\map_aes_1",
-    l12u_control_monolith   = "map\\map_l12u_control_monolith",
-    labx8                   = "map\\map_labx8",
-    limansk                 = "map\\map_limansk",
-    red_forest              = "map\\map_red_forest",
-    hospital                = "map\\map_hospital",
+    ["l01_escape"]              = "tlra_map_escape",
+    ["escape"]                  = "tlra_map_escape",
+    ["l02_garbage"]             = "tlra_map_garbage",
+    ["garbage"]                 = "tlra_map_garbage",
+    ["l03_agroprom"]            = "tlra_map_agroprom",
+    ["agroprom"]                = "tlra_map_agroprom",
+    ["l04_darkvalley"]          = "tlra_map_darkvalley",
+    ["darkvalley"]              = "tlra_map_darkvalley",
+    ["l05_bar"]                 = "tlra_map_bar",
+    ["bar"]                     = "tlra_map_bar",
+    ["l06_rostok"]              = "tlra_map_rostok",
+    ["rostok"]                  = "tlra_map_rostok",
+    ["l07_military"]            = "tlra_map_military",
+    ["military"]                = "tlra_map_military",
+    ["l08_yantar"]              = "tlra_map_yantar",
+    ["yantar"]                  = "tlra_map_yantar",
+    ["l09_deadcity"]            = "tlra_map_deadcity",
+    ["deadcity"]                = "tlra_map_deadcity",
+    ["l10_radar"]               = "tlra_map_radar",
+    ["radar"]                   = "tlra_map_radar",
+    ["l11_pripyat"]             = "tlra_map_pripyat",
+    ["pripyat"]                 = "tlra_map_pripyat",
+    ["l12_stancia"]             = "tlra_map_stancia",
+    ["l12_stancia_2"]           = "tlra_map_stancia_2",
+    ["l13_generators"]          = "tlra_map_generators",
+    ["generators"]              = "tlra_map_generators",
+    ["k00_marsh"]               = "tlra_map_marsh",
+    ["marsh"]                   = "tlra_map_marsh",
+    ["k01_darkscape"]           = "tlra_map_k01_darkscape",
+    ["darkscape"]               = "tlra_map_k01_darkscape",
+    ["k02_trucks_cemetery"]     = "tlra_map_k02_trucks_cemetery",
+    ["trucks_cemetery"]         = "tlra_map_k02_trucks_cemetery",
+    ["jupiter"]                 = "tlra_map_jupiter",
+    ["zaton"]                   = "tlra_map_zaton",
+    ["jupiter_underground"]     = "tlra_map_jupiter_underground",
+    ["l03u_agr_underground"]    = "tlra_map_agroprom_underground",
+    ["limansk"]                 = "tlra_map_limansk",
+    ["red_forest"]              = "tlra_map_red_forest",
+    ["hospital"]                = "tlra_map_hospital",
+}
+
+-- Fallback level bounds in meters (x1, z1, x2, z2)
+local FALLBACK_LEVEL_BOUNDS = {
+    ["l01_escape"]              = { x1 = -388, z1 = -640, x2 = 398, z2 = 820 },
+    ["l02_garbage"]             = { x1 = -340, z1 = -340, x2 = 340, z2 = 340 },
+    ["l03_agroprom"]            = { x1 = -260, z1 = -260, x2 = 260, z2 = 260 },
+    ["l04_darkvalley"]          = { x1 = -240, z1 = -550, x2 = 240, z2 = 550 },
+    ["l05_bar"]                 = { x1 = 0,    z1 = -512, x2 = 512, z2 = 512 },
+    ["l06_rostok"]              = { x1 = -280, z1 = -280, x2 = 280, z2 = 280 },
+    ["l07_military"]            = { x1 = -400, z1 = -400, x2 = 400, z2 = 400 },
+    ["l08_yantar"]              = { x1 = -300, z1 = -300, x2 = 300, z2 = 300 },
+    ["l09_deadcity"]            = { x1 = -300, z1 = -300, x2 = 300, z2 = 300 },
+    ["l10_radar"]               = { x1 = -400, z1 = -400, x2 = 400, z2 = 400 },
+    ["l11_pripyat"]             = { x1 = -500, z1 = -500, x2 = 500, z2 = 500 },
+    ["k00_marsh"]               = { x1 = -600, z1 = -600, x2 = 600, z2 = 600 },
+    ["k01_darkscape"]           = { x1 = -702, z1 = -702, x2 = 708, z2 = 721 },
+    ["k02_trucks_cemetery"]     = { x1 = -600, z1 = -600, x2 = 600, z2 = 600 },
+    ["jupiter"]                 = { x1 = -600, z1 = -600, x2 = 600, z2 = 600 },
+    ["zaton"]                   = { x1 = -600, z1 = -600, x2 = 600, z2 = 600 },
+    ["red_forest"]              = { x1 = -300, z1 = -300, x2 = 300, z2 = 300 },
+    ["limansk"]                 = { x1 = -200, z1 = -500, x2 = 200, z2 = 500 },
 }
 
 -- Safe sound object loader
@@ -60,31 +90,45 @@ local function parse_bound_rect(raw)
     return { x1 = x1, z1 = z1, x2 = x2, z2 = z2 }
 end
 
--- Read level bounds and texture from level.ltx
-local function get_level_info(level_name)
+-- Read level bounds from game configs or fallback table
+local function get_level_bounds(level_name)
     level_name = level_name or (level and level.name and level.name())
     if not level_name then return nil end
 
-    local tex = LEVEL_MAP_TEXTURES[level_name] or ("map\\map_" .. level_name)
     local bounds = nil
 
+    -- 1. Try reading bound_rect from game_maps_single.ltx
     pcall(function()
-        local fs = getFS()
-        if fs and fs.r_open then
-            local reader = fs:r_open("$game_levels$", level_name .. "\\level.ltx")
-            if reader then
-                local ini = ini_file(reader, "$game_levels$")
-                if ini then
-                    local raw = ini:r_string_ex("level_map", "bound_rect")
-                    if raw then bounds = parse_bound_rect(raw) end
-                    local cfg_tex = ini:r_string_ex("level_map", "texture")
-                    if cfg_tex and cfg_tex ~= "" then tex = cfg_tex end
-                end
-            end
+        local ini = ini_file("game_maps_single.ltx")
+        if ini and ini:section_exist(level_name) then
+            local raw = ini:r_string_ex(level_name, "bound_rect")
+            if raw then bounds = parse_bound_rect(raw) end
         end
     end)
 
-    return { bounds = bounds, texture = tex }
+    -- 2. Try reading from level.ltx
+    if not bounds then
+        pcall(function()
+            local fs = getFS()
+            if fs and fs.r_open then
+                local reader = fs:r_open("$game_levels$", level_name .. "\\level.ltx")
+                if reader then
+                    local ini = ini_file(reader, "$game_levels$")
+                    if ini and ini:section_exist("level_map") then
+                        local raw = ini:r_string_ex("level_map", "bound_rect")
+                        if raw then bounds = parse_bound_rect(raw) end
+                    end
+                end
+            end
+        end)
+    end
+
+    -- 3. Pre-cached fallback table
+    if not bounds then
+        bounds = FALLBACK_LEVEL_BOUNDS[level_name]
+    end
+
+    return bounds
 end
 
 -- ===================================================================
@@ -135,9 +179,15 @@ function UIRoadAheadTravelMap:InitControls()
     -- Map Canvas Frame
     self.map_frame      = xml:InitStatic("map_frame", self)
     self.map_canvas     = xml:InitStatic("map_frame:map_canvas", self.map_frame)
-    self.map_border     = xml:InitStatic("map_frame:map_border", self.map_frame)
+    self.map_canvas:SetStretchTexture(true)
 
-    -- Trail & Marker Statics
+    -- Decorative gold outline statics
+    xml:InitStatic("map_frame:frame_top", self.map_frame)
+    xml:InitStatic("map_frame:frame_bottom", self.map_frame)
+    xml:InitStatic("map_frame:frame_left", self.map_frame)
+    xml:InitStatic("map_frame:frame_right", self.map_frame)
+
+    -- Trail & Marker Statics (Parented directly inside map_frame)
     self.start_marker   = xml:InitStatic("map_frame:start_marker", self.map_frame)
     self.dest_marker    = xml:InitStatic("map_frame:dest_marker", self.map_frame)
 
@@ -200,44 +250,41 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
     self.last_log_step  = 0
     self.log_history    = {}
 
-    -- Viewport geometry inside map_frame:
-    -- map_canvas is placed at x=8, y=8, w=912, h=554 relative to map_frame
-    local canvas_x = 8
-    local canvas_y = 8
-    local canvas_w = 912
-    local canvas_h = 554
+    -- Viewport geometry inside map_frame: 928 x 570
+    local canvas_w = 928
+    local canvas_h = 570
 
-    -- Select map texture & coordinate projection
-    local lvl_info = get_level_info(self.level_name)
-    local tex_path = lvl_info and lvl_info.texture or "ui\\ui_global_map"
+    -- Select map texture
+    local tex_id = LEVEL_MAP_TEXTURES[self.level_name] or "tlra_map_global"
     if self.is_transition then
-        tex_path = "ui\\ui_global_map"
+        tex_id = "tlra_map_global"
     end
 
     pcall(function()
-        self.map_canvas:InitTexture(tex_path)
+        self.map_canvas:InitTexture(tex_id)
+        self.map_canvas:SetStretchTexture(true)
     end)
 
     -- Coordinate mapping
     local sx, sy, dx, dy
-    local b = lvl_info and lvl_info.bounds
+    local bounds = get_level_bounds(self.level_name)
 
-    if b and not self.is_transition then
-        local u_start = math.min(math.max((self.start_pos.x - b.x1) / (b.x2 - b.x1), 0.05), 0.95)
-        local v_start = math.min(math.max((b.z2 - self.start_pos.z) / (b.z2 - b.z1), 0.05), 0.95)
-        local u_dest  = math.min(math.max((self.dest_pos.x - b.x1) / (b.x2 - b.x1), 0.05), 0.95)
-        local v_dest  = math.min(math.max((b.z2 - self.dest_pos.z) / (b.z2 - b.z1), 0.05), 0.95)
+    if bounds and not self.is_transition and bounds.x2 > bounds.x1 and bounds.z2 > bounds.z1 then
+        local u_start = math.min(math.max((self.start_pos.x - bounds.x1) / (bounds.x2 - bounds.x1), 0.08), 0.92)
+        local v_start = math.min(math.max((bounds.z2 - self.start_pos.z) / (bounds.z2 - bounds.z1), 0.08), 0.92)
+        local u_dest  = math.min(math.max((self.dest_pos.x - bounds.x1) / (bounds.x2 - bounds.x1), 0.08), 0.92)
+        local v_dest  = math.min(math.max((bounds.z2 - self.dest_pos.z) / (bounds.z2 - bounds.z1), 0.08), 0.92)
 
-        sx = canvas_x + u_start * canvas_w
-        sy = canvas_y + v_start * canvas_h
-        dx = canvas_x + u_dest  * canvas_w
-        dy = canvas_y + v_dest  * canvas_h
+        sx = u_start * canvas_w
+        sy = v_start * canvas_h
+        dx = u_dest  * canvas_w
+        dy = v_dest  * canvas_h
     else
-        -- High aesthetic diagonal route across territory
-        sx = canvas_x + canvas_w * 0.18
-        sy = canvas_y + canvas_h * 0.78
-        dx = canvas_x + canvas_w * 0.82
-        dy = canvas_y + canvas_h * 0.22
+        -- Elegant diagonal trek across region
+        sx = canvas_w * 0.18
+        sy = canvas_h * 0.76
+        dx = canvas_w * 0.82
+        dy = canvas_h * 0.24
     end
 
     self.screen_start = { x = sx, y = sy }
@@ -255,7 +302,7 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
         local py = sy + (dy - sy) * frac
         self.dot_coords[i] = { x = px, y = py }
         self.trail_dots[i]:SetWndPos(vector2():set(px - 5, py - 5))
-        self.trail_dots[i]:Show(false) -- hidden until traveled
+        self.trail_dots[i]:Show(false)
     end
 
     -- Initial pawn position
@@ -297,17 +344,14 @@ function UIRoadAheadTravelMap:Update()
     CUIScriptWnd.Update(self)
     if not self:IsShown() then return end
 
-    -- Read live travel state from TLRA core
     local tlra_core = zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.tlra
     if not tlra_core then return end
 
-    -- If journey finished or cancelled elsewhere, close
     if not tlra_core.is_traveling and not self.encounter_active then
         self:Close()
         return
     end
 
-    -- Don't advance visuals if paused for encounter decision
     if self.travel_paused then return end
 
     local current_dist = tlra_core.current_dist or 0
@@ -362,7 +406,7 @@ function UIRoadAheadTravelMap:Update()
         local t_str = string.format("%02d:%02d", h, m)
         local ambient_msgs = {
             [1] = "Crossing open terrain... Maintaining low profile.",
-            [2] = "Passing abandoned vehicle wrecks. No movement detected.",
+            [2] = "Passing abandoned checkpoint ruins. Road clear.",
             [3] = "Midpoint reached. Checking compass bearing and stride.",
             [4] = "Distant gunfire reverberating across adjacent hills.",
             [5] = "Approaching target perimeter. Slowing to safe approach.",
@@ -379,7 +423,6 @@ function UIRoadAheadTravelMap:UpdateSurvivalVitals()
     local actor = db.actor
     if not actor then return end
 
-    -- Calories (Diet System or standard Anomaly)
     local cal_str = "Calories: 2,200 kcal"
     if zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.get_diet_calories then
         local c = zzzz_the_long_road_ahead.get_diet_calories()
@@ -387,18 +430,15 @@ function UIRoadAheadTravelMap:UpdateSurvivalVitals()
     end
     self.txt_calories:SetText(cal_str)
 
-    -- Hydration
     local thirst_val = 100
     if actor_status_thirst and actor_status_thirst.get_water_deprivation then
         thirst_val = math.floor(math.max(0, 100 - (actor_status_thirst.get_water_deprivation() / 10)))
     end
     self.txt_hydration:SetText(string.format("Hydration: %d%%", thirst_val))
 
-    -- Stamina
     local pwr = math.floor((actor.power or 1.0) * 100)
     self.txt_stamina:SetText(string.format("Stamina: %d%%", pwr))
 
-    -- Encumbrance
     local w = (actor.get_total_weight and actor:get_total_weight()) or 0
     local max_w = (actor.get_max_walk_weight and actor:get_max_walk_weight()) or 60
     self.txt_encumbrance:SetText(string.format("Pack: %.1f kg / %.0f kg (Stride: 3.4 m/s)", w, max_w))
@@ -414,17 +454,14 @@ function UIRoadAheadTravelMap:PromptEncounter(threat_name, threat_dist, evasion_
     self.on_evade_cb        = on_evade_cb
     self.on_engage_cb       = on_engage_cb
 
-    -- Play warning alarm
     if self.snd_alarm then
         pcall(function() self.snd_alarm:play(db.actor, 0, sound_object.s2d) end)
     end
 
-    -- Format threat info
     local name_str = threat_name or "Hostile ALife Patrol"
     self.txt_threat_desc:SetText(string.format("%s spotted intersecting your path!", name_str))
     self.txt_threat_range:SetText(string.format("Threat Proximity: %d meters", math.floor(threat_dist or 75)))
 
-    -- Calculate environment stealth breakdown
     local h = level.get_time_hours()
     local rain = (level.rain_factor and level.rain_factor()) or 0
     local bonus_str = "Tactical Cover: "
@@ -433,14 +470,11 @@ function UIRoadAheadTravelMap:PromptEncounter(threat_name, threat_dist, evasion_
     if bonus_str == "Tactical Cover: " then bonus_str = "Tactical Cover: Standard Visibility" end
     self.txt_threat_stealth_info:SetText(bonus_str)
 
-    -- Display odds
     self.txt_evasion_odds:SetText(string.format("STEALTH EVASION: %d%%", self.evasion_chance))
 
-    -- Add urgent alert to ticker
     local t_str = string.format("%02d:%02d", h, level.get_time_minutes())
     self:AddLog(string.format("%s - [⚠️ ALERT] %s detected at %dm!", t_str, name_str, math.floor(threat_dist or 75)))
 
-    -- Show card
     self.encounter_modal:Show(true)
 end
 
@@ -450,7 +484,6 @@ function UIRoadAheadTravelMap:OnAttemptEvade()
     local success = (roll <= self.evasion_chance)
 
     if success then
-        -- Play evasion chime
         if self.snd_evade then
             pcall(function() self.snd_evade:play(db.actor, 0, sound_object.s2d) end)
         end
@@ -467,7 +500,6 @@ function UIRoadAheadTravelMap:OnAttemptEvade()
             self.on_evade_cb(true)
         end
     else
-        -- Failed evasion: spotted!
         local h = level.get_time_hours()
         local m = level.get_time_minutes()
         self:AddLog(string.format("%02d:%02d - SPOTTED! Hostiles opened fire!", h, m))
