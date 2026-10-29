@@ -5,13 +5,13 @@
     <!-- =================================================================== -->
 
     <!-- Fullscreen Pure Solid Pitch Black Backdrop (covers widescreen and ultrawide) -->
-    <background x="-600" y="-200" width="2224" height="1168" stretch="1">
+    <background x="-800" y="-300" width="2624" height="1368" stretch="1">
         <texture r="0" g="0" b="0">tlra_black_solid</texture>
     </background>
 
     <!-- Top Telemetry Header Frame -->
     <header_frame x="48" y="14" width="928" height="52" stretch="1">
-        <texture>ui_inGame2_pda_buttons_background</texture>
+        <texture r="20" g="20" b="18">tlra_black_solid</texture>
         <auto_static x="0" y="50" width="928" height="2" stretch="1">
             <texture r="224" g="164" b="60">ui_inGame2_opt_slider_bar_back</texture>
         </auto_static>
@@ -48,11 +48,16 @@
     <map_frame x="48" y="70" width="928" height="570">
         <!-- Frame background plate: pure dark backing for aspect ratio margins -->
         <map_frame_bg x="0" y="0" width="928" height="570" stretch="1">
-            <texture r="8" g="8" b="8">tlra_black_solid</texture>
+            <texture r="10" g="10" b="10">tlra_black_solid</texture>
         </map_frame_bg>
 
-        <!-- Dynamic Map Viewport Canvas: dynamically centered with true aspect ratio -->
-        <map_canvas x="184" y="10" width="560" height="550" stretch="1">
+        <!-- Base Layer: Zone Global Map (Provides seamless Zone geography behind level map) -->
+        <bg_map_canvas x="0" y="0" width="928" height="570" stretch="1">
+            <texture>tlra_map_global</texture>
+        </bg_map_canvas>
+
+        <!-- Detail Level Map Viewport: Auto-centered Wearable Devices-style viewport -->
+        <map_canvas x="0" y="0" width="928" height="570" stretch="1">
             <texture>tlra_map_global</texture>
         </map_canvas>
 
@@ -94,15 +99,15 @@
         <trail_dot_11 x="-50" y="-50" width="10" height="10" stretch="1"><texture>ui_pda2_squad_leader</texture></trail_dot_11>
         <trail_dot_12 x="-50" y="-50" width="10" height="10" stretch="1"><texture>ui_pda2_squad_leader</texture></trail_dot_12>
 
-        <!-- The Animated Stalker Pawn (Traveler Token) -->
-        <pawn_marker x="0" y="0" width="28" height="28" stretch="1">
+        <!-- The Animated Stalker Pawn (Traveler Token) - Centered in Viewport -->
+        <pawn_marker x="450" y="271" width="28" height="28" stretch="1">
             <texture>ui_hud_map_arrow</texture>
         </pawn_marker>
     </map_frame>
 
     <!-- Bottom Telemetry & Survival Status Panel -->
     <bottom_frame x="48" y="644" width="928" height="112" stretch="1">
-        <texture>ui_inGame2_pda_buttons_background</texture>
+        <texture r="20" g="20" b="18">tlra_black_solid</texture>
         <auto_static x="0" y="0" width="928" height="2" stretch="1">
             <texture r="224" g="164" b="60">ui_inGame2_opt_slider_bar_back</texture>
         </auto_static>
@@ -163,7 +168,7 @@
     <!-- Appears only when hostile squads or mutant packs intercept path     -->
     <!-- =================================================================== -->
     <encounter_modal x="187" y="174" width="650" height="380" stretch="1">
-        <texture>ui_inGame2_pda_buttons_background</texture>
+        <texture r="22" g="20" b="18">tlra_black_solid</texture>
         <auto_static x="0" y="0" width="650" height="4" stretch="1">
             <texture r="235" g="60" b="45">ui_inGame2_opt_slider_bar_back</texture>
         </auto_static>
@@ -191,7 +196,7 @@
 
         <!-- Center Evasion Gauge & Odds Readout -->
         <evasion_box x="150" y="160" width="350" height="64" stretch="1">
-            <texture>ui_inGame2_pda_buttons_background</texture>
+            <texture r="30" g="28" b="24">tlra_black_solid</texture>
             <auto_static x="0" y="0" width="350" height="2" stretch="1">
                 <texture r="224" g="164" b="60">ui_inGame2_opt_slider_bar_back</texture>
             </auto_static>

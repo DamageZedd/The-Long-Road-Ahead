@@ -1,7 +1,8 @@
 -- ===================================================================
 -- THE LONG ROAD AHEAD - KINGDOM COME STYLE ANIMATED EXPEDITION MAP UI
--- Fast travel simulation map screen with animated pawn, real-time
--- survival vitals, accelerated world clock, and interactive ambushes.
+-- Fast travel simulation map screen with Wearable Devices auto-centering,
+-- dual-layer global & detail maps, real-time vitals, accelerated world
+-- clock, ambient road logs, and interactive ALife threat radar.
 -- ===================================================================
 
 GUI = nil
@@ -49,60 +50,78 @@ local LEVEL_MAP_TEXTURES = {
     ["hospital"]                = "tlra_map_hospital",
 }
 
--- Native map texture aspect ratios (width / height) to prevent squishing
-local MAP_ASPECT_RATIOS = {
-    ["tlra_map_global"]               = 0.5,
-    ["tlra_map_escape"]               = 0.5,
-    ["tlra_map_garbage"]              = 1.0,
-    ["tlra_map_agroprom"]             = 1.0,
-    ["tlra_map_agroprom_underground"] = 0.5,
-    ["tlra_map_darkvalley"]           = 0.5,
-    ["tlra_map_bar"]                  = 0.5,
-    ["tlra_map_l05_bar"]              = 0.5,
-    ["tlra_map_rostok"]               = 0.5,
-    ["tlra_map_military"]             = 1.0,
-    ["tlra_map_l07_military"]         = 1.0,
-    ["tlra_map_yantar"]               = 1.0,
-    ["tlra_map_l08_yantar"]           = 1.0,
-    ["tlra_map_deadcity"]             = 1.0,
-    ["tlra_map_radar"]                = 1.0,
-    ["tlra_map_l10_radar"]            = 1.0,
-    ["tlra_map_pripyat"]              = 1.0,
-    ["tlra_map_l11_pripyat"]          = 1.0,
-    ["tlra_map_zaton"]                = 1.0,
-    ["tlra_map_jupiter"]              = 1.0,
-    ["tlra_map_jupiter_underground"]  = 1.0,
-    ["tlra_map_marsh"]                = 1.0,
-    ["tlra_map_k01_darkscape"]        = 1.0,
-    ["tlra_map_k02_trucks_cemetery"]  = 1.0,
-    ["tlra_map_red_forest"]           = 1.0,
-    ["tlra_map_limansk"]              = 0.5,
-    ["tlra_map_hospital"]             = 0.5,
-    ["tlra_map_generators"]           = 1.0,
-    ["tlra_map_stancia"]              = 1.0,
-    ["tlra_map_stancia_2"]            = 2.0,
+-- Native map texture pixel dimensions (baked for exact Wearable Devices projection)
+local MAP_TEXTURE_SIZES = {
+    ["tlra_map_global"]               = { w = 4096, h = 8192 },
+    ["tlra_map_escape"]               = { w = 2048, h = 4096 },
+    ["tlra_map_garbage"]              = { w = 2048, h = 2048 },
+    ["tlra_map_agroprom"]             = { w = 2048, h = 2048 },
+    ["tlra_map_agroprom_underground"] = { w = 512,  h = 1024 },
+    ["tlra_map_darkvalley"]           = { w = 1024, h = 2048 },
+    ["tlra_map_bar"]                  = { w = 1024, h = 2048 },
+    ["tlra_map_l05_bar"]              = { w = 1024, h = 2048 },
+    ["tlra_map_rostok"]               = { w = 1024, h = 2048 },
+    ["tlra_map_military"]             = { w = 2048, h = 2048 },
+    ["tlra_map_l07_military"]         = { w = 2048, h = 2048 },
+    ["tlra_map_yantar"]               = { w = 2048, h = 2048 },
+    ["tlra_map_l08_yantar"]           = { w = 2048, h = 2048 },
+    ["tlra_map_deadcity"]             = { w = 2048, h = 2048 },
+    ["tlra_map_radar"]                = { w = 2048, h = 2048 },
+    ["tlra_map_l10_radar"]            = { w = 2048, h = 2048 },
+    ["tlra_map_pripyat"]              = { w = 4096, h = 4096 },
+    ["tlra_map_l11_pripyat"]          = { w = 2048, h = 2048 },
+    ["tlra_map_zaton"]                = { w = 4096, h = 4096 },
+    ["tlra_map_jupiter"]              = { w = 4096, h = 4096 },
+    ["tlra_map_jupiter_underground"]  = { w = 1024, h = 1024 },
+    ["tlra_map_marsh"]                = { w = 4096, h = 4096 },
+    ["tlra_map_k01_darkscape"]        = { w = 2048, h = 2048 },
+    ["tlra_map_k02_trucks_cemetery"]  = { w = 4096, h = 4096 },
+    ["tlra_map_red_forest"]           = { w = 2048, h = 2048 },
+    ["tlra_map_limansk"]              = { w = 1024, h = 2048 },
+    ["tlra_map_hospital"]             = { w = 512,  h = 1024 },
+    ["tlra_map_generators"]           = { w = 2048, h = 2048 },
+    ["tlra_map_stancia"]              = { w = 2048, h = 2048 },
+    ["tlra_map_stancia_2"]            = { w = 2048, h = 1024 },
 }
 
 -- Fallback level bounds in meters (x1, z1, x2, z2)
 local FALLBACK_LEVEL_BOUNDS = {
     ["l01_escape"]              = { x1 = -388, z1 = -640, x2 = 398, z2 = 820 },
+    ["escape"]                  = { x1 = -388, z1 = -640, x2 = 398, z2 = 820 },
     ["l02_garbage"]             = { x1 = -340, z1 = -340, x2 = 340, z2 = 340 },
+    ["garbage"]                 = { x1 = -340, z1 = -340, x2 = 340, z2 = 340 },
     ["l03_agroprom"]            = { x1 = -260, z1 = -260, x2 = 260, z2 = 260 },
+    ["agroprom"]                = { x1 = -260, z1 = -260, x2 = 260, z2 = 260 },
     ["l04_darkvalley"]          = { x1 = -240, z1 = -550, x2 = 240, z2 = 550 },
+    ["darkvalley"]              = { x1 = -240, z1 = -550, x2 = 240, z2 = 550 },
     ["l05_bar"]                 = { x1 = 0,    z1 = -512, x2 = 512, z2 = 512 },
+    ["bar"]                     = { x1 = 0,    z1 = -512, x2 = 512, z2 = 512 },
     ["l06_rostok"]              = { x1 = -280, z1 = -280, x2 = 280, z2 = 280 },
+    ["rostok"]                  = { x1 = -280, z1 = -280, x2 = 280, z2 = 280 },
     ["l07_military"]            = { x1 = -400, z1 = -400, x2 = 400, z2 = 400 },
+    ["military"]                = { x1 = -400, z1 = -400, x2 = 400, z2 = 400 },
     ["l08_yantar"]              = { x1 = -300, z1 = -300, x2 = 300, z2 = 300 },
+    ["yantar"]                  = { x1 = -300, z1 = -300, x2 = 300, z2 = 300 },
     ["l09_deadcity"]            = { x1 = -300, z1 = -300, x2 = 300, z2 = 300 },
+    ["deadcity"]                = { x1 = -300, z1 = -300, x2 = 300, z2 = 300 },
     ["l10_radar"]               = { x1 = -400, z1 = -400, x2 = 400, z2 = 400 },
+    ["radar"]                   = { x1 = -400, z1 = -400, x2 = 400, z2 = 400 },
     ["l11_pripyat"]             = { x1 = -500, z1 = -500, x2 = 500, z2 = 500 },
+    ["pripyat"]                 = { x1 = -500, z1 = -500, x2 = 500, z2 = 500 },
     ["k00_marsh"]               = { x1 = -600, z1 = -600, x2 = 600, z2 = 600 },
+    ["marsh"]                   = { x1 = -600, z1 = -600, x2 = 600, z2 = 600 },
     ["k01_darkscape"]           = { x1 = -702, z1 = -702, x2 = 708, z2 = 721 },
+    ["darkscape"]               = { x1 = -702, z1 = -702, x2 = 708, z2 = 721 },
     ["k02_trucks_cemetery"]     = { x1 = -600, z1 = -600, x2 = 600, z2 = 600 },
+    ["trucks_cemetery"]         = { x1 = -600, z1 = -600, x2 = 600, z2 = 600 },
     ["jupiter"]                 = { x1 = -600, z1 = -600, x2 = 600, z2 = 600 },
     ["zaton"]                   = { x1 = -600, z1 = -600, x2 = 600, z2 = 600 },
     ["red_forest"]              = { x1 = -300, z1 = -300, x2 = 300, z2 = 300 },
     ["limansk"]                 = { x1 = -200, z1 = -500, x2 = 200, z2 = 500 },
+    ["hospital"]                = { x1 = -100, z1 = -200, x2 = 100, z2 = 200 },
+    ["l12_stancia"]             = { x1 = -500, z1 = -500, x2 = 500, z2 = 500 },
+    ["l12_stancia_2"]           = { x1 = -500, z1 = -300, x2 = 500, z2 = 300 },
+    ["l13_generators"]          = { x1 = -500, z1 = -500, x2 = 500, z2 = 500 },
 }
 
 -- Safe sound object loader
@@ -165,6 +184,34 @@ local function get_level_bounds(level_name)
     return bounds
 end
 
+-- Read Global Map canvas bounds (from game_maps_single.ltx or game_ini)
+local function get_global_bounds()
+    local canvas = nil
+    pcall(function()
+        local ini = ini_file("game_maps_single.ltx") or game_ini()
+        if ini and ini:section_exist("global_map") then
+            local raw = ini:r_string_ex("global_map", "bound_rect")
+            if raw then canvas = parse_bound_rect(raw) end
+        end
+    end)
+    return canvas or { x1 = 0, z1 = 0, x2 = 1000, z2 = 2000 }
+end
+
+-- Read level placement rectangle on global map
+local function get_level_global_rect(level_name)
+    level_name = level_name or (level and level.name and level.name())
+    if not level_name then return nil end
+    local rect = nil
+    pcall(function()
+        local ini = ini_file("game_maps_single.ltx") or game_ini()
+        if ini and ini:section_exist(level_name) then
+            local raw = ini:r_string_ex(level_name, "global_rect")
+            if raw then rect = parse_bound_rect(raw) end
+        end
+    end)
+    return rect
+end
+
 -- ===================================================================
 -- UI WINDOW CLASS
 -- ===================================================================
@@ -175,7 +222,6 @@ function UIRoadAheadTravelMap:__init() super()
     self.encounter_active   = false
     self.last_log_step      = 0
     self.log_history        = {}
-    self.wide               = (device().width / device().height) > (1024 / 768 + 0.01)
 
     -- Sound feedback
     self.snd_alarm  = safe_sound([[detectors\contact_1]])
@@ -191,7 +237,13 @@ function UIRoadAheadTravelMap:__finalize()
 end
 
 function UIRoadAheadTravelMap:InitControls()
-    self:SetWndRect(Frect():set(0, 0, 1024, 768))
+    -- Dynamically calculate widescreen window span so 3D world is 100% occluded
+    local aspect = (device().width / device().height) / (1024 / 768)
+    if aspect < 1.0 then aspect = 1.0 end
+    local root_w = math.ceil(1024 * aspect)
+    local offset_x = math.floor((root_w - 1024) / 2)
+
+    self:SetWndRect(Frect():set(-offset_x, 0, root_w - offset_x, 768))
     self:SetAutoDelete(true)
 
     local xml = CScriptXmlInit()
@@ -200,7 +252,7 @@ function UIRoadAheadTravelMap:InitControls()
     -- Background: pure black canvas extending edge-to-edge across widescreen/ultrawide viewports
     self.bg = xml:InitStatic("background", self)
     pcall(function()
-        self.bg:SetWndRect(Frect():set(-600, -200, 1624, 1000))
+        self.bg:SetWndRect(Frect():set(-1600, -800, 3600, 2000))
     end)
 
     -- Top Header Panel
@@ -216,16 +268,22 @@ function UIRoadAheadTravelMap:InitControls()
     -- Map Canvas Frame
     self.map_frame      = xml:InitStatic("map_frame", self)
     self.map_frame_bg   = xml:InitStatic("map_frame:map_frame_bg", self.map_frame)
+
+    -- Layer 1: Global Map Background Canvas (Always present underneath level maps)
+    self.bg_map_canvas  = xml:InitStatic("map_frame:bg_map_canvas", self.map_frame)
+    self.bg_map_canvas:SetStretchTexture(true)
+
+    -- Layer 2: Detail Level Map Canvas (Auto-centered Wearable Devices viewport)
     self.map_canvas     = xml:InitStatic("map_frame:map_canvas", self.map_frame)
     self.map_canvas:SetStretchTexture(true)
 
-    -- Decorative gold outline statics
+    -- Frame borders
     self.frame_top      = xml:InitStatic("map_frame:frame_top", self.map_frame)
     self.frame_bottom   = xml:InitStatic("map_frame:frame_bottom", self.map_frame)
     self.frame_left     = xml:InitStatic("map_frame:frame_left", self.map_frame)
     self.frame_right    = xml:InitStatic("map_frame:frame_right", self.map_frame)
 
-    -- Trail & Marker Statics (Parented directly inside map_frame)
+    -- Markers & Breadcrumb dots
     self.start_marker   = xml:InitStatic("map_frame:start_marker", self.map_frame)
     self.dest_marker    = xml:InitStatic("map_frame:dest_marker", self.map_frame)
 
@@ -234,7 +292,7 @@ function UIRoadAheadTravelMap:InitControls()
         self.trail_dots[i] = xml:InitStatic("map_frame:trail_dot_" .. i, self.map_frame)
     end
 
-    -- Stalker Traveler Pawn
+    -- Stalker Traveler Pawn: Centered in Viewport (450, 271)
     self.pawn_marker    = xml:InitStatic("map_frame:pawn_marker", self.map_frame)
 
     -- Bottom Telemetry & Survival Panel
@@ -288,96 +346,39 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
     self.last_log_step  = 0
     self.log_history    = {}
 
-    -- Frame geometry inside map_frame: 928 x 570
-    local FRAME_W = 928
-    local FRAME_H = 570
-    local MAX_W   = 912
-    local MAX_H   = 554
+    -- Load geographic map coordinates
+    self.bounds         = get_level_bounds(self.level_name)
+    self.global_canvas  = get_global_bounds()
+    self.global_rect    = get_level_global_rect(self.level_name)
 
-    -- Select map texture
+    -- Configure Detail Map Layer
     local tex_id = LEVEL_MAP_TEXTURES[self.level_name] or "tlra_map_global"
-    if self.is_transition then
-        tex_id = "tlra_map_global"
-    end
+    local tex_size = MAP_TEXTURE_SIZES[tex_id] or { w = 2048, h = 2048 }
+    self.detail_tex_id = tex_id
+    self.detail_tex_w  = tex_size.w
+    self.detail_tex_h  = tex_size.h
 
     pcall(function()
-        self.map_canvas:InitTexture(tex_id)
-        self.map_canvas:SetStretchTexture(true)
+        self.bg_map_canvas:InitTexture("tlra_map_global")
+        self.bg_map_canvas:SetStretchTexture(true)
+        if not self.is_transition and self.detail_tex_id then
+            self.map_canvas:InitTexture(self.detail_tex_id)
+            self.map_canvas:SetStretchTexture(true)
+            self.map_canvas:Show(true)
+        else
+            self.map_canvas:Show(false)
+        end
     end)
 
-    -- Dynamic Aspect-Ratio Calculations (no squishing or horizontal stretching!)
-    local ar = MAP_ASPECT_RATIOS[tex_id] or 1.0
-    local disp_h = MAX_H
-    local disp_w = math.floor(disp_h * ar)
-    if disp_w > MAX_W then
-        disp_w = MAX_W
-        disp_h = math.floor(MAX_W / ar)
-    end
+    -- Lock pawn marker at dead center of the 928x570 viewport
+    self.pawn_marker:SetWndPos(vector2():set(464 - 14, 285 - 14))
+    self.pawn_marker:Show(true)
 
-    local ox = math.floor((FRAME_W - disp_w) / 2)
-    local oy = math.floor((FRAME_H - disp_h) / 2)
-
-    self.map_canvas:SetWndPos(vector2():set(ox, oy))
-    self.map_canvas:SetWndSize(vector2():set(disp_w, disp_h))
-
-    -- Gold frame borders tightly hug the true map boundaries
-    if self.frame_top and self.frame_bottom and self.frame_left and self.frame_right then
-        self.frame_top:SetWndPos(vector2():set(ox, oy))
-        self.frame_top:SetWndSize(vector2():set(disp_w, 2))
-        self.frame_bottom:SetWndPos(vector2():set(ox, oy + disp_h - 2))
-        self.frame_bottom:SetWndSize(vector2():set(disp_w, 2))
-        self.frame_left:SetWndPos(vector2():set(ox, oy))
-        self.frame_left:SetWndSize(vector2():set(2, disp_h))
-        self.frame_right:SetWndPos(vector2():set(ox + disp_w - 2, oy))
-        self.frame_right:SetWndSize(vector2():set(2, disp_h))
-    end
-
-    -- Coordinate mapping
-    local sx, sy, dx, dy
-    local bounds = get_level_bounds(self.level_name)
-
-    if bounds and not self.is_transition and bounds.x2 > bounds.x1 and bounds.z2 > bounds.z1 then
-        local u_start = math.min(math.max((self.start_pos.x - bounds.x1) / (bounds.x2 - bounds.x1), 0.04), 0.96)
-        local v_start = math.min(math.max((bounds.z2 - self.start_pos.z) / (bounds.z2 - bounds.z1), 0.04), 0.96)
-        local u_dest  = math.min(math.max((self.dest_pos.x - bounds.x1) / (bounds.x2 - bounds.x1), 0.04), 0.96)
-        local v_dest  = math.min(math.max((bounds.z2 - self.dest_pos.z) / (bounds.z2 - bounds.z1), 0.04), 0.96)
-
-        sx = ox + u_start * disp_w
-        sy = oy + v_start * disp_h
-        dx = ox + u_dest  * disp_w
-        dy = oy + v_dest  * disp_h
-    else
-        -- Elegant diagonal trek across region / global map
-        sx = ox + disp_w * 0.22
-        sy = oy + disp_h * 0.78
-        dx = ox + disp_w * 0.78
-        dy = oy + disp_h * 0.22
-    end
-
-    self.screen_start = { x = sx, y = sy }
-    self.screen_dest  = { x = dx, y = dy }
-
-    -- Place origin & target markers
-    self.start_marker:SetWndPos(vector2():set(sx - 12, sy - 12))
-    self.dest_marker:SetWndPos(vector2():set(dx - 13, dy - 13))
-
-    -- Place breadcrumb dots evenly spaced along the line
-    self.dot_coords = {}
-    for i = 1, 12 do
-        local frac = i / 13
-        local px = sx + (dx - sx) * frac
-        local py = sy + (dy - sy) * frac
-        self.dot_coords[i] = { x = px, y = py }
-        self.trail_dots[i]:SetWndPos(vector2():set(px - 5, py - 5))
-        self.trail_dots[i]:Show(false)
-    end
-
-    -- Initial pawn position & heading
-    self.pawn_marker:SetWndPos(vector2():set(sx - 14, sy - 14))
+    -- Calculate travel direction heading angle
+    local heading = math.atan2(self.dest_pos.x - self.start_pos.x, -(self.dest_pos.z - self.start_pos.z))
     pcall(function()
         if self.pawn_marker.SetHeading then
-            local angle = math.atan2(dx - sx, -(dy - sy))
-            self.pawn_marker:SetHeading(angle)
+            self.pawn_marker:SetHeading(heading)
         end
     end)
 
@@ -397,6 +398,169 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
     self:AddLog(string.format("%s - Weather clear. Steady walking rhythm established.", t_str))
 
     self.encounter_modal:Show(false)
+
+    -- Initial viewport projection update
+    self:UpdateViewport(self.start_pos, 0.0)
+end
+
+-- Wearable Devices-style real-time viewport auto-centering & projection engine
+function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
+    cur_pos = cur_pos or self.start_pos
+    ratio   = ratio or 0.0
+
+    local CX = 464
+    local CY = 285
+    local FW = 928
+    local FH = 570
+
+    -- Dynamic view span in world meters (generous zoom tailored to expedition distance)
+    local journey_span = math.max(math.abs(self.dest_pos.x - self.start_pos.x) * (FH / FW), math.abs(self.dest_pos.z - self.start_pos.z))
+    local span_y_m = math.max(450, math.min(1800, journey_span * 1.45))
+    local span_x_m = span_y_m * (FW / FH)
+    local scale = FH / span_y_m  -- Pixels per world meter
+
+    -- 1. Project Start Marker relative to centered player
+    local sx = CX + (self.start_pos.x - cur_pos.x) * scale
+    local sy = CY - (self.start_pos.z - cur_pos.z) * scale
+    if sx >= -30 and sx <= FW + 30 and sy >= -30 and sy <= FH + 30 then
+        self.start_marker:SetWndPos(vector2():set(sx - 12, sy - 12))
+        self.start_marker:Show(true)
+    else
+        self.start_marker:Show(false)
+    end
+
+    -- 2. Project Destination Marker relative to centered player
+    local dx = CX + (self.dest_pos.x - cur_pos.x) * scale
+    local dy = CY - (self.dest_pos.z - cur_pos.z) * scale
+    if dx >= -30 and dx <= FW + 30 and dy >= -30 and dy <= FH + 30 then
+        self.dest_marker:SetWndPos(vector2():set(dx - 13, dy - 13))
+        self.dest_marker:Show(true)
+    else
+        self.dest_marker:Show(false)
+    end
+
+    -- 3. Project Breadcrumb Trail Dots behind traveling pawn
+    for i = 1, 12 do
+        local frac = i / 13
+        if ratio >= frac then
+            local wx = self.start_pos.x + (self.dest_pos.x - self.start_pos.x) * frac
+            local wz = self.start_pos.z + (self.dest_pos.z - self.start_pos.z) * frac
+            local px = CX + (wx - cur_pos.x) * scale
+            local py = CY - (wz - cur_pos.z) * scale
+            if px >= -10 and px <= FW + 10 and py >= -10 and py <= FH + 10 then
+                self.trail_dots[i]:SetWndPos(vector2():set(px - 5, py - 5))
+                self.trail_dots[i]:Show(true)
+            else
+                self.trail_dots[i]:Show(false)
+            end
+        else
+            self.trail_dots[i]:Show(false)
+        end
+    end
+
+    -- 4. Detail Level Map: Auto-center and crop using SetTextureRect
+    if not self.is_transition and self.bounds then
+        local bounds = self.bounds
+        local tex_w = self.detail_tex_w or 2048
+        local tex_h = self.detail_tex_h or 2048
+        local level_w = math.max(1, bounds.x2 - bounds.x1)
+        local level_h = math.max(1, bounds.z2 - bounds.z1)
+
+        local ppm_x = tex_w / level_w
+        local ppm_z = tex_h / level_h
+
+        local center_u = (cur_pos.x - bounds.x1) * ppm_x
+        local center_v = (bounds.z2 - cur_pos.z) * ppm_z
+        local half_u   = (span_x_m / 2) * ppm_x
+        local half_v   = (span_y_m / 2) * ppm_z
+
+        local win_l = center_u - half_u
+        local win_t = center_v - half_v
+        local win_r = center_u + half_u
+        local win_b = center_v + half_v
+
+        local cl_l = math.max(win_l, 0)
+        local cl_t = math.max(win_t, 0)
+        local cl_r = math.min(win_r, tex_w)
+        local cl_b = math.min(win_b, tex_h)
+
+        if cl_r > cl_l and cl_b > cl_t then
+            local span_u = math.max(1, win_r - win_l)
+            local span_v = math.max(1, win_b - win_t)
+            local fx1 = (cl_l - win_l) / span_u
+            local fy1 = (cl_t - win_t) / span_v
+            local fx2 = (cl_r - win_l) / span_u
+            local fy2 = (cl_b - win_t) / span_v
+
+            self.map_canvas:SetWndPos(vector2():set(math.floor(fx1 * FW), math.floor(fy1 * FH)))
+            self.map_canvas:SetWndSize(vector2():set(math.ceil((fx2 - fx1) * FW), math.ceil((fy2 - fy1) * FH)))
+            self.map_canvas:SetTextureRect(Frect():set(cl_l, cl_t, cl_r, cl_b))
+            self.map_canvas:Show(true)
+        else
+            self.map_canvas:Show(false)
+        end
+    else
+        self.map_canvas:Show(false)
+    end
+
+    -- 5. Global Map Background Layer: Synchronously auto-center beneath the level map
+    if self.global_rect and self.global_canvas and self.bounds then
+        local canvas = self.global_canvas
+        local rect = self.global_rect
+        local bounds = self.bounds
+        local level_w = math.max(1, bounds.x2 - bounds.x1)
+        local level_h = math.max(1, bounds.z2 - bounds.z1)
+
+        local g_scale_x = 4096 / math.max(1, canvas.x2 - canvas.x1)
+        local g_scale_y = 8192 / math.max(1, canvas.z2 - canvas.z1)
+        local orig_gx   = (rect.x1 - canvas.x1) * g_scale_x
+        local orig_gy   = (rect.z1 - canvas.z1) * g_scale_y
+        local rect_w_px = (rect.x2 - rect.x1) * g_scale_x
+        local rect_h_px = (rect.z2 - rect.z1) * g_scale_y
+
+        local g_ppm_x = rect_w_px / level_w
+        local g_ppm_z = rect_h_px / level_h
+
+        local g_center_u = orig_gx + (cur_pos.x - bounds.x1) * g_ppm_x
+        local g_center_v = orig_gy + (bounds.z2 - cur_pos.z) * g_ppm_z
+        local g_half_u   = (span_x_m / 2) * g_ppm_x
+        local g_half_v   = (span_y_m / 2) * g_ppm_z
+
+        local g_win_l = g_center_u - g_half_u
+        local g_win_t = g_center_v - g_half_v
+        local g_win_r = g_center_u + g_half_u
+        local g_win_b = g_center_v + g_half_v
+
+        local g_cl_l = math.max(g_win_l, 0)
+        local g_cl_t = math.max(g_win_t, 0)
+        local g_cl_r = math.min(g_win_r, 4096)
+        local g_cl_b = math.min(g_win_b, 8192)
+
+        if g_cl_r > g_cl_l and g_cl_b > g_cl_t then
+            local g_span_u = math.max(1, g_win_r - g_win_l)
+            local g_span_v = math.max(1, g_win_b - g_win_t)
+            local gfx1 = (g_cl_l - g_win_l) / g_span_u
+            local gfy1 = (g_cl_t - g_win_t) / g_span_v
+            local gfx2 = (g_cl_r - g_win_l) / g_span_u
+            local gfy2 = (g_cl_b - g_win_t) / g_span_v
+
+            self.bg_map_canvas:SetWndPos(vector2():set(math.floor(gfx1 * FW), math.floor(gfy1 * FH)))
+            self.bg_map_canvas:SetWndSize(vector2():set(math.ceil((gfx2 - gfx1) * FW), math.ceil((gfy2 - gfy1) * FH)))
+            self.bg_map_canvas:SetTextureRect(Frect():set(g_cl_l, g_cl_t, g_cl_r, g_cl_b))
+            self.bg_map_canvas:Show(true)
+        else
+            self.bg_map_canvas:SetWndPos(vector2():set(0, 0))
+            self.bg_map_canvas:SetWndSize(vector2():set(FW, FH))
+            self.bg_map_canvas:SetTextureRect(Frect():set(0, 0, 4096, 8192))
+            self.bg_map_canvas:Show(true)
+        end
+    else
+        -- Seamless fallback: display full global map stretched across viewport
+        self.bg_map_canvas:SetWndPos(vector2():set(0, 0))
+        self.bg_map_canvas:SetWndSize(vector2():set(FW, FH))
+        self.bg_map_canvas:SetTextureRect(Frect():set(0, 0, 4096, 8192))
+        self.bg_map_canvas:Show(true)
+    end
 end
 
 -- Add entry to road log ticker
@@ -431,20 +595,13 @@ function UIRoadAheadTravelMap:Update()
     local total_dist   = math.max(1, tlra_core.travel_dist or self.travel_dist or 1)
     local ratio        = math.min(current_dist / total_dist, 1.0)
 
-    -- Interpolate pawn position smoothly
-    if self.screen_start and self.screen_dest then
-        local px = self.screen_start.x + (self.screen_dest.x - self.screen_start.x) * ratio
-        local py = self.screen_start.y + (self.screen_dest.y - self.screen_start.y) * ratio
-        self.pawn_marker:SetWndPos(vector2():set(px - 14, py - 14))
+    -- Interpolate current physical traveler coordinates
+    local cur_x = self.start_pos.x + (self.dest_pos.x - self.start_pos.x) * ratio
+    local cur_z = self.start_pos.z + (self.dest_pos.z - self.start_pos.z) * ratio
+    local cur_pos = vector():set(cur_x, 0, cur_z)
 
-        -- Light up breadcrumbs trail as pawn passes them
-        for i = 1, 12 do
-            local threshold = i / 13
-            if ratio >= threshold then
-                self.trail_dots[i]:Show(true)
-            end
-        end
-    end
+    -- Auto-center map viewport on interpolated traveler position
+    self:UpdateViewport(cur_pos, ratio)
 
     -- Update progress text & gauge
     local pct = math.floor(ratio * 100)
@@ -625,6 +782,22 @@ function UIRoadAheadTravelMap:Close()
     end
     self.travel_paused = false
     self.encounter_active = false
+
+    -- Remove post-processing blackout effector
+    pcall(function()
+        level.remove_pp_effector(8877)
+    end)
+
+    -- Ensure weapon & input state is unconditionally cleared on map close
+    pcall(function()
+        if game and game.only_allow_movekeys then game.only_allow_movekeys(false) end
+        if game and game.can_select_weapon then game.can_select_weapon(true) end
+        if game and game.actor_lower_weapon then game.actor_lower_weapon(false) end
+        if game and game.stop_hud_motion then game.stop_hud_motion() end
+        if level then level.enable_input(); level.show_weapon(true) end
+        if db.actor and db.actor.restore_weapon then db.actor:restore_weapon() end
+    end)
+
     GUI = nil
 end
 
@@ -639,6 +812,12 @@ function show_map(start_pos, dest_pos, level_name, is_transition, travel_dist)
     if not GUI then
         GUI = UIRoadAheadTravelMap()
     end
+
+    -- Engage full screen post-processing blackout shader
+    pcall(function()
+        level.add_pp_effector("sleep_fade.ppe", 8877, false)
+    end)
+
     GUI:StartJourney(start_pos, dest_pos, level_name, is_transition, travel_dist)
     GUI:ShowDialog(true)
     Register_UI("UIRoadAheadTravelMap", "ui_sleep_dialog")
@@ -648,6 +827,13 @@ end
 function close_map()
     if GUI and GUI:IsShown() then
         GUI:Close()
+    else
+        pcall(function()
+            level.remove_pp_effector(8877)
+            if game and game.only_allow_movekeys then game.only_allow_movekeys(false) end
+            if game and game.can_select_weapon then game.can_select_weapon(true) end
+            if level then level.enable_input(); level.show_weapon(true) end
+        end)
     end
 end
 
