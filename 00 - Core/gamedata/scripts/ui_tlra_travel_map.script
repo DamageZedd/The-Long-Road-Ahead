@@ -472,7 +472,7 @@ function UIRoadAheadTravelMap:InitControls()
     self.dest_marker        = xml:InitStatic("map_frame:dest_marker", self.map_frame)
 
     self.trail_dots = {}
-    for i = 1, 12 do
+    for i = 1, 20 do
         self.trail_dots[i]  = xml:InitStatic("map_frame:trail_dot_" .. i, self.map_frame)
         self.trail_dots[i]:Show(false)
     end
@@ -697,8 +697,8 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
         self.map_canvas:Show(false)
     end
 
-    -- Lock pawn marker at dead center (512 - 18, 384 - 18) for 36x36 KCD miniature
-    self.pawn_marker:SetWndPos(vector2():set(494, 366))
+    -- Lock pawn marker at dead center (512 - 32, 384 - 32) for 64x64 KCD miniature
+    self.pawn_marker:SetWndPos(vector2():set(480, 352))
     self.pawn_marker:Show(true)
 
     local FW = 1024
@@ -1013,10 +1013,10 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
         end
     end
 
-    -- Pawn marker position in screen space (36x36 KCD Figurine)
+    -- Pawn marker position in screen space (64x64 KCD Figurine)
     local pawn_sx = (cur_u - u1) * g_zoom
     local pawn_sy = (cur_v - v1) * g_zoom
-    self.pawn_marker:SetWndPos(vector2():set(pawn_sx - 18, pawn_sy - 18))
+    self.pawn_marker:SetWndPos(vector2():set(pawn_sx - 32, pawn_sy - 32))
     self.pawn_marker:Show(true)
 
     -- Departure Origin Marker
@@ -1047,25 +1047,51 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
         self.dest_marker:Show(false)
     end
 
-    -- Breadcrumb trail dots along route (KCD stamped bootprints)
-    for i = 1, 12 do
-        local gp = self.dot_gpositions and self.dot_gpositions[i]
-        if gp then
-            local px = (gp.x - u1) * g_zoom
-            local py = (gp.y - v1) * g_zoom
-            if px >= -16 and px <= FW + 16 and py >= -16 and py <= FH + 16 then
-                self.trail_dots[i]:SetWndPos(vector2():set(px - 8, py - 8))
-                pcall(function()
-                    if self.trail_dots[i].SetHeading and self.dot_headings and self.dot_headings[i] then
-                        self.trail_dots[i]:SetHeading(self.dot_headings[i])
-                    end
-                end)
-                self.trail_dots[i]:Show(true)
+    -- Authentic KCD Stamped Footprint Trail (strictly BEHIND the pawn, alternating left/right)
+    local total_len = self.total_path_len or 1
+    local cur_dist  = (ratio or 0.0) * total_len
+
+    -- Stride distance behind the pawn: normalized to ~20 screen pixels per step
+    local step_dist_uv = 20.0 / math.max(0.01, g_zoom)
+    local pawn_base_clearance = 26.0 / math.max(0.01, g_zoom)
+
+    for i = 1, 20 do
+        local dot = self.trail_dots and self.trail_dots[i]
+        if dot then
+            local step_dist = cur_dist - (pawn_base_clearance + (i - 1) * step_dist_uv)
+            if step_dist >= 0 and cur_dist > 0 then
+                local step_ratio = step_dist / total_len
+                local pt, heading = self:GetPositionAlongRoute(step_ratio)
+
+                -- Road center at this step
+                local rx = (pt.x - u1) * g_zoom
+                local ry = (pt.z - v1) * g_zoom
+
+                -- Walking lateral offset (perpendicular to road heading):
+                -- Heading 0 = North (dy < 0). Right perpendicular: (cos theta, sin theta)
+                local r_norm_x = math.cos(heading)
+                local r_norm_y = math.sin(heading)
+
+                -- Alternating stride: odd = right foot (+5 px), even = left foot (-5 px)
+                local lat_shift = (i % 2 == 1) and 5.0 or -5.0
+                local fx = rx + r_norm_x * lat_shift
+                local fy = ry + r_norm_y * lat_shift
+
+                if fx >= -24 and fx <= FW + 24 and fy >= -24 and fy <= FH + 24 then
+                    dot:SetWndPos(vector2():set(fx - 12, fy - 12))
+                    pcall(function()
+                        if dot.SetHeading then
+                            dot:SetHeading(heading)
+                        end
+                    end)
+                    dot:Show(true)
+                else
+                    dot:Show(false)
+                end
             else
-                self.trail_dots[i]:Show(false)
+                -- Ahead of traveler or not reached yet: strictly hidden
+                dot:Show(false)
             end
-        else
-            self.trail_dots[i]:Show(false)
         end
     end
 end
