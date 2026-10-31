@@ -179,7 +179,7 @@ local ZONE_MAP_DEFINITIONS = {
     { id = "garbage",         sec = "l02_garbage",         xml_tag = "level_canvas_garbage",         tex = "tlra_map_garbage",               tw = 2048, th = 2048, gx1 = 369.0, gy1 = 1776.0, gx2 = 573.0, gy2 = 1980.0 },
     { id = "agroprom",        sec = "l03_agroprom",        xml_tag = "level_canvas_agroprom",        tex = "tlra_map_agroprom",              tw = 2048, th = 2048, gx1 = 164.0, gy1 = 1848.0, gx2 = 332.0, gy2 = 2016.0 },
     { id = "darkvalley",      sec = "l04_darkvalley",      xml_tag = "level_canvas_darkvalley",      tex = "tlra_map_darkvalley",            tw = 1024, th = 2048, gx1 = 728.0, gy1 = 1705.0, gx2 = 852.0, gy2 = 1953.0 },
-    { id = "bar",             sec = "l05_bar",             xml_tag = "level_canvas_bar",             tex = "tlra_map_bar",                   tw = 1024, th = 2048, gx1 = 407.0, gy1 = 1414.0, gx2 = 556.0, gy2 = 1712.0 },
+    { id = "bar",             sec = "l05_bar",             xml_tag = "level_canvas_bar",             tex = "tlra_map_l05_bar",               tw = 1024, th = 2048, gx1 = 407.0, gy1 = 1414.0, gx2 = 556.0, gy2 = 1712.0 },
     { id = "rostok",          sec = "l06_rostok",          xml_tag = "level_canvas_rostok",          tex = "tlra_map_rostok",                tw = 1024, th = 2048, gx1 = 258.0, gy1 = 1414.0, gx2 = 407.0, gy2 = 1712.0 },
     { id = "military",        sec = "l07_military",        xml_tag = "level_canvas_military",        tex = "tlra_map_military",              tw = 2048, th = 2048, gx1 = 425.0, gy1 = 1231.0, gx2 = 590.0, gy2 = 1396.0 },
     { id = "yantar",          sec = "l08_yantar",          xml_tag = "level_canvas_yantar",          tex = "tlra_map_yantar",                tw = 2048, th = 2048, gx1 = 101.0, gy1 = 1572.0, gx2 = 249.0, gy2 = 1720.0 },
@@ -188,11 +188,11 @@ local ZONE_MAP_DEFINITIONS = {
     { id = "radar",           sec = "l10_radar",           xml_tag = "level_canvas_radar",           tex = "tlra_map_radar",                 tw = 2048, th = 2048, gx1 = 527.0, gy1 = 975.0,  gx2 = 769.0, gy2 = 1218.704712 },
     { id = "red_forest",      sec = "l10_red_forest",      xml_tag = "level_canvas_red_forest",      tex = "tlra_map_red_forest",            tw = 2048, th = 2048, gx1 = 198.0, gy1 = 1028.0, gx2 = 380.0, gy2 = 1210.0 },
     { id = "hospital",        sec = "l11_hospital",        xml_tag = "level_canvas_hospital",        tex = "tlra_map_hospital",              tw = 512,  th = 1024, gx1 = 194.0, gy1 = 694.0,  gx2 = 246.0, gy2 = 798.0 },
-    { id = "pripyat",         sec = "pripyat",             xml_tag = "level_canvas_pripyat",         tex = "tlra_map_pripyat",               tw = 4096, th = 4096, gx1 = 679.0, gy1 = 718.0,  gx2 = 888.0, gy2 = 927.0 },
-    { id = "l11_pripyat",     sec = "l11_pripyat",         xml_tag = "level_canvas_l11_pripyat",     tex = "tlra_map_l11_pripyat",           tw = 2048, th = 2048, gx1 = 607.0, gy1 = 762.0,  gx2 = 740.0, gy2 = 909.0 },
-    { id = "stancia",         sec = "l12_stancia",         xml_tag = "level_canvas_stancia",         tex = "tlra_map_stancia",               tw = 2048, th = 2048, gx1 = 322.0, gy1 = 298.0,  gx2 = 728.0, gy2 = 495.0 },
-    { id = "stancia_2",       sec = "l12_stancia_2",       xml_tag = "level_canvas_stancia_2",       tex = "tlra_map_stancia_2",             tw = 2048, th = 1024, gx1 = 322.0, gy1 = 101.0,  gx2 = 728.0, gy2 = 298.0 },
-    { id = "generators",      sec = "l13_generators",      xml_tag = "level_canvas_generators",      tex = "tlra_map_generators",            tw = 2048, th = 2048, gx1 = 195.0, gy1 = -40.0,  gx2 = 414.0, gy2 = 179.0 },
+    { id = "pripyat",         sec = "pripyat",             xml_tag = "level_canvas_pripyat",         tex = "tlra_map_pripyat",               tw = 4096, th = 4096, gx1 = 688.0, gy1 = 763.0,  gx2 = 870.0, gy2 = 945.0 },
+    { id = "l11_pripyat",     sec = "l11_pripyat",         xml_tag = "level_canvas_l11_pripyat",     tex = "tlra_map_l11_pripyat",           tw = 2048, th = 2048, gx1 = 457.0, gy1 = 586.0,  gx2 = 798.0, gy2 = 965.0 },
+    { id = "stancia",         sec = "l12_stancia",         xml_tag = "level_canvas_stancia",         tex = "tlra_map_stancia",               tw = 2048, th = 2048, gx1 = 253.0, gy1 = 74.0,   gx2 = 737.0, gy2 = 541.0 },
+    { id = "stancia_2",       sec = "l12_stancia_2",       xml_tag = "level_canvas_stancia_2",       tex = "tlra_map_stancia_2",             tw = 2048, th = 1024, gx1 = 253.0, gy1 = 74.0,   gx2 = 737.0, gy2 = 541.0 },
+    { id = "generators",      sec = "l13_generators",      xml_tag = "level_canvas_generators",      tex = "tlra_map_generators",            tw = 2048, th = 2048, gx1 = 391.0, gy1 = 0.0,    gx2 = 573.0, gy2 = 182.0 },
     { id = "zaton",           sec = "zaton",               xml_tag = "level_canvas_zaton",           tex = "tlra_map_zaton",                 tw = 4096, th = 4096, gx1 = 291.0, gy1 = 574.0,  gx2 = 473.0, gy2 = 756.0 },
     { id = "jupiter",         sec = "jupiter",             xml_tag = "level_canvas_jupiter",         tex = "tlra_map_jupiter",               tw = 4096, th = 4096, gx1 = 277.0, gy1 = 783.0,  gx2 = 459.0, gy2 = 965.0 },
     { id = "marsh",           sec = "k00_marsh",           xml_tag = "level_canvas_marsh",           tex = "tlra_map_marsh",                 tw = 4096, th = 4096, gx1 = 22.0,  gy1 = 2113.0, gx2 = 352.0, gy2 = 2443.0 },
@@ -454,6 +454,11 @@ function UIRoadAheadTravelMap:InitControls()
             return xml:InitStatic("map_frame:" .. m.xml_tag, self.map_frame)
         end)
         if ok and canvas then
+            pcall(function()
+                if m.tex and canvas.InitTexture then
+                    canvas:InitTexture(m.tex)
+                end
+            end)
             canvas:SetStretchTexture(true)
             canvas:Show(false)
             self.level_canvases[m.id] = canvas
@@ -474,10 +479,18 @@ function UIRoadAheadTravelMap:InitControls()
     self.trail_dots = {}
     for i = 1, 20 do
         self.trail_dots[i]  = xml:InitStatic("map_frame:trail_dot_" .. i, self.map_frame)
-        self.trail_dots[i]:Show(false)
+        if self.trail_dots[i] then
+            if self.trail_dots[i].EnableHeading then
+                self.trail_dots[i]:EnableHeading(true)
+            end
+            self.trail_dots[i]:Show(false)
+        end
     end
 
     self.pawn_marker        = xml:InitStatic("map_frame:pawn_marker", self.map_frame)
+    if self.pawn_marker and self.pawn_marker.EnableHeading then
+        self.pawn_marker:EnableHeading(true)
+    end
 
     -- 2. Top-Left: Expedition Dossier Index Card
     self.dossier_tab        = xml:InitStatic("dossier_tab", self)
@@ -661,7 +674,7 @@ local function catmull_rom_spline(p0, p1, p2, p3, t)
                       2 * (2 * z0 - 5 * z1 + 4 * z2 - z3) * t +
                       3 * (-z0 + 3 * z1 - 3 * z2 + z3) * t2)
 
-    local heading = math.atan2(dx, -dz)
+    local heading = math.atan2(-dx, -dz)
     return vector():set(x, 0, z), heading
 end
 
@@ -845,7 +858,7 @@ function UIRoadAheadTravelMap:GetPositionAlongRoute(ratio)
         local heading = 0
         if n_pts > 1 then
             local next_p = self.waypoints[2]
-            heading = math.atan2(next_p.x - p.x, -(next_p.z - p.z))
+            heading = math.atan2(-(next_p.x - p.x), -(next_p.z - p.z))
         end
         local lvl = (self.route_node_info and self.route_node_info[1]) or self.level_name
         return vector():set(p.x, p.y, p.z), heading, lvl
@@ -853,7 +866,7 @@ function UIRoadAheadTravelMap:GetPositionAlongRoute(ratio)
     if ratio >= 1.0 then
         local p = self.waypoints[n_pts]
         local prev_p = self.waypoints[math.max(1, n_pts - 1)]
-        local heading = math.atan2(p.x - prev_p.x, -(p.z - prev_p.z))
+        local heading = math.atan2(-(p.x - prev_p.x), -(p.z - prev_p.z))
         local lvl = (self.route_node_info and self.route_node_info[n_pts]) or self.dest_level_name or self.level_name
         return vector():set(p.x, p.y, p.z), heading, lvl
     end
@@ -877,7 +890,7 @@ function UIRoadAheadTravelMap:GetPositionAlongRoute(ratio)
 
     local last = self.waypoints[n_pts]
     local prev = self.waypoints[math.max(1, n_pts - 1)]
-    local heading = math.atan2(last.x - prev.x, -(last.z - prev.z))
+    local heading = math.atan2(-(last.x - prev.x), -(last.z - prev.z))
     local lvl = (self.route_node_info and self.route_node_info[n_pts]) or self.dest_level_name or self.level_name
     return vector():set(last.x, last.y, last.z), heading, lvl
 end
@@ -897,21 +910,38 @@ function UIRoadAheadTravelMap:BuildStampedFootsteps()
         local frac = cur_d / total_len
         local pt, heading = self:GetPositionAlongRoute(frac)
 
+        -- Forward unit tangent vector
+        local delta = 0.005
+        local ahead_pt = self:GetPositionAlongRoute(math.min(1.0, frac + delta))
+        local f_dx = ahead_pt.x - pt.x
+        local f_dz = ahead_pt.z - pt.z
+        local f_len = math.sqrt(f_dx * f_dx + f_dz * f_dz)
+        if f_len < 0.0001 then
+            f_len = 1.0
+            f_dx = 0.0
+            f_dz = -1.0
+        end
+        local tx = f_dx / f_len
+        local ty = f_dz / f_len
+
+        -- Authentic road travel heading: -dx, -dz (X-Ray counter-clockwise heading)
+        local step_heading = math.atan2(-tx, -ty)
+
         -- Lateral shift: alternating right (+3.5 uv) and left (-3.5 uv)
-        -- Heading 0 = North (dy < 0). Right perpendicular: (cos theta, sin theta)
+        -- Right perpendicular in UV space (where +Y is South): (-ty, tx)
         local is_right = (step_idx % 2 == 1)
-        local r_norm_x = math.cos(heading)
-        local r_norm_y = math.sin(heading)
+        local nx = -ty
+        local ny = tx
         local lat_shift = is_right and 3.5 or -3.5
 
-        local fx = pt.x + r_norm_x * lat_shift
-        local fy = pt.z + r_norm_y * lat_shift
+        local fx = pt.x + nx * lat_shift
+        local fy = pt.z + ny * lat_shift
 
         table.insert(self.stamped_steps, {
             dist     = cur_d,
             u        = fx,
             v        = fy,
-            heading  = heading,
+            heading  = step_heading,
             is_right = is_right
         })
 
@@ -973,11 +1003,36 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
     self.bg_map_canvas:SetTextureRect(Frect():set(u1, v1, u2, v2))
     self.bg_map_canvas:Show(true)
 
-    -- Continuous Full-Screen Zone Master Satellite Cartography (4096x8192)
-    -- Hides legacy/experimental cropped level overlays to guarantee 100% full, seamless, uncropped Zone coverage
+    -- Dynamic PDA Multi-Zone Regional Map Canvas Overlay Engine
+    -- Renders authentic tactical level maps positioned and scaled at their global geographic footprints
     if self.level_canvases then
-        for _, canvas in pairs(self.level_canvases) do
-            canvas:Show(false)
+        for _, m in ipairs(ZONE_MAP_DEFINITIONS) do
+            local canvas = self.level_canvases[m.id]
+            if canvas then
+                local lu1 = m.u1 or (m.gx1 * 4.0)
+                local lv1 = m.v1 or (m.gy1 * (8192 / 2634.0))
+                local lu2 = m.u2 or (m.gx2 * 4.0)
+                local lv2 = m.v2 or (m.gy2 * (8192 / 2634.0))
+
+                -- Project level boundary into screen coordinates
+                local sx1 = (lu1 - u1) * g_zoom
+                local sy1 = (lv1 - v1) * g_zoom
+                local sx2 = (lu2 - u1) * g_zoom
+                local sy2 = (lv2 - v1) * g_zoom
+
+                local sw = sx2 - sx1
+                local sh = sy2 - sy1
+
+                -- Viewport culling (with margin to prevent popping)
+                if sx2 <= -100 or sx1 >= FW + 100 or sy2 <= -100 or sy1 >= FH + 100 or sw <= 0 or sh <= 0 then
+                    canvas:Show(false)
+                else
+                    canvas:SetWndPos(vector2():set(sx1, sy1))
+                    canvas:SetWndSize(vector2():set(sw, sh))
+                    canvas:SetTextureRect(Frect():set(0, 0, m.tw, m.th))
+                    canvas:Show(true)
+                end
+            end
         end
     end
 
@@ -1050,6 +1105,9 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
                         pcall(function()
                             if dot.InitTexture then
                                 dot:InitTexture(step.is_right and "tlra_trail_boot_r" or "tlra_trail_boot_l")
+                            end
+                            if dot.EnableHeading then
+                                dot:EnableHeading(true)
                             end
                             if dot.SetHeading then
                                 dot:SetHeading(step.heading)
