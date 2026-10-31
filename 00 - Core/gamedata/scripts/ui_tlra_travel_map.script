@@ -431,6 +431,7 @@ function UIRoadAheadTravelMap:InitControls()
 
     local xml = CScriptXmlInit()
     xml:ParseFile("ui_tlra_travel_map.xml")
+    self.xml = xml
 
     -- Solid pitch-black backdrop (Covers ultrawide & multi-monitor setups)
     self.bg = xml:InitStatic("background", self)
@@ -476,20 +477,31 @@ function UIRoadAheadTravelMap:InitControls()
     self.start_marker       = xml:InitStatic("map_frame:start_marker", self.map_frame)
     self.dest_marker        = xml:InitStatic("map_frame:dest_marker", self.map_frame)
 
-    self.trail_dots = {}
-    for i = 1, 20 do
-        self.trail_dots[i]  = xml:InitStatic("map_frame:trail_dot_" .. i, self.map_frame)
-        if self.trail_dots[i] then
-            if self.trail_dots[i].EnableHeading then
-                self.trail_dots[i]:EnableHeading(true)
-            end
-            self.trail_dots[i]:Show(false)
+    -- Dedicated Footstep Canvas Frame (rendered strictly below pawn marker)
+    self.trail_frame        = xml:InitStatic("map_frame:trail_frame", self.map_frame)
+    self.trail_dots         = {}
+
+    -- Pre-allocate initial footprint pool (50 bootprints) to avoid runtime allocations
+    for i = 1, 50 do
+        local dot = xml:InitStatic("trail_dot", self.trail_frame)
+        if dot then
+            pcall(function()
+                if dot.EnableHeading then dot:EnableHeading(true) end
+            end)
+            dot:Show(false)
+            table.insert(self.trail_dots, dot)
         end
     end
 
+    -- Stalker Traveler Pawn: Hand-Carved KCD Miniature on Pedestal (64x64, permanently upright)
     self.pawn_marker        = xml:InitStatic("map_frame:pawn_marker", self.map_frame)
-    if self.pawn_marker and self.pawn_marker.EnableHeading then
-        self.pawn_marker:EnableHeading(true)
+    if self.pawn_marker then
+        if self.pawn_marker.EnableHeading then
+            self.pawn_marker:EnableHeading(false)
+        end
+        if self.pawn_marker.SetHeading then
+            self.pawn_marker:SetHeading(0)
+        end
     end
 
     -- 2. Top-Left: Expedition Dossier Index Card
@@ -710,6 +722,13 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
         self.map_canvas:Show(false)
     end
 
+    -- Clear any previous footsteps on new journey
+    if self.trail_dots then
+        for _, dot in ipairs(self.trail_dots) do
+            if dot then dot:Show(false) end
+        end
+    end
+
     -- Lock pawn marker at dead center (512 - 32, 384 - 32) for 64x64 KCD miniature
     self.pawn_marker:SetWndPos(vector2():set(480, 352))
     self.pawn_marker:Show(true)
@@ -808,16 +827,19 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
         end
         self.total_path_len = math.max(1, total_len)
         self:BuildStampedFootsteps()
+        if self.stamped_steps then
+            self:EnsureTrailCapacity(#self.stamped_steps)
+        end
 
         local trek_span_uv = math.max(150, math.sqrt((self.dest_gpos.x - self.start_gpos.x)^2 + (self.dest_gpos.y - self.start_gpos.y)^2))
         self.base_scale = math.max(0.35, math.min(2.0, 600 / trek_span_uv))
     end
 
-    -- Initial travel heading
-    local cur_pos, heading = self:GetPositionAlongRoute(0.0)
+    -- Initial travel position (lock pawn figurine permanently upright)
+    local cur_pos, _ = self:GetPositionAlongRoute(0.0)
     pcall(function()
-        if self.pawn_marker.SetHeading then
-            self.pawn_marker:SetHeading(heading)
+        if self.pawn_marker and self.pawn_marker.SetHeading then
+            self.pawn_marker:SetHeading(0)
         end
     end)
 
@@ -950,6 +972,25 @@ function UIRoadAheadTravelMap:BuildStampedFootsteps()
     end
 end
 
+-- Dynamically expand footprint CUIStatic pool to match the journey's total stamped step count
+function UIRoadAheadTravelMap:EnsureTrailCapacity(needed_count)
+    if not self.xml or not self.trail_frame then return end
+    self.trail_dots = self.trail_dots or {}
+    local current_count = #self.trail_dots
+    if current_count >= needed_count then return end
+
+    for i = current_count + 1, needed_count do
+        local dot = self.xml:InitStatic("trail_dot", self.trail_frame)
+        if dot then
+            pcall(function()
+                if dot.EnableHeading then dot:EnableHeading(true) end
+            end)
+            dot:Show(false)
+            table.insert(self.trail_dots, dot)
+        end
+    end
+end
+
 -- Unified cartographic viewport projection engine
 function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
     cur_pos = cur_pos or (self.waypoints and self.waypoints[1]) or vector():set(2048, 0, 4096)
@@ -1078,10 +1119,8 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
     local pawn_base_clearance = 24.0 / math.max(0.01, g_zoom)
     local max_stamped_dist    = cur_dist - pawn_base_clearance
 
-    local num_dots = (self.trail_dots and #self.trail_dots) or 20
-
     if self.stamped_steps and #self.stamped_steps > 0 then
-        -- Find index of the most recent stamped step
+        -- Find index of the most recent stamped step behind pawn
         local last_stamped_idx = 0
         for idx, step in ipairs(self.stamped_steps) do
             if step.dist <= max_stamped_dist then
@@ -1091,40 +1130,47 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
             end
         end
 
-        for i = 1, num_dots do
-            local dot = self.trail_dots[i]
+        -- Render ALL stamped footsteps from departure point up to pawn's current position
+        for i = 1, last_stamped_idx do
+            local dot = self.trail_dots and self.trail_dots[i]
             if dot then
-                local step_idx = last_stamped_idx - (i - 1)
-                if step_idx >= 1 then
-                    local step = self.stamped_steps[step_idx]
-                    local fx = (step.u - u1) * g_zoom
-                    local fy = (step.v - v1) * g_zoom
+                local step = self.stamped_steps[i]
+                local fx = (step.u - u1) * g_zoom
+                local fy = (step.v - v1) * g_zoom
 
-                    if fx >= -26 and fx <= FW + 26 and fy >= -26 and fy <= FH + 26 then
-                        dot:SetWndPos(vector2():set(fx - 13, fy - 13))
-                        pcall(function()
-                            if dot.InitTexture then
-                                dot:InitTexture(step.is_right and "tlra_trail_boot_r" or "tlra_trail_boot_l")
-                            end
-                            if dot.EnableHeading then
-                                dot:EnableHeading(true)
-                            end
-                            if dot.SetHeading then
-                                dot:SetHeading(step.heading)
-                            end
-                        end)
-                        dot:Show(true)
-                    else
-                        dot:Show(false)
-                    end
+                if fx >= -26 and fx <= FW + 26 and fy >= -26 and fy <= FH + 26 then
+                    dot:SetWndPos(vector2():set(fx - 13, fy - 13))
+                    pcall(function()
+                        if dot.InitTexture then
+                            dot:InitTexture(step.is_right and "tlra_trail_boot_r" or "tlra_trail_boot_l")
+                        end
+                        if dot.EnableHeading then
+                            dot:EnableHeading(true)
+                        end
+                        if dot.SetHeading then
+                            dot:SetHeading(step.heading)
+                        end
+                    end)
+                    dot:Show(true)
                 else
                     dot:Show(false)
                 end
             end
         end
+
+        -- Hide all steps ahead of the pawn (not reached yet)
+        local total_dots = (self.trail_dots and #self.trail_dots) or 0
+        for i = last_stamped_idx + 1, total_dots do
+            local dot = self.trail_dots[i]
+            if dot then
+                dot:Show(false)
+            end
+        end
     else
-        for i = 1, num_dots do
-            if self.trail_dots[i] then self.trail_dots[i]:Show(false) end
+        if self.trail_dots then
+            for _, dot in ipairs(self.trail_dots) do
+                if dot then dot:Show(false) end
+            end
         end
     end
 end
@@ -1163,10 +1209,10 @@ function UIRoadAheadTravelMap:ProcessUpdate(tlra_core)
     -- Auto-center map viewport on interpolated position
     self:UpdateViewport(cur_pos, ratio)
 
-    -- Smoothly rotate pawn heading
+    -- Keep pawn figurine permanently upright (KCD board game style miniature)
     pcall(function()
-        if self.pawn_marker.SetHeading then
-            self.pawn_marker:SetHeading(heading)
+        if self.pawn_marker and self.pawn_marker.SetHeading then
+            self.pawn_marker:SetHeading(0)
         end
     end)
 
@@ -1433,6 +1479,11 @@ end
 
 function UIRoadAheadTravelMap:Close()
     self.travel_paused = true
+    if self.trail_dots then
+        for _, dot in ipairs(self.trail_dots) do
+            if dot then dot:Show(false) end
+        end
+    end
     pcall(function()
         if self:IsShown() then
             self:HideDialog()
