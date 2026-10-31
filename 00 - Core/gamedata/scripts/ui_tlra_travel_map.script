@@ -172,6 +172,34 @@ local LEVEL_SECTION_NAMES = {
     ["hospital"]                = { "hospital", "l11u_hospital" },
 }
 
+-- Authentic PDA Multi-Zone Regional Map Definitions
+-- Derived directly from game_maps_single.ltx and authentic Zone PDA cartography
+local ZONE_MAP_DEFINITIONS = {
+    { id = "escape",          sec = "l01_escape",          xml_tag = "level_canvas_escape",          tex = "tlra_map_escape",                tw = 2048, th = 4096, gx1 = 358.0, gy1 = 2022.0, gx2 = 564.0, gy2 = 2434.0 },
+    { id = "garbage",         sec = "l02_garbage",         xml_tag = "level_canvas_garbage",         tex = "tlra_map_garbage",               tw = 2048, th = 2048, gx1 = 369.0, gy1 = 1776.0, gx2 = 573.0, gy2 = 1980.0 },
+    { id = "agroprom",        sec = "l03_agroprom",        xml_tag = "level_canvas_agroprom",        tex = "tlra_map_agroprom",              tw = 2048, th = 2048, gx1 = 164.0, gy1 = 1848.0, gx2 = 332.0, gy2 = 2016.0 },
+    { id = "darkvalley",      sec = "l04_darkvalley",      xml_tag = "level_canvas_darkvalley",      tex = "tlra_map_darkvalley",            tw = 1024, th = 2048, gx1 = 728.0, gy1 = 1705.0, gx2 = 852.0, gy2 = 1953.0 },
+    { id = "bar",             sec = "l05_bar",             xml_tag = "level_canvas_bar",             tex = "tlra_map_bar",                   tw = 1024, th = 2048, gx1 = 407.0, gy1 = 1414.0, gx2 = 556.0, gy2 = 1712.0 },
+    { id = "rostok",          sec = "l06_rostok",          xml_tag = "level_canvas_rostok",          tex = "tlra_map_rostok",                tw = 1024, th = 2048, gx1 = 258.0, gy1 = 1414.0, gx2 = 407.0, gy2 = 1712.0 },
+    { id = "military",        sec = "l07_military",        xml_tag = "level_canvas_military",        tex = "tlra_map_military",              tw = 2048, th = 2048, gx1 = 425.0, gy1 = 1231.0, gx2 = 590.0, gy2 = 1396.0 },
+    { id = "yantar",          sec = "l08_yantar",          xml_tag = "level_canvas_yantar",          tex = "tlra_map_yantar",                tw = 2048, th = 2048, gx1 = 101.0, gy1 = 1572.0, gx2 = 249.0, gy2 = 1720.0 },
+    { id = "deadcity",        sec = "l09_deadcity",        xml_tag = "level_canvas_deadcity",        tex = "tlra_map_deadcity",              tw = 2048, th = 2048, gx1 = -6.0,  gy1 = 1220.0, gx2 = 248.0, gy2 = 1481.0 },
+    { id = "limansk",         sec = "l10_limansk",         xml_tag = "level_canvas_limansk",         tex = "tlra_map_limansk",               tw = 1024, th = 2048, gx1 = 66.0,  gy1 = 874.0,  gx2 = 182.0, gy2 = 1105.0 },
+    { id = "radar",           sec = "l10_radar",           xml_tag = "level_canvas_radar",           tex = "tlra_map_radar",                 tw = 2048, th = 2048, gx1 = 527.0, gy1 = 975.0,  gx2 = 769.0, gy2 = 1218.704712 },
+    { id = "red_forest",      sec = "l10_red_forest",      xml_tag = "level_canvas_red_forest",      tex = "tlra_map_red_forest",            tw = 2048, th = 2048, gx1 = 198.0, gy1 = 1028.0, gx2 = 380.0, gy2 = 1210.0 },
+    { id = "hospital",        sec = "l11_hospital",        xml_tag = "level_canvas_hospital",        tex = "tlra_map_hospital",              tw = 512,  th = 1024, gx1 = 194.0, gy1 = 694.0,  gx2 = 246.0, gy2 = 798.0 },
+    { id = "pripyat",         sec = "pripyat",             xml_tag = "level_canvas_pripyat",         tex = "tlra_map_pripyat",               tw = 4096, th = 4096, gx1 = 679.0, gy1 = 718.0,  gx2 = 888.0, gy2 = 927.0 },
+    { id = "l11_pripyat",     sec = "l11_pripyat",         xml_tag = "level_canvas_l11_pripyat",     tex = "tlra_map_l11_pripyat",           tw = 2048, th = 2048, gx1 = 607.0, gy1 = 762.0,  gx2 = 740.0, gy2 = 909.0 },
+    { id = "stancia",         sec = "l12_stancia",         xml_tag = "level_canvas_stancia",         tex = "tlra_map_stancia",               tw = 2048, th = 2048, gx1 = 322.0, gy1 = 298.0,  gx2 = 728.0, gy2 = 495.0 },
+    { id = "stancia_2",       sec = "l12_stancia_2",       xml_tag = "level_canvas_stancia_2",       tex = "tlra_map_stancia_2",             tw = 2048, th = 1024, gx1 = 322.0, gy1 = 101.0,  gx2 = 728.0, gy2 = 298.0 },
+    { id = "generators",      sec = "l13_generators",      xml_tag = "level_canvas_generators",      tex = "tlra_map_generators",            tw = 2048, th = 2048, gx1 = 195.0, gy1 = -40.0,  gx2 = 414.0, gy2 = 179.0 },
+    { id = "zaton",           sec = "zaton",               xml_tag = "level_canvas_zaton",           tex = "tlra_map_zaton",                 tw = 4096, th = 4096, gx1 = 291.0, gy1 = 574.0,  gx2 = 473.0, gy2 = 756.0 },
+    { id = "jupiter",         sec = "jupiter",             xml_tag = "level_canvas_jupiter",         tex = "tlra_map_jupiter",               tw = 4096, th = 4096, gx1 = 277.0, gy1 = 783.0,  gx2 = 459.0, gy2 = 965.0 },
+    { id = "marsh",           sec = "k00_marsh",           xml_tag = "level_canvas_marsh",           tex = "tlra_map_marsh",                 tw = 4096, th = 4096, gx1 = 22.0,  gy1 = 2113.0, gx2 = 352.0, gy2 = 2443.0 },
+    { id = "darkscape",       sec = "k01_darkscape",       xml_tag = "level_canvas_darkscape",       tex = "tlra_map_k01_darkscape",         tw = 2048, th = 2048, gx1 = 701.0, gy1 = 2071.0, gx2 = 1020.0, gy2 = 2392.344727 },
+    { id = "trucks_cemetery", sec = "k02_trucks_cemetery", xml_tag = "level_canvas_trucks_cemetery", tex = "tlra_map_k02_trucks_cemetery",     tw = 4096, th = 4096, gx1 = 706.0, gy1 = 1382.0, gx2 = 1025.0, gy2 = 1703.344727 },
+}
+
 -- Safe sound object loader
 local function safe_sound(snd_path)
     local snd = nil
@@ -263,7 +291,7 @@ function get_global_bounds()
         local raw = ini:r_string_ex("global_map", "bound_rect")
         if raw then canvas = parse_bound_rect(raw) end
     end
-    return canvas or { x1 = 0, z1 = 0, x2 = 1000, z2 = 2000 }
+    return canvas or { x1 = 0, z1 = 0, x2 = 1024, z2 = 2634 }
 end
 
 -- Read level placement rectangle on global Zone map
@@ -308,6 +336,24 @@ function coord_to_global_uv(pos, lvl_name)
     local u = orig_gx + (pos.x - bounds.x1) * g_ppm_x
     local v = orig_gy + (bounds.z2 - pos.z) * g_ppm_z
     return vector2():set(u, v)
+end
+
+-- Pre-calculate and cache global texture UV coordinates for all regional tactical map overlays
+local zone_maps_initialized = false
+function init_zone_map_coordinates()
+    if zone_maps_initialized then return end
+    local canvas = get_global_bounds()
+    local g_scale_x = 4096 / math.max(1, canvas.x2 - canvas.x1)
+    local g_scale_y = 8192 / math.max(1, canvas.z2 - canvas.z1)
+
+    for _, m in ipairs(ZONE_MAP_DEFINITIONS) do
+        local rect = get_level_global_rect(m.sec) or { x1 = m.gx1, z1 = m.gy1, x2 = m.gx2, z2 = m.gy2 }
+        m.u1 = (rect.x1 - canvas.x1) * g_scale_x
+        m.v1 = (rect.z1 - canvas.z1) * g_scale_y
+        m.u2 = (rect.x2 - canvas.x1) * g_scale_x
+        m.v2 = (rect.z2 - canvas.z1) * g_scale_y
+    end
+    zone_maps_initialized = true
 end
 
 -- ===================================================================
@@ -400,7 +446,19 @@ function UIRoadAheadTravelMap:InitControls()
     self.bg_map_canvas      = xml:InitStatic("map_frame:bg_map_canvas", self.map_frame)
     self.bg_map_canvas:SetStretchTexture(true)
 
+    -- Layer 2: Regional Tactical Maps (PDA Multi-Zone Stitching Overlay)
+    init_zone_map_coordinates()
     self.level_canvases = {}
+    for _, m in ipairs(ZONE_MAP_DEFINITIONS) do
+        local ok, canvas = pcall(function()
+            return xml:InitStatic("map_frame:" .. m.xml_tag, self.map_frame)
+        end)
+        if ok and canvas then
+            canvas:SetStretchTexture(true)
+            canvas:Show(false)
+            self.level_canvases[m.id] = canvas
+        end
+    end
 
     -- Detail Regional Level Map (Legacy Fallback)
     self.map_canvas         = xml:InitStatic("map_frame:map_canvas", self.map_frame)
@@ -889,6 +947,68 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
     self.bg_map_canvas:SetTextureRect(Frect():set(u1, v1, u2, v2))
     self.bg_map_canvas:Show(true)
 
+    -- Dynamic PDA Multi-Zone Stitching Overlay Engine
+    -- Projects regional level tactical textures at their authentic engine global footprints
+    if self.level_canvases then
+        for _, m in ipairs(ZONE_MAP_DEFINITIONS) do
+            local canvas = self.level_canvases[m.id]
+            if canvas then
+                local lu1 = m.u1 or (m.gx1 * 4.0)
+                local lv1 = m.v1 or (m.gy1 * (8192 / 2634.0))
+                local lu2 = m.u2 or (m.gx2 * 4.0)
+                local lv2 = m.v2 or (m.gy2 * (8192 / 2634.0))
+
+                -- Project unclipped level boundary into screen coordinates
+                local sx1 = (lu1 - u1) * g_zoom
+                local sy1 = (lv1 - v1) * g_zoom
+                local sx2 = (lu2 - u1) * g_zoom
+                local sy2 = (lv2 - v1) * g_zoom
+
+                local sw = sx2 - sx1
+                local sh = sy2 - sy1
+
+                -- Culling: completely outside visible viewport
+                if sx2 <= 0 or sx1 >= FW or sy2 <= 0 or sy1 >= FH or sw <= 0 or sh <= 0 then
+                    canvas:Show(false)
+                else
+                    -- Precise clipping against screen viewport [0, 0, FW, FH]
+                    local vx1 = math.max(0, sx1)
+                    local vy1 = math.max(0, sy1)
+                    local vx2 = math.min(FW, sx2)
+                    local vy2 = math.min(FH, sy2)
+
+                    local vw = vx2 - vx1
+                    local vh = vy2 - vy1
+
+                    if vw <= 0 or vh <= 0 then
+                        canvas:Show(false)
+                    else
+                        -- Sub-rectangle within level's local tactical texture [0..tw, 0..th]
+                        local tx1 = ((vx1 - sx1) / sw) * m.tw
+                        local ty1 = ((vy1 - sy1) / sh) * m.th
+                        local tx2 = ((vx2 - sx1) / sw) * m.tw
+                        local ty2 = ((vy2 - sy1) / sh) * m.th
+
+                        -- Clamp strictly to texture bounds
+                        tx1 = math.max(0, math.min(m.tw, tx1))
+                        ty1 = math.max(0, math.min(m.th, ty1))
+                        tx2 = math.max(0, math.min(m.tw, tx2))
+                        ty2 = math.max(0, math.min(m.th, ty2))
+
+                        if tx2 <= tx1 or ty2 <= ty1 then
+                            canvas:Show(false)
+                        else
+                            canvas:SetWndPos(vector2():set(vx1, vy1))
+                            canvas:SetWndSize(vector2():set(vw, vh))
+                            canvas:SetTextureRect(Frect():set(tx1, ty1, tx2, ty2))
+                            canvas:Show(true)
+                        end
+                    end
+                end
+            end
+        end
+    end
+
     -- Pawn marker position in screen space
     local pawn_sx = (cur_u - u1) * g_zoom
     local pawn_sy = (cur_v - v1) * g_zoom
@@ -1245,12 +1365,22 @@ end
 
 function UIRoadAheadTravelMap:Close()
     self.travel_paused = true
-    pcall(function() self:HideDialog() end)
+    pcall(function()
+        if self:IsShown() then
+            self:HideDialog()
+        end
+    end)
     self:Show(false)
     Unregister_UI("UIRoadAheadTravelMap")
     pcall(function()
         level.remove_pp_effector(8877)
         if game and game.only_allow_movekeys then game.only_allow_movekeys(false) end
+        if ActorMenu and ActorMenu.get_pda_menu then
+            local pda = ActorMenu.get_pda_menu()
+            if pda and pda:IsShown() then
+                pda:HideDialog()
+            end
+        end
     end)
     GUI = nil
 end
@@ -1269,6 +1399,16 @@ function trigger_encounter(threat_name, threat_dist, evasion_chance, on_evade_cb
 end
 
 function show_map(start_pos, dest_pos, level_name, is_transition, travel_dist, dest_level_name)
+    -- Cleanly close PDA if open so mouse state and dialog stack remain pristine
+    pcall(function()
+        if ActorMenu and ActorMenu.get_pda_menu then
+            local pda = ActorMenu.get_pda_menu()
+            if pda and pda:IsShown() then
+                pda:HideDialog()
+            end
+        end
+    end)
+
     if not GUI then
         GUI = UIRoadAheadTravelMap()
     end
@@ -1305,6 +1445,12 @@ function close_map()
         pcall(function()
             level.remove_pp_effector(8877)
             if game and game.only_allow_movekeys then game.only_allow_movekeys(false) end
+            if ActorMenu and ActorMenu.get_pda_menu then
+                local pda = ActorMenu.get_pda_menu()
+                if pda and pda:IsShown() then
+                    pda:HideDialog()
+                end
+            end
         end)
     end
     GUI = nil

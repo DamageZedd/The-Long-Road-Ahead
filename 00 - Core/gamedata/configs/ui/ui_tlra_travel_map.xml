@@ -23,6 +23,31 @@
             <texture>tlra_map_global</texture>
         </bg_map_canvas>
 
+        <!-- Regional Level Canvases: Stitched Tactical Overlays -->
+        <level_canvas_escape x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_escape</texture></level_canvas_escape>
+        <level_canvas_garbage x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_garbage</texture></level_canvas_garbage>
+        <level_canvas_agroprom x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_agroprom</texture></level_canvas_agroprom>
+        <level_canvas_darkvalley x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_darkvalley</texture></level_canvas_darkvalley>
+        <level_canvas_bar x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_bar</texture></level_canvas_bar>
+        <level_canvas_rostok x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_rostok</texture></level_canvas_rostok>
+        <level_canvas_military x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_military</texture></level_canvas_military>
+        <level_canvas_yantar x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_yantar</texture></level_canvas_yantar>
+        <level_canvas_deadcity x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_deadcity</texture></level_canvas_deadcity>
+        <level_canvas_limansk x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_limansk</texture></level_canvas_limansk>
+        <level_canvas_radar x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_radar</texture></level_canvas_radar>
+        <level_canvas_red_forest x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_red_forest</texture></level_canvas_red_forest>
+        <level_canvas_hospital x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_hospital</texture></level_canvas_hospital>
+        <level_canvas_pripyat x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_pripyat</texture></level_canvas_pripyat>
+        <level_canvas_l11_pripyat x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_l11_pripyat</texture></level_canvas_l11_pripyat>
+        <level_canvas_stancia x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_stancia</texture></level_canvas_stancia>
+        <level_canvas_stancia_2 x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_stancia_2</texture></level_canvas_stancia_2>
+        <level_canvas_generators x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_generators</texture></level_canvas_generators>
+        <level_canvas_zaton x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_zaton</texture></level_canvas_zaton>
+        <level_canvas_jupiter x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_jupiter</texture></level_canvas_jupiter>
+        <level_canvas_marsh x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_marsh</texture></level_canvas_marsh>
+        <level_canvas_darkscape x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_k01_darkscape</texture></level_canvas_darkscape>
+        <level_canvas_trucks_cemetery x="-500" y="-500" width="100" height="100" stretch="1"><texture>tlra_map_k02_trucks_cemetery</texture></level_canvas_trucks_cemetery>
+
         <!-- Detail Layer: High-Resolution Regional Level Map -->
         <map_canvas x="0" y="0" width="1024" height="768" stretch="1">
             <texture>tlra_map_global</texture>
