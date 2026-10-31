@@ -825,10 +825,45 @@ ZONE_CURATED_ROADS['red_forest']      = ZONE_CURATED_ROADS['l10_red_forest']
 local level_road_graph = {}
 local cached_road_level = nil
 
+local function to_vec2d(p)
+    if not p then return 0.0, 0.0 end
+    local ok_x, x = pcall(function() return p.x end)
+    local ok_z, z = pcall(function() return p.z end)
+    if ok_x and x and ok_z and z then
+        return x, z
+    end
+    local ok_y, y = pcall(function() return p.y end)
+    if ok_x and x and ok_y and y and (not ok_z or not z) then
+        return x, y
+    end
+    if type(p) == "table" then
+        local tx = p.x or p[1] or 0.0
+        local tz = p.z or p[3] or p.y or p[2] or 0.0
+        return tx, tz
+    end
+    return 0.0, 0.0
+end
+
 local function dist2d(p1, p2)
-    local dx = p1.x - p2.x
-    local dz = p1.z - p2.z
+    local x1, z1 = to_vec2d(p1)
+    local x2, z2 = to_vec2d(p2)
+    local dx = x1 - x2
+    local dz = z1 - z2
     return math.sqrt(dx * dx + dz * dz)
+end
+
+local function to_vector(p)
+    if not p then return vector():set(0, 0, 0) end
+    local ok_x, x = pcall(function() return p.x end)
+    local ok_y, y = pcall(function() return p.y end)
+    local ok_z, z = pcall(function() return p.z end)
+    if ok_x and x and ok_y and y and ok_z and z then
+        return vector():set(x, y, z)
+    end
+    local tx = (type(p) == "table" and (p.x or p[1])) or 0.0
+    local ty = (type(p) == "table" and (p.y or p[2])) or 0.0
+    local tz = (type(p) == "table" and (p.z or p[3])) or 0.0
+    return vector():set(tx, ty, tz)
 end
 
 local function get_level_road_nodes()
@@ -852,19 +887,23 @@ local function get_level_road_nodes()
     local edges = {}
 
     local function get_or_add_node(pos)
+        local vpos = to_vector(pos)
+
         for idx, n in ipairs(nodes) do
-            if dist2d(n.pos, pos) < 3.0 then
+            if dist2d(n.pos, vpos) < 3.0 then
                 return idx
             end
         end
         local idx = #nodes + 1
-        nodes[idx] = { pos = vector():set(pos[1] or pos.x, pos[2] or pos.y, pos[3] or pos.z), is_backbone = true }
+        nodes[idx] = { pos = vpos, is_backbone = true }
         edges[idx] = {}
         return idx
     end
 
     if curated and #curated > 0 then
-        local chains = (type(curated[1][1]) == 'number') and { curated } or curated
+        local first = curated[1]
+        local is_flat = type(first) == "table" and (type(first[1]) == "number" or type(first.x) == "number")
+        local chains = is_flat and { curated } or curated
         for _, chain in ipairs(chains) do
             local prev_idx = nil
             for _, pt in ipairs(chain) do
@@ -907,7 +946,7 @@ local function get_level_road_nodes()
                             end
                             if not is_dup then
                                 local s_idx = #nodes + 1
-                                nodes[s_idx] = { pos = vector():set(p.x, p.y, p.z), is_smart = true }
+                                nodes[s_idx] = { pos = to_vector(p), is_smart = true }
                                 edges[s_idx] = {}
                                 for r_idx = 1, s_idx - 1 do
                                     if nodes[r_idx].is_backbone and dist2d(nodes[r_idx].pos, p) <= 120.0 then
@@ -931,6 +970,8 @@ end
 
 local function find_road_path(start_pos, dest_pos)
     if not (start_pos and dest_pos) then return nil end
+    start_pos = to_vector(start_pos)
+    dest_pos  = to_vector(dest_pos)
     local direct_dist = dist2d(start_pos, dest_pos)
     if direct_dist < 30.0 then return nil end
 
@@ -1108,6 +1149,9 @@ end
 function build_navmesh_dots(start_pos, dest_pos, count)
     local positions = {}
     local d_count = count or 12
+    if not (start_pos and dest_pos) then return positions end
+    start_pos = to_vector(start_pos)
+    dest_pos  = to_vector(dest_pos)
 
     -- 1. Attempt A* Road Route
     local road_poly = find_road_path(start_pos, dest_pos)

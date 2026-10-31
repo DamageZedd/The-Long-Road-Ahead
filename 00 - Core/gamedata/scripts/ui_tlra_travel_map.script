@@ -583,26 +583,64 @@ function UIRoadAheadTravelMap:InitCallbacks()
     self:AddCallback("btn_drop_and_fight", ui_events.BUTTON_CLICKED, self.OnDropAndFight, self)
 end
 
+local function to_coords(p)
+    if not p then return 0.0, 0.0 end
+    local ok_x, x = pcall(function() return p.x end)
+    local ok_z, z = pcall(function() return p.z end)
+    if ok_x and x and ok_z and z then
+        return x, z
+    end
+    local ok_y, y = pcall(function() return p.y end)
+    if ok_x and x and ok_y and y and (not ok_z or not z) then
+        return x, y
+    end
+    if type(p) == "table" then
+        local tx = p.x or p[1] or 0.0
+        local tz = p.z or p[3] or p.y or p[2] or 0.0
+        return tx, tz
+    end
+    return 0.0, 0.0
+end
+
+local function to_vector(p)
+    if not p then return vector():set(0, 0, 0) end
+    local ok_x, x = pcall(function() return p.x end)
+    local ok_y, y = pcall(function() return p.y end)
+    local ok_z, z = pcall(function() return p.z end)
+    if ok_x and x and ok_y and y and ok_z and z then
+        return vector():set(x, y, z)
+    end
+    local tx = (type(p) == "table" and (p.x or p[1])) or 0.0
+    local ty = (type(p) == "table" and (p.y or p[2])) or 0.0
+    local tz = (type(p) == "table" and (p.z or p[3])) or 0.0
+    return vector():set(tx, ty, tz)
+end
+
 -- Setup and launch expedition display with all map textures loaded simultaneously
 local function catmull_rom_spline(p0, p1, p2, p3, t)
     local t2 = t * t
     local t3 = t2 * t
 
-    local x = 0.5 * ((2 * p1.x) +
-                     (-p0.x + p2.x) * t +
-                     (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 +
-                     (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3)
-    local z = 0.5 * ((2 * p1.z) +
-                     (-p0.z + p2.z) * t +
-                     (2 * p0.z - 5 * p1.z + 4 * p2.z - p3.z) * t2 +
-                     (-p0.z + 3 * p1.z - 3 * p2.z + p3.z) * t3)
+    local x0, z0 = to_coords(p0)
+    local x1, z1 = to_coords(p1)
+    local x2, z2 = to_coords(p2)
+    local x3, z3 = to_coords(p3)
 
-    local dx = 0.5 * ((-p0.x + p2.x) +
-                      2 * (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t +
-                      3 * (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t2)
-    local dz = 0.5 * ((-p0.z + p2.z) +
-                      2 * (2 * p0.z - 5 * p1.z + 4 * p2.z - p3.z) * t +
-                      3 * (-p0.z + 3 * p1.z - 3 * p2.z + p3.z) * t2)
+    local x = 0.5 * ((2 * x1) +
+                     (-x0 + x2) * t +
+                     (2 * x0 - 5 * x1 + 4 * x2 - x3) * t2 +
+                     (-x0 + 3 * x1 - 3 * x2 + x3) * t3)
+    local z = 0.5 * ((2 * z1) +
+                     (-z0 + z2) * t +
+                     (2 * z0 - 5 * z1 + 4 * z2 - z3) * t2 +
+                     (-z0 + 3 * z1 - 3 * z2 + z3) * t3)
+
+    local dx = 0.5 * ((-x0 + x2) +
+                      2 * (2 * x0 - 5 * x1 + 4 * x2 - x3) * t +
+                      3 * (-x0 + 3 * x1 - 3 * x2 + x3) * t2)
+    local dz = 0.5 * ((-z0 + z2) +
+                      2 * (2 * z0 - 5 * z1 + 4 * z2 - z3) * t +
+                      3 * (-z0 + 3 * z1 - 3 * z2 + z3) * t2)
 
     local heading = math.atan2(dx, -dz)
     return vector():set(x, 0, z), heading
@@ -610,8 +648,8 @@ end
 
 -- Setup and launch expedition display with true physical scale and multi-level cartography
 function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_transition, travel_dist, dest_level_name)
-    self.start_pos       = start_pos or (db.actor and db.actor:position()) or vector():set(0, 0, 0)
-    self.dest_pos        = dest_pos or self.start_pos
+    self.start_pos       = to_vector(start_pos or (db.actor and db.actor:position()))
+    self.dest_pos        = to_vector(dest_pos or self.start_pos)
     self.level_name      = level_name or (level and level.name and level.name()) or "escape"
     self.dest_level_name = dest_level_name or self.level_name
     self.is_transition   = is_transition or false
@@ -662,7 +700,8 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
 
         local waypoints = { vector():set(self.start_pos.x, 0, self.start_pos.z) }
         for _, dp in ipairs(self.dot_positions) do
-            table.insert(waypoints, vector():set(dp.x, 0, dp.z))
+            local vdp = to_vector(dp)
+            table.insert(waypoints, vector():set(vdp.x, 0, vdp.z))
         end
         table.insert(waypoints, vector():set(self.dest_pos.x, 0, self.dest_pos.z))
 
@@ -813,10 +852,13 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
         -- LOCAL EXPEDITION IN PHYSICAL WORLD METERS
         local scale = (self.base_scale or 1.0) * (self.user_zoom or 1.0)
 
+        local cur_x, cur_z = to_coords(cur_pos)
+
         -- 2. Departure Origin Marker
         if self.start_pos then
-            local sx = CX + (self.start_pos.x - cur_pos.x) * scale
-            local sy = CY - (self.start_pos.z - cur_pos.z) * scale
+            local sx0, sz0 = to_coords(self.start_pos)
+            local sx = CX + (sx0 - cur_x) * scale
+            local sy = CY - (sz0 - cur_z) * scale
             if sx >= -24 and sx <= FW + 24 and sy >= -24 and sy <= FH + 24 then
                 self.start_marker:SetWndPos(vector2():set(sx - 12, sy - 12))
                 self.start_marker:Show(true)
@@ -829,8 +871,9 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
 
         -- 3. Target Destination Marker
         if self.dest_pos then
-            local dx = CX + (self.dest_pos.x - cur_pos.x) * scale
-            local dy = CY - (self.dest_pos.z - cur_pos.z) * scale
+            local dx0, dz0 = to_coords(self.dest_pos)
+            local dx = CX + (dx0 - cur_x) * scale
+            local dy = CY - (dz0 - cur_z) * scale
             if dx >= -28 and dx <= FW + 28 and dy >= -28 and dy <= FH + 28 then
                 self.dest_marker:SetWndPos(vector2():set(dx - 14, dy - 14))
                 self.dest_marker:Show(true)
@@ -845,8 +888,9 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
         for i = 1, 12 do
             local p = self.dot_positions and self.dot_positions[i]
             if p then
-                local px = CX + (p.x - cur_pos.x) * scale
-                local py = CY - (p.z - cur_pos.z) * scale
+                local px0, pz0 = to_coords(p)
+                local px = CX + (px0 - cur_x) * scale
+                local py = CY - (pz0 - cur_z) * scale
                 if px >= -8 and px <= FW + 8 and py >= -8 and py <= FH + 8 then
                     self.trail_dots[i]:SetWndPos(vector2():set(px - 4, py - 4))
                     self.trail_dots[i]:Show(true)
@@ -865,10 +909,10 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
             local ts = MAP_TEXTURE_SIZES[tex_id] or { w = 2048, h = 2048 }
             local tw, th = ts.w, ts.h
 
-            local left   = CX + (bounds.x1 - cur_pos.x) * scale
-            local right  = CX + (bounds.x2 - cur_pos.x) * scale
-            local top    = CY - (bounds.z2 - cur_pos.z) * scale
-            local bottom = CY - (bounds.z1 - cur_pos.z) * scale
+            local left   = CX + (bounds.x1 - cur_x) * scale
+            local right  = CX + (bounds.x2 - cur_x) * scale
+            local top    = CY - (bounds.z2 - cur_z) * scale
+            local bottom = CY - (bounds.z1 - cur_z) * scale
             local scr_w  = math.max(1, right - left)
             local scr_h  = math.max(1, bottom - top)
 
