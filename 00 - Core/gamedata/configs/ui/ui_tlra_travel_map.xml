@@ -63,27 +63,27 @@
             <texture>ui_inGame2_PDA_icon_Primary_mission</texture>
         </dest_marker>
 
-        <!-- Breadcrumb Trail Waypoint Dots (1..20) - Alternating Stamped KCD Combat Bootprints (24x24) -->
-        <trail_dot_1  x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_1>
-        <trail_dot_2  x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_2>
-        <trail_dot_3  x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_3>
-        <trail_dot_4  x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_4>
-        <trail_dot_5  x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_5>
-        <trail_dot_6  x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_6>
-        <trail_dot_7  x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_7>
-        <trail_dot_8  x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_8>
-        <trail_dot_9  x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_9>
-        <trail_dot_10 x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_10>
-        <trail_dot_11 x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_11>
-        <trail_dot_12 x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_12>
-        <trail_dot_13 x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_13>
-        <trail_dot_14 x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_14>
-        <trail_dot_15 x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_15>
-        <trail_dot_16 x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_16>
-        <trail_dot_17 x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_17>
-        <trail_dot_18 x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_18>
-        <trail_dot_19 x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_19>
-        <trail_dot_20 x="-50" y="-50" width="24" height="24" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_20>
+        <!-- Breadcrumb Trail Waypoint Dots (1..20) - Alternating Stamped KCD Combat Bootprints (26x26) -->
+        <trail_dot_1  x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_1>
+        <trail_dot_2  x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_2>
+        <trail_dot_3  x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_3>
+        <trail_dot_4  x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_4>
+        <trail_dot_5  x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_5>
+        <trail_dot_6  x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_6>
+        <trail_dot_7  x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_7>
+        <trail_dot_8  x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_8>
+        <trail_dot_9  x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_9>
+        <trail_dot_10 x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_10>
+        <trail_dot_11 x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_11>
+        <trail_dot_12 x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_12>
+        <trail_dot_13 x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_13>
+        <trail_dot_14 x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_14>
+        <trail_dot_15 x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_15>
+        <trail_dot_16 x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_16>
+        <trail_dot_17 x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_17>
+        <trail_dot_18 x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_18>
+        <trail_dot_19 x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_r</texture></trail_dot_19>
+        <trail_dot_20 x="-50" y="-50" width="26" height="26" stretch="1"><texture>tlra_trail_boot_l</texture></trail_dot_20>
 
         <!-- Stalker Traveler Pawn: Hand-Carved KCD Miniature on Pedestal (64x64) -->
         <pawn_marker x="480" y="352" width="64" height="64" stretch="1">
