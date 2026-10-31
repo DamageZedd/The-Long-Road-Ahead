@@ -1105,6 +1105,8 @@ end
 function build_cross_zone_route(src_lvl, dst_lvl, start_pos, dest_pos)
     src_lvl = resolve_level_name(src_lvl) or src_lvl
     dst_lvl = resolve_level_name(dst_lvl) or dst_lvl
+    start_pos = to_vector(start_pos)
+    dest_pos  = to_vector(dest_pos)
     local path = find_zone_path(src_lvl, dst_lvl)
     if not path or #path == 0 then
         path = { src_lvl, dst_lvl }
@@ -1206,10 +1208,16 @@ function build_cross_zone_route(src_lvl, dst_lvl, start_pos, dest_pos)
             end
         else
             if lvl_entry then add_uv_point(lvl_entry, lvl) end
-            if lvl_exit and lvl_exit ~= lvl_entry then add_uv_point(lvl_exit, lvl) end
+            if lvl_exit and (not lvl_entry or dist2d(lvl_exit, lvl_entry) > 1.0) then
+                add_uv_point(lvl_exit, lvl)
+            end
         end
     end
 
+    if #global_waypoints < 2 then
+        add_uv_point(start_pos, src_lvl)
+        add_uv_point(dest_pos, dst_lvl)
+    end
     tlra_log(" Cross-zone route constructed: %d global waypoints across %d levels", #global_waypoints, n_levels)
     return global_waypoints
 end
