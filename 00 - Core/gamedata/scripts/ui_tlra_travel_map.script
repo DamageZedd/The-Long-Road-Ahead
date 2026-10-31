@@ -90,43 +90,68 @@ local MAP_TEXTURE_SIZES = {
 }
 
 -- Fallback level bounds in meters (x1, z1, x2, z2)
+-- Audited 1:1 ground-truth extracted directly from authentic game level.ltx archives
 local FALLBACK_LEVEL_BOUNDS = {
-    ["l01_escape"]              = { x1 = -388, z1 = -640, x2 = 398, z2 = 820 },
-    ["escape"]                  = { x1 = -388, z1 = -640, x2 = 398, z2 = 820 },
-    ["l02_garbage"]             = { x1 = -340, z1 = -340, x2 = 340, z2 = 340 },
-    ["garbage"]                 = { x1 = -340, z1 = -340, x2 = 340, z2 = 340 },
-    ["l03_agroprom"]            = { x1 = -260, z1 = -260, x2 = 260, z2 = 260 },
-    ["agroprom"]                = { x1 = -260, z1 = -260, x2 = 260, z2 = 260 },
-    ["l04_darkvalley"]          = { x1 = -240, z1 = -550, x2 = 240, z2 = 550 },
-    ["darkvalley"]              = { x1 = -240, z1 = -550, x2 = 240, z2 = 550 },
-    ["l05_bar"]                 = { x1 = -160, z1 = -380, x2 = 320, z2 = 420 },
-    ["bar"]                     = { x1 = -160, z1 = -380, x2 = 320, z2 = 420 },
-    ["l06_rostok"]              = { x1 = -340, z1 = -240, x2 = 140, z2 = 240 },
-    ["rostok"]                  = { x1 = -340, z1 = -240, x2 = 140, z2 = 240 },
-    ["l07_military"]            = { x1 = -400, z1 = -400, x2 = 400, z2 = 400 },
-    ["military"]                = { x1 = -400, z1 = -400, x2 = 400, z2 = 400 },
-    ["l08_yantar"]              = { x1 = -300, z1 = -300, x2 = 300, z2 = 300 },
-    ["yantar"]                  = { x1 = -300, z1 = -300, x2 = 300, z2 = 300 },
-    ["l09_deadcity"]            = { x1 = -300, z1 = -300, x2 = 300, z2 = 300 },
-    ["deadcity"]                = { x1 = -300, z1 = -300, x2 = 300, z2 = 300 },
-    ["l10_radar"]               = { x1 = -400, z1 = -400, x2 = 400, z2 = 400 },
-    ["radar"]                   = { x1 = -400, z1 = -400, x2 = 400, z2 = 400 },
-    ["l11_pripyat"]             = { x1 = -500, z1 = -500, x2 = 500, z2 = 500 },
-    ["pripyat"]                 = { x1 = -500, z1 = -500, x2 = 500, z2 = 500 },
-    ["k00_marsh"]               = { x1 = -600, z1 = -600, x2 = 600, z2 = 600 },
-    ["marsh"]                   = { x1 = -600, z1 = -600, x2 = 600, z2 = 600 },
-    ["k01_darkscape"]           = { x1 = -702, z1 = -702, x2 = 708, z2 = 721 },
-    ["darkscape"]               = { x1 = -702, z1 = -702, x2 = 708, z2 = 721 },
-    ["k02_trucks_cemetery"]     = { x1 = -600, z1 = -600, x2 = 600, z2 = 600 },
-    ["trucks_cemetery"]         = { x1 = -600, z1 = -600, x2 = 600, z2 = 600 },
-    ["jupiter"]                 = { x1 = -600, z1 = -600, x2 = 600, z2 = 600 },
-    ["zaton"]                   = { x1 = -600, z1 = -600, x2 = 600, z2 = 600 },
-    ["red_forest"]              = { x1 = -300, z1 = -300, x2 = 300, z2 = 300 },
-    ["limansk"]                 = { x1 = -200, z1 = -500, x2 = 200, z2 = 500 },
-    ["hospital"]                = { x1 = -100, z1 = -200, x2 = 100, z2 = 200 },
-    ["l12_stancia"]             = { x1 = -500, z1 = -500, x2 = 500, z2 = 500 },
-    ["l12_stancia_2"]           = { x1 = -500, z1 = -300, x2 = 500, z2 = 300 },
-    ["l13_generators"]          = { x1 = -500, z1 = -500, x2 = 500, z2 = 500 },
+    ["jupiter"]                 = { x1 = -600.0,     z1 = -600.0,     x2 = 600.0,     z2 = 600.0 },
+    ["jupiter_underground"]     = { x1 = -390.807584, z1 = -265.13224, x2 = 349.192416, z2 = 474.867776 },
+    ["k00_marsh"]               = { x1 = -445.0,     z1 = -445.0,     x2 = 755.0,     z2 = 755.0 },
+    ["marsh"]                   = { x1 = -445.0,     z1 = -445.0,     x2 = 755.0,     z2 = 755.0 },
+    ["k01_darkscape"]           = { x1 = -702.0,     z1 = -704.09,    x2 = 708.5,     z2 = 716.778 },
+    ["darkscape"]               = { x1 = -702.0,     z1 = -704.09,    x2 = 708.5,     z2 = 716.778 },
+    ["k02_trucks_cemetery"]     = { x1 = -543.947936, z1 = -472.688896, x2 = 387.09888, z2 = 467.011776 },
+    ["trucks_cemetery"]         = { x1 = -543.947936, z1 = -472.688896, x2 = 387.09888, z2 = 467.011776 },
+    ["l01_escape"]              = { x1 = -335.0,     z1 = -630.0,     x2 = 415.0,     z2 = 870.0 },
+    ["escape"]                  = { x1 = -335.0,     z1 = -630.0,     x2 = 415.0,     z2 = 870.0 },
+    ["l02_garbage"]             = { x1 = -370.0,     z1 = -422.0,     x2 = 370.0,     z2 = 327.866848 },
+    ["garbage"]                 = { x1 = -370.0,     z1 = -422.0,     x2 = 370.0,     z2 = 327.866848 },
+    ["l03_agroprom"]            = { x1 = -275.0,     z1 = -370.0,     x2 = 335.0,     z2 = 240.0 },
+    ["agroprom"]                = { x1 = -275.0,     z1 = -370.0,     x2 = 335.0,     z2 = 240.0 },
+    ["l03u_agr_underground"]    = { x1 = -21.868332, z1 = -208.82384, x2 = 161.910336, z2 = 195.814976 },
+    ["agroprom_underground"]    = { x1 = -21.868332, z1 = -208.82384, x2 = 161.910336, z2 = 195.814976 },
+    ["l04_darkvalley"]          = { x1 = -215.0,     z1 = -665.0,     x2 = 235.0,     z2 = 235.0 },
+    ["darkvalley"]              = { x1 = -215.0,     z1 = -665.0,     x2 = 235.0,     z2 = 235.0 },
+    ["l04u_labx18"]             = { x1 = -52.315828, z1 = -39.219492, x2 = 49.368364,  z2 = 82.367952 },
+    ["labx18"]                  = { x1 = -52.315828, z1 = -39.219492, x2 = 49.368364,  z2 = 82.367952 },
+    ["l05_bar"]                 = { x1 = 0.0,        z1 = -512.03,    x2 = 512.0,     z2 = 512.001 },
+    ["bar"]                     = { x1 = 0.0,        z1 = -512.03,    x2 = 512.0,     z2 = 512.001 },
+    ["l06_rostok"]              = { x1 = -512.0,     z1 = -512.03,    x2 = 0.0,       z2 = 512.001 },
+    ["rostok"]                  = { x1 = -512.0,     z1 = -512.03,    x2 = 0.0,       z2 = 512.001 },
+    ["l07_military"]            = { x1 = -420.0,     z1 = -105.0,     x2 = 180.0,     z2 = 495.0 },
+    ["military"]                = { x1 = -420.0,     z1 = -105.0,     x2 = 180.0,     z2 = 495.0 },
+    ["l08_yantar"]              = { x1 = -270.0,     z1 = -405.0,     x2 = 270.0,     z2 = 135.0 },
+    ["yantar"]                  = { x1 = -270.0,     z1 = -405.0,     x2 = 270.0,     z2 = 135.0 },
+    ["l08u_brainlab"]           = { x1 = -149.449904, z1 = -45.40846,  x2 = 157.071968, z2 = 25.718082 },
+    ["brainlab"]                = { x1 = -149.449904, z1 = -45.40846,  x2 = 157.071968, z2 = 25.718082 },
+    ["l09_deadcity"]            = { x1 = -481.497344, z1 = -412.284256, x2 = 379.976288, z2 = 474.479296 },
+    ["deadcity"]                = { x1 = -481.497344, z1 = -412.284256, x2 = 379.976288, z2 = 474.479296 },
+    ["l10_limansk"]             = { x1 = -210.0,     z1 = -415.0,     x2 = 210.0,     z2 = 425.0 },
+    ["limansk"]                 = { x1 = -210.0,     z1 = -415.0,     x2 = 210.0,     z2 = 425.0 },
+    ["l10_radar"]               = { x1 = -320.405472, z1 = -658.74112, x2 = 890.625152, z2 = 557.681216 },
+    ["radar"]                   = { x1 = -320.405472, z1 = -658.74112, x2 = 890.625152, z2 = 557.681216 },
+    ["l10_red_forest"]          = { x1 = -285.0,     z1 = -485.0,     x2 = 375.0,     z2 = 175.0 },
+    ["red_forest"]              = { x1 = -285.0,     z1 = -485.0,     x2 = 375.0,     z2 = 175.0 },
+    ["l10u_bunker"]             = { x1 = -75.655176, z1 = -112.497312, x2 = 30.715904, z2 = 85.010144 },
+    ["bunker"]                  = { x1 = -75.655176, z1 = -112.497312, x2 = 30.715904, z2 = 85.010144 },
+    ["l11_hospital"]            = { x1 = -180.0,     z1 = 537.0,      x2 = 10.0,      z2 = 917.0 },
+    ["hospital"]                = { x1 = -180.0,     z1 = 537.0,      x2 = 10.0,      z2 = 917.0 },
+    ["l11_pripyat"]             = { x1 = -628.133056, z1 = -520.74304, x2 = 671.8672,  z2 = 779.257088 },
+    ["pripyat"]                 = { x1 = -550.0,     z1 = -550.0,     x2 = 550.0,     z2 = 550.0 },
+    ["l12_stancia"]             = { x1 = -600.10496, z1 = -747.782016, x2 = 1729.64992, z2 = 850.523136 },
+    ["stancia"]                 = { x1 = -600.10496, z1 = -747.782016, x2 = 1729.64992, z2 = 850.523136 },
+    ["l12_stancia_2"]           = { x1 = -603.302016, z1 = -930.571136, x2 = 1729.64992, z2 = 966.970176 },
+    ["stancia_2"]               = { x1 = -603.302016, z1 = -930.571136, x2 = 1729.64992, z2 = 966.970176 },
+    ["l12u_control_monolith"]   = { x1 = -43.99628,  z1 = -44.3479,   x2 = 43.946928, z2 = 40.70182 },
+    ["control_monolith"]        = { x1 = -43.99628,  z1 = -44.3479,   x2 = 43.946928, z2 = 40.70182 },
+    ["l12u_sarcofag"]           = { x1 = -34.982,    z1 = -43.5098,   x2 = 102.851,   z2 = 55.244396 },
+    ["sarcofag"]                = { x1 = -34.982,    z1 = -43.5098,   x2 = 102.851,   z2 = 55.244396 },
+    ["l13_generators"]          = { x1 = -525.205024, z1 = -853.156224, x2 = 540.927424, z2 = 209.52392 },
+    ["generators"]              = { x1 = -525.205024, z1 = -853.156224, x2 = 540.927424, z2 = 209.52392 },
+    ["l13u_warlab"]             = { x1 = -51.512672, z1 = -80.72052,  x2 = 51.512672, z2 = 43.720964 },
+    ["warlab"]                  = { x1 = -51.512672, z1 = -80.72052,  x2 = 51.512672, z2 = 43.720964 },
+    ["labx8"]                   = { x1 = -122.44056, z1 = 44.614076,  x2 = -40.44056,  z2 = 126.614072 },
+    ["y04_pole"]                = { x1 = -544.54112, z1 = -615.296064, x2 = 555.46144, z2 = 484.70416 },
+    ["pole"]                    = { x1 = -544.54112, z1 = -615.296064, x2 = 555.46144, z2 = 484.70416 },
+    ["zaton"]                   = { x1 = -600.0,     z1 = -615.0,     x2 = 600.0,     z2 = 585.0 },
 }
 
 -- Aliases for looking up level sections in game_maps_single.ltx
@@ -167,9 +192,14 @@ local LEVEL_SECTION_NAMES = {
     ["k02_trucks_cemetery"]     = { "k02_trucks_cemetery", "trucks_cemetery" },
     ["jupiter"]                 = { "jupiter" },
     ["zaton"]                   = { "zaton" },
-    ["red_forest"]              = { "red_forest" },
-    ["limansk"]                 = { "limansk" },
-    ["hospital"]                = { "hospital", "l11u_hospital" },
+    ["red_forest"]              = { "l10_red_forest", "red_forest" },
+    ["l10_red_forest"]          = { "l10_red_forest", "red_forest" },
+    ["limansk"]                 = { "l10_limansk", "limansk" },
+    ["l10_limansk"]             = { "l10_limansk", "limansk" },
+    ["hospital"]                = { "l11_hospital", "hospital", "l11u_hospital" },
+    ["l11_hospital"]            = { "l11_hospital", "hospital", "l11u_hospital" },
+    ["y04_pole"]                = { "y04_pole", "pole" },
+    ["pole"]                    = { "y04_pole", "pole" },
 }
 
 -- Authentic PDA Multi-Zone Regional Map Definitions
@@ -188,11 +218,11 @@ local ZONE_MAP_DEFINITIONS = {
     { id = "radar",           sec = "l10_radar",           xml_tag = "level_canvas_radar",           tex = "tlra_map_radar",                 tw = 2048, th = 2048, gx1 = 527.0, gy1 = 975.0,  gx2 = 769.0, gy2 = 1218.704712 },
     { id = "red_forest",      sec = "l10_red_forest",      xml_tag = "level_canvas_red_forest",      tex = "tlra_map_red_forest",            tw = 2048, th = 2048, gx1 = 198.0, gy1 = 1028.0, gx2 = 380.0, gy2 = 1210.0 },
     { id = "hospital",        sec = "l11_hospital",        xml_tag = "level_canvas_hospital",        tex = "tlra_map_hospital",              tw = 512,  th = 1024, gx1 = 194.0, gy1 = 694.0,  gx2 = 246.0, gy2 = 798.0 },
-    { id = "pripyat",         sec = "pripyat",             xml_tag = "level_canvas_pripyat",         tex = "tlra_map_pripyat",               tw = 4096, th = 4096, gx1 = 688.0, gy1 = 763.0,  gx2 = 870.0, gy2 = 945.0 },
-    { id = "l11_pripyat",     sec = "l11_pripyat",         xml_tag = "level_canvas_l11_pripyat",     tex = "tlra_map_l11_pripyat",           tw = 2048, th = 2048, gx1 = 457.0, gy1 = 586.0,  gx2 = 798.0, gy2 = 965.0 },
-    { id = "stancia",         sec = "l12_stancia",         xml_tag = "level_canvas_stancia",         tex = "tlra_map_stancia",               tw = 2048, th = 2048, gx1 = 253.0, gy1 = 74.0,   gx2 = 737.0, gy2 = 541.0 },
-    { id = "stancia_2",       sec = "l12_stancia_2",       xml_tag = "level_canvas_stancia_2",       tex = "tlra_map_stancia_2",             tw = 2048, th = 1024, gx1 = 253.0, gy1 = 74.0,   gx2 = 737.0, gy2 = 541.0 },
-    { id = "generators",      sec = "l13_generators",      xml_tag = "level_canvas_generators",      tex = "tlra_map_generators",            tw = 2048, th = 2048, gx1 = 391.0, gy1 = 0.0,    gx2 = 573.0, gy2 = 182.0 },
+    { id = "pripyat",         sec = "pripyat",             xml_tag = "level_canvas_pripyat",         tex = "tlra_map_pripyat",               tw = 4096, th = 4096, gx1 = 679.0, gy1 = 718.0,  gx2 = 888.0, gy2 = 927.0 },
+    { id = "l11_pripyat",     sec = "l11_pripyat",         xml_tag = "level_canvas_l11_pripyat",     tex = "tlra_map_l11_pripyat",           tw = 2048, th = 2048, gx1 = 607.0, gy1 = 762.0,  gx2 = 740.0, gy2 = 909.0 },
+    { id = "stancia",         sec = "l12_stancia",         xml_tag = "level_canvas_stancia",         tex = "tlra_map_stancia",               tw = 2048, th = 2048, gx1 = 322.0, gy1 = 298.0,  gx2 = 728.0, gy2 = 495.0 },
+    { id = "stancia_2",       sec = "l12_stancia_2",       xml_tag = "level_canvas_stancia_2",       tex = "tlra_map_stancia_2",             tw = 2048, th = 1024, gx1 = 322.0, gy1 = 101.0,  gx2 = 728.0, gy2 = 298.0 },
+    { id = "generators",      sec = "l13_generators",      xml_tag = "level_canvas_generators",      tex = "tlra_map_generators",            tw = 2048, th = 2048, gx1 = 195.0, gy1 = -40.0,  gx2 = 414.0, gy2 = 179.0 },
     { id = "zaton",           sec = "zaton",               xml_tag = "level_canvas_zaton",           tex = "tlra_map_zaton",                 tw = 4096, th = 4096, gx1 = 291.0, gy1 = 574.0,  gx2 = 473.0, gy2 = 756.0 },
     { id = "jupiter",         sec = "jupiter",             xml_tag = "level_canvas_jupiter",         tex = "tlra_map_jupiter",               tw = 4096, th = 4096, gx1 = 277.0, gy1 = 783.0,  gx2 = 459.0, gy2 = 965.0 },
     { id = "marsh",           sec = "k00_marsh",           xml_tag = "level_canvas_marsh",           tex = "tlra_map_marsh",                 tw = 4096, th = 4096, gx1 = 22.0,  gy1 = 2113.0, gx2 = 352.0, gy2 = 2443.0 },
@@ -256,7 +286,7 @@ function get_level_bounds(level_name)
             local fs = getFS()
             if fs and fs.r_open then
                 for _, sec in ipairs(candidates) do
-                    local reader = fs:r_open("$game_levels$", sec .. "/level.ltx")
+                    local reader = fs:r_open("$game_levels$", sec .. "\\level.ltx")
                     if reader then
                         local l_ini = ini_file(reader, "$game_levels$")
                         if l_ini and l_ini:section_exist("level_map") then
@@ -936,7 +966,7 @@ function UIRoadAheadTravelMap:BuildStampedFootsteps()
         local delta = 0.005
         local ahead_pt = self:GetPositionAlongRoute(math.min(1.0, frac + delta))
         local f_dx = ahead_pt.x - pt.x
-        local f_dz = ahead_pt.z - pt.z
+        local f_dz = (ahead_pt.z - pt.z) * (4.0 / 3.1099696)
         local f_len = math.sqrt(f_dx * f_dx + f_dz * f_dz)
         if f_len < 0.0001 then
             f_len = 1.0
@@ -953,7 +983,7 @@ function UIRoadAheadTravelMap:BuildStampedFootsteps()
         -- Right perpendicular in UV space (where +Y is South): (-ty, tx)
         local is_right = (step_idx % 2 == 1)
         local nx = -ty
-        local ny = tx
+        local ny = tx / (4.0 / 3.1099696)
         local lat_shift = is_right and 3.5 or -3.5
 
         local fx = pt.x + nx * lat_shift
@@ -1007,17 +1037,24 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
     local cur_v = cur_pos.z
     local g_zoom = math.max(0.28, (self.base_scale or 1.0) * (self.user_zoom or 1.0))
 
+    -- Authentic PDA Isotropic Aspect Ratio Projection Engine:
+    -- In ui_global_map.dds, 4096 texels covers 1024 global units (4.0 texels / unit).
+    -- 8192 texels covers 2634 global units (3.1099696 texels / unit).
+    -- In the PDA engine, 1 global unit in X equals 1 global unit in Y on screen.
+    -- We apply the isotropic scale factor (4.0 / 3.1099696 = 1.286186) to eliminate vertical squashing.
+    local g_aspect = 4.0 / 3.1099696
+
     local span_u = FW / g_zoom
-    local span_v = FH / g_zoom
+    local span_v = (FH / g_zoom) / g_aspect
 
     if span_u > 4096 then
         span_u = 4096
         g_zoom = FW / 4096
-        span_v = FH / g_zoom
+        span_v = (FH / g_zoom) / g_aspect
     end
     if span_v > 8192 then
         span_v = 8192
-        g_zoom = FH / 8192
+        g_zoom = (FH / 8192) / g_aspect
         span_u = FW / g_zoom
     end
 
@@ -1055,11 +1092,11 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
                 local lu2 = m.u2 or (m.gx2 * 4.0)
                 local lv2 = m.v2 or (m.gy2 * (8192 / 2634.0))
 
-                -- Project level boundary into screen coordinates
+                -- Project level boundary into screen coordinates with isotropic aspect ratio
                 local sx1 = (lu1 - u1) * g_zoom
-                local sy1 = (lv1 - v1) * g_zoom
+                local sy1 = (lv1 - v1) * g_zoom * g_aspect
                 local sx2 = (lu2 - u1) * g_zoom
-                local sy2 = (lv2 - v1) * g_zoom
+                local sy2 = (lv2 - v1) * g_zoom * g_aspect
 
                 local sw = sx2 - sx1
                 local sh = sy2 - sy1
@@ -1079,14 +1116,14 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
 
     -- Pawn marker position in screen space (64x64 KCD Figurine)
     local pawn_sx = (cur_u - u1) * g_zoom
-    local pawn_sy = (cur_v - v1) * g_zoom
+    local pawn_sy = (cur_v - v1) * g_zoom * g_aspect
     self.pawn_marker:SetWndPos(vector2():set(pawn_sx - 32, pawn_sy - 32))
     self.pawn_marker:Show(true)
 
     -- Departure Origin Marker
     if self.start_gpos then
         local sx = (self.start_gpos.x - u1) * g_zoom
-        local sy = (self.start_gpos.y - v1) * g_zoom
+        local sy = (self.start_gpos.y - v1) * g_zoom * g_aspect
         if sx >= -24 and sx <= FW + 24 and sy >= -24 and sy <= FH + 24 then
             self.start_marker:SetWndPos(vector2():set(sx - 12, sy - 12))
             self.start_marker:Show(true)
@@ -1100,7 +1137,7 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
     -- Target Destination Marker
     if self.dest_gpos then
         local dx = (self.dest_gpos.x - u1) * g_zoom
-        local dy = (self.dest_gpos.y - v1) * g_zoom
+        local dy = (self.dest_gpos.y - v1) * g_zoom * g_aspect
         if dx >= -28 and dx <= FW + 28 and dy >= -28 and dy <= FH + 28 then
             self.dest_marker:SetWndPos(vector2():set(dx - 14, dy - 14))
             self.dest_marker:Show(true)
@@ -1136,7 +1173,7 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
             if dot then
                 local step = self.stamped_steps[i]
                 local fx = (step.u - u1) * g_zoom
-                local fy = (step.v - v1) * g_zoom
+                local fy = (step.v - v1) * g_zoom * g_aspect
 
                 if fx >= -26 and fx <= FW + 26 and fy >= -26 and fy <= FH + 26 then
                     dot:SetWndPos(vector2():set(fx - 13, fy - 13))
