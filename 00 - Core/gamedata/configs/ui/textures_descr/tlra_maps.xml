@@ -18,6 +18,8 @@
         <texture id="tlra_bar_brass" x="0" y="370" width="260" height="14"/>
         <texture id="tlra_bar_gradient" x="0" y="390" width="260" height="12"/>
         <texture id="tlra_bar_cyan" x="0" y="410" width="140" height="12"/>
+        <texture id="tlra_pawn_kcd" x="500" y="0" width="128" height="128"/>
+        <texture id="tlra_trail_boot" x="640" y="0" width="48" height="48"/>
     </file>
     <file name="ui\ui_global_map">
         <texture id="tlra_map_global" x="0" y="0" width="4096" height="8192"/>

@@ -697,8 +697,8 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
         self.map_canvas:Show(false)
     end
 
-    -- Lock pawn marker at dead center (512 - 14, 384 - 14)
-    self.pawn_marker:SetWndPos(vector2():set(498, 370))
+    -- Lock pawn marker at dead center (512 - 18, 384 - 18) for 36x36 KCD miniature
+    self.pawn_marker:SetWndPos(vector2():set(494, 366))
     self.pawn_marker:Show(true)
 
     local FW = 1024
@@ -755,10 +755,12 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
         self.total_path_len = math.max(1, total_len)
 
         self.dot_gpositions = {}
+        self.dot_headings   = {}
         for i = 1, 12 do
             local frac = i / 13
-            local pt, _ = self:GetPositionAlongRoute(frac)
+            local pt, h = self:GetPositionAlongRoute(frac)
             self.dot_gpositions[i] = { x = pt.x, y = pt.z }
+            self.dot_headings[i]   = h
         end
 
         local trek_span_uv = math.max(120, math.sqrt((self.dest_gpos.x - self.start_gpos.x)^2 + (self.dest_gpos.y - self.start_gpos.y)^2))
@@ -802,10 +804,12 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
         self.total_path_len = math.max(1, total_len)
 
         self.dot_gpositions = {}
+        self.dot_headings   = {}
         for i = 1, 12 do
             local frac = i / 13
-            local pt, _ = self:GetPositionAlongRoute(frac)
+            local pt, h = self:GetPositionAlongRoute(frac)
             self.dot_gpositions[i] = { x = pt.x, y = pt.z }
+            self.dot_headings[i]   = h
         end
 
         local trek_span_uv = math.max(150, math.sqrt((self.dest_gpos.x - self.start_gpos.x)^2 + (self.dest_gpos.y - self.start_gpos.y)^2))
@@ -1009,10 +1013,10 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
         end
     end
 
-    -- Pawn marker position in screen space
+    -- Pawn marker position in screen space (36x36 KCD Figurine)
     local pawn_sx = (cur_u - u1) * g_zoom
     local pawn_sy = (cur_v - v1) * g_zoom
-    self.pawn_marker:SetWndPos(vector2():set(pawn_sx - 14, pawn_sy - 14))
+    self.pawn_marker:SetWndPos(vector2():set(pawn_sx - 18, pawn_sy - 18))
     self.pawn_marker:Show(true)
 
     -- Departure Origin Marker
@@ -1043,14 +1047,19 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
         self.dest_marker:Show(false)
     end
 
-    -- Breadcrumb trail dots along route
+    -- Breadcrumb trail dots along route (KCD stamped bootprints)
     for i = 1, 12 do
         local gp = self.dot_gpositions and self.dot_gpositions[i]
         if gp then
             local px = (gp.x - u1) * g_zoom
             local py = (gp.y - v1) * g_zoom
-            if px >= -8 and px <= FW + 8 and py >= -8 and py <= FH + 8 then
-                self.trail_dots[i]:SetWndPos(vector2():set(px - 4, py - 4))
+            if px >= -16 and px <= FW + 16 and py >= -16 and py <= FH + 16 then
+                self.trail_dots[i]:SetWndPos(vector2():set(px - 8, py - 8))
+                pcall(function()
+                    if self.trail_dots[i].SetHeading and self.dot_headings and self.dot_headings[i] then
+                        self.trail_dots[i]:SetHeading(self.dot_headings[i])
+                    end
+                end)
                 self.trail_dots[i]:Show(true)
             else
                 self.trail_dots[i]:Show(false)

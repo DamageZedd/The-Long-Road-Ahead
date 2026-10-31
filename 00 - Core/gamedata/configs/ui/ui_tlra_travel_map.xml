@@ -63,23 +63,23 @@
             <texture>ui_inGame2_PDA_icon_Primary_mission</texture>
         </dest_marker>
 
-        <!-- Breadcrumb Trail Waypoint Dots (1..12) - Bright Amber Tactical Dots -->
-        <trail_dot_1  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_1>
-        <trail_dot_2  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_2>
-        <trail_dot_3  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_3>
-        <trail_dot_4  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_4>
-        <trail_dot_5  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_5>
-        <trail_dot_6  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_6>
-        <trail_dot_7  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_7>
-        <trail_dot_8  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_8>
-        <trail_dot_9  x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_9>
-        <trail_dot_10 x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_10>
-        <trail_dot_11 x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_11>
-        <trail_dot_12 x="-50" y="-50" width="8" height="8" stretch="1"><texture r="245" g="195" b="50" a="255">tlra_white_solid</texture></trail_dot_12>
+        <!-- Breadcrumb Trail Waypoint Dots (1..12) - Inked KCD Stamped Bootprints -->
+        <trail_dot_1  x="-50" y="-50" width="16" height="16" stretch="1"><texture>tlra_trail_boot</texture></trail_dot_1>
+        <trail_dot_2  x="-50" y="-50" width="16" height="16" stretch="1"><texture>tlra_trail_boot</texture></trail_dot_2>
+        <trail_dot_3  x="-50" y="-50" width="16" height="16" stretch="1"><texture>tlra_trail_boot</texture></trail_dot_3>
+        <trail_dot_4  x="-50" y="-50" width="16" height="16" stretch="1"><texture>tlra_trail_boot</texture></trail_dot_4>
+        <trail_dot_5  x="-50" y="-50" width="16" height="16" stretch="1"><texture>tlra_trail_boot</texture></trail_dot_5>
+        <trail_dot_6  x="-50" y="-50" width="16" height="16" stretch="1"><texture>tlra_trail_boot</texture></trail_dot_6>
+        <trail_dot_7  x="-50" y="-50" width="16" height="16" stretch="1"><texture>tlra_trail_boot</texture></trail_dot_7>
+        <trail_dot_8  x="-50" y="-50" width="16" height="16" stretch="1"><texture>tlra_trail_boot</texture></trail_dot_8>
+        <trail_dot_9  x="-50" y="-50" width="16" height="16" stretch="1"><texture>tlra_trail_boot</texture></trail_dot_9>
+        <trail_dot_10 x="-50" y="-50" width="16" height="16" stretch="1"><texture>tlra_trail_boot</texture></trail_dot_10>
+        <trail_dot_11 x="-50" y="-50" width="16" height="16" stretch="1"><texture>tlra_trail_boot</texture></trail_dot_11>
+        <trail_dot_12 x="-50" y="-50" width="16" height="16" stretch="1"><texture>tlra_trail_boot</texture></trail_dot_12>
 
-        <!-- Stalker Traveler Pawn: Anchored Dead-Center at (498, 370) -->
-        <pawn_marker x="498" y="370" width="28" height="28" stretch="1">
-            <texture>ui_hud_map_arrow</texture>
+        <!-- Stalker Traveler Pawn: Hand-Carved KCD Miniature on Pedestal (36x36) -->
+        <pawn_marker x="494" y="366" width="36" height="36" stretch="1">
+            <texture>tlra_pawn_kcd</texture>
         </pawn_marker>
     </map_frame>
 
