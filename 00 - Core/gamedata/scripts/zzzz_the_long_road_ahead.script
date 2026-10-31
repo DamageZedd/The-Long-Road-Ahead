@@ -866,10 +866,10 @@ local function to_vector(p)
     return vector():set(tx, ty, tz)
 end
 
-local function get_level_road_nodes()
-    local cur_level = level.name()
-    if not cur_level then return {} end
-    if cached_road_level == cur_level and level_road_graph[cur_level] then
+function get_level_road_nodes(lvl_name)
+    local cur_level = lvl_name or (level and level.name and level.name())
+    if not cur_level then return { nodes = {}, edges = {} } end
+    if level_road_graph[cur_level] then
         return level_road_graph[cur_level]
     end
 
@@ -906,7 +906,32 @@ local function get_level_road_nodes()
         local chains = is_flat and { curated } or curated
         for _, chain in ipairs(chains) do
             local prev_idx = nil
-            for _, pt in ipairs(chain) do
+            for i = 1, #chain do
+                local pt = chain[i]
+                -- Subdivide long segments (> 35m) for dense road following
+                if prev_idx and i > 1 then
+                    local p_prev = nodes[prev_idx].pos
+                    local vpt = to_vector(pt)
+                    local seg_d = dist2d(p_prev, vpt)
+                    if seg_d > 35.0 then
+                        local steps = math.floor(seg_d / 25.0)
+                        for s = 1, steps do
+                            local t = s / (steps + 1)
+                            local inter_pos = vector():set(
+                                p_prev.x + (vpt.x - p_prev.x) * t,
+                                p_prev.y + (vpt.y - p_prev.y) * t,
+                                p_prev.z + (vpt.z - p_prev.z) * t
+                            )
+                            local inter_idx = get_or_add_node(inter_pos)
+                            if prev_idx ~= inter_idx then
+                                edges[prev_idx][inter_idx] = true
+                                edges[inter_idx][prev_idx] = true
+                            end
+                            prev_idx = inter_idx
+                        end
+                    end
+                end
+
                 local c_idx = get_or_add_node(pt)
                 if prev_idx and prev_idx ~= c_idx then
                     edges[prev_idx][c_idx] = true
@@ -916,10 +941,10 @@ local function get_level_road_nodes()
             end
         end
 
-        -- Auto-bridge road intersections and branch points within 45m
+        -- Auto-bridge road intersections and branch points within 70m
         for i = 1, #nodes do
             for j = i + 1, #nodes do
-                if dist2d(nodes[i].pos, nodes[j].pos) <= 45.0 then
+                if dist2d(nodes[i].pos, nodes[j].pos) <= 70.0 then
                     edges[i][j] = true
                     edges[j][i] = true
                 end
@@ -963,19 +988,18 @@ local function get_level_road_nodes()
     end)
 
     level_road_graph[cur_level] = { nodes = nodes, edges = edges }
-    cached_road_level = cur_level
     tlra_log('Cached %d road network vertices for level %s', #nodes, cur_level)
     return level_road_graph[cur_level]
 end
 
-local function find_road_path(start_pos, dest_pos)
+function find_road_path(start_pos, dest_pos, lvl_name)
     if not (start_pos and dest_pos) then return nil end
     start_pos = to_vector(start_pos)
     dest_pos  = to_vector(dest_pos)
     local direct_dist = dist2d(start_pos, dest_pos)
-    if direct_dist < 30.0 then return nil end
+    if direct_dist < 15.0 then return nil end
 
-    local graph_data = get_level_road_nodes()
+    local graph_data = get_level_road_nodes(lvl_name)
     if not graph_data or not graph_data.nodes or #graph_data.nodes < 2 then return nil end
 
     local nodes = graph_data.nodes
@@ -1003,7 +1027,9 @@ local function find_road_path(start_pos, dest_pos)
         return nil
     end
 
-    if s_idx == d_idx then return nil end
+    if s_idx == d_idx then
+        return { start_pos, nodes[s_idx].pos, dest_pos }
+    end
 
     -- A* search over road network graph edges
     local open_set = { [s_idx] = true }
@@ -1030,37 +1056,30 @@ local function find_road_path(start_pos, dest_pos)
                 curr = came_from[curr]
             end
 
-            -- Validate road path efficiency against direct distance
-            local total_road_len = dist2d(start_pos, raw_path[1]) + g_score[d_idx] + dist2d(raw_path[#raw_path], dest_pos)
-            if total_road_len <= direct_dist * 4.5 then
-                local full_route = { start_pos }
-                for _, rpos in ipairs(raw_path) do
-                    table.insert(full_route, rpos)
-                end
-                table.insert(full_route, dest_pos)
+            local full_route = { start_pos }
+            for _, rpos in ipairs(raw_path) do
+                table.insert(full_route, rpos)
+            end
+            table.insert(full_route, dest_pos)
 
-                -- Multi-pass Laplacian smoothing on route waypoints (eliminates sharp doglegs)
-                if #full_route >= 4 then
-                    for pass = 1, 3 do
-                        for k = 2, #full_route - 1 do
-                            local p0 = full_route[k-1]
-                            local p1 = full_route[k]
-                            local p2 = full_route[k+1]
-                            full_route[k] = vector():set(
-                                p1.x * 0.5 + (p0.x + p2.x) * 0.25,
-                                p1.y * 0.5 + (p0.y + p2.y) * 0.25,
-                                p1.z * 0.5 + (p0.z + p2.z) * 0.25
-                            )
-                        end
+            -- Multi-pass Laplacian smoothing on route waypoints (eliminates sharp doglegs)
+            if #full_route >= 4 then
+                for pass = 1, 3 do
+                    for k = 2, #full_route - 1 do
+                        local p0 = full_route[k-1]
+                        local p1 = full_route[k]
+                        local p2 = full_route[k+1]
+                        full_route[k] = vector():set(
+                            p1.x * 0.5 + (p0.x + p2.x) * 0.25,
+                            p1.y * 0.5 + (p0.y + p2.y) * 0.25,
+                            p1.z * 0.5 + (p0.z + p2.z) * 0.25
+                        )
                     end
                 end
-
-                tlra_log(' Road A* found %d-node route (Length: %.1fm vs Direct: %.1fm)', #full_route, total_road_len, direct_dist)
-                return full_route
-            else
-                tlra_log(' Road detour too large (%.1fm vs %.1fm), using organic wilderness curve', total_road_len, direct_dist)
-                return nil
             end
+
+            tlra_log(' Road A* found %d-node route on level %s (Direct: %.1fm)', #full_route, tostring(lvl_name or "local"), direct_dist)
+            return full_route
         end
 
         open_set[current] = nil
@@ -1081,6 +1100,118 @@ local function find_road_path(start_pos, dest_pos)
     end
 
     return nil
+end
+
+function build_cross_zone_route(src_lvl, dst_lvl, start_pos, dest_pos)
+    src_lvl = resolve_level_name(src_lvl) or src_lvl
+    dst_lvl = resolve_level_name(dst_lvl) or dst_lvl
+    local path = find_zone_path(src_lvl, dst_lvl)
+    if not path or #path == 0 then
+        path = { src_lvl, dst_lvl }
+    end
+
+    local global_waypoints = {}
+
+    local function add_uv_point(pt, lvl)
+        local uv = nil
+        if ui_tlra_travel_map and ui_tlra_travel_map.coord_to_global_uv then
+            uv = ui_tlra_travel_map.coord_to_global_uv(pt, lvl)
+        end
+        if uv then
+            table.insert(global_waypoints, { x = uv.x, z = uv.y, lvl = lvl })
+        end
+    end
+
+    local n_levels = #path
+    for k = 1, n_levels do
+        local lvl = path[k]
+        local lvl_entry = nil
+        local lvl_exit = nil
+
+        if k == 1 then
+            lvl_entry = start_pos
+            if n_levels > 1 then
+                local door = find_door_to(path[2])
+                if door and door.pos then
+                    lvl_exit = door.pos
+                else
+                    local graph_data = get_level_road_nodes(lvl)
+                    if graph_data and graph_data.nodes and #graph_data.nodes > 0 then
+                        local next_rect = ui_tlra_travel_map and ui_tlra_travel_map.get_level_global_rect and ui_tlra_travel_map.get_level_global_rect(path[2])
+                        local target_uv = next_rect and vector2():set((next_rect.x1 + next_rect.x2) * 0.5, (next_rect.z1 + next_rect.z2) * 0.5)
+                        local best_n, best_d = nil, 9999999
+                        for _, nd in ipairs(graph_data.nodes) do
+                            local nuv = ui_tlra_travel_map.coord_to_global_uv(nd.pos, lvl)
+                            local d = target_uv and ((nuv.x - target_uv.x)^2 + (nuv.y - target_uv.y)^2) or 0
+                            if d < best_d then best_d = d; best_n = nd.pos end
+                        end
+                        lvl_exit = best_n or start_pos
+                    else
+                        lvl_exit = start_pos
+                    end
+                end
+            else
+                lvl_exit = dest_pos
+            end
+        elseif k == n_levels then
+            lvl_exit = dest_pos
+            local graph_data = get_level_road_nodes(lvl)
+            if graph_data and graph_data.nodes and #graph_data.nodes > 0 and #global_waypoints > 0 then
+                local prev_uv = global_waypoints[#global_waypoints]
+                local best_n, best_d = nil, 9999999
+                for _, nd in ipairs(graph_data.nodes) do
+                    local nuv = ui_tlra_travel_map.coord_to_global_uv(nd.pos, lvl)
+                    local d = (nuv.x - prev_uv.x)^2 + (nuv.y - prev_uv.z)^2
+                    if d < best_d then best_d = d; best_n = nd.pos end
+                end
+                lvl_entry = best_n or dest_pos
+            else
+                lvl_entry = dest_pos
+            end
+        else
+            -- Intermediate level
+            local graph_data = get_level_road_nodes(lvl)
+            if graph_data and graph_data.nodes and #graph_data.nodes > 0 then
+                local prev_uv = global_waypoints[#global_waypoints]
+                local next_rect = ui_tlra_travel_map and ui_tlra_travel_map.get_level_global_rect and ui_tlra_travel_map.get_level_global_rect(path[k+1])
+                local target_uv = next_rect and vector2():set((next_rect.x1 + next_rect.x2) * 0.5, (next_rect.z1 + next_rect.z2) * 0.5)
+
+                local best_entry, best_ed = nil, 9999999
+                local best_exit, best_xd = nil, 9999999
+                for _, nd in ipairs(graph_data.nodes) do
+                    local nuv = ui_tlra_travel_map.coord_to_global_uv(nd.pos, lvl)
+                    if prev_uv then
+                        local de = (nuv.x - prev_uv.x)^2 + (nuv.y - prev_uv.z)^2
+                        if de < best_ed then best_ed = de; best_entry = nd.pos end
+                    end
+                    if target_uv then
+                        local dx = (nuv.x - target_uv.x)^2 + (nuv.y - target_uv.y)^2
+                        if dx < best_xd then best_xd = dx; best_exit = nd.pos end
+                    end
+                end
+                lvl_entry = best_entry or graph_data.nodes[1].pos
+                lvl_exit  = best_exit or graph_data.nodes[#graph_data.nodes].pos
+            end
+        end
+
+        -- Find road path on this level
+        local rpath = nil
+        if lvl_entry and lvl_exit then
+            rpath = find_road_path(lvl_entry, lvl_exit, lvl)
+        end
+
+        if rpath and #rpath > 0 then
+            for _, pt in ipairs(rpath) do
+                add_uv_point(pt, lvl)
+            end
+        else
+            if lvl_entry then add_uv_point(lvl_entry, lvl) end
+            if lvl_exit and lvl_exit ~= lvl_entry then add_uv_point(lvl_exit, lvl) end
+        end
+    end
+
+    tlra_log(" Cross-zone route constructed: %d global waypoints across %d levels", #global_waypoints, n_levels)
+    return global_waypoints
 end
 
 local function get_safe_lvid_pos(ratio)
@@ -1146,7 +1277,7 @@ end
 -- Generates smooth road-aligned waypoints using Level Road A*
 -- with smooth ground elevation snapping (no horizontal cell zig-zags).
 -- ============================================================
-function build_navmesh_dots(start_pos, dest_pos, count)
+function build_navmesh_dots(start_pos, dest_pos, count, lvl_name)
     local positions = {}
     local d_count = count or 12
     if not (start_pos and dest_pos) then return positions end
@@ -1154,7 +1285,7 @@ function build_navmesh_dots(start_pos, dest_pos, count)
     dest_pos  = to_vector(dest_pos)
 
     -- 1. Attempt A* Road Route
-    local road_poly = find_road_path(start_pos, dest_pos)
+    local road_poly = find_road_path(start_pos, dest_pos, lvl_name)
 
     if road_poly and #road_poly >= 2 then
         -- Resample evenly spaced points along road polyline
@@ -1188,10 +1319,12 @@ function build_navmesh_dots(start_pos, dest_pos, count)
 
             if cur_pt then
                 -- Only adapt ground height (Y), keep smooth X and Z to avoid cell zig-zags
-                local lvid = level.vertex_id(cur_pt)
-                if lvid and lvid ~= 4294967295 and lvid ~= -1 then
-                    local sn = level.vertex_position(lvid)
-                    if sn then cur_pt.y = sn.y + 0.15 end
+                if not lvl_name or lvl_name == (level and level.name and level.name()) then
+                    local lvid = level.vertex_id(cur_pt)
+                    if lvid and lvid ~= 4294967295 and lvid ~= -1 then
+                        local sn = level.vertex_position(lvid)
+                        if sn then cur_pt.y = sn.y + 0.15 end
+                    end
                 end
                 positions[k] = cur_pt
             end
@@ -3324,10 +3457,10 @@ function actor_on_update()
             lerp_pos(tlra.start_pos, tlra.dest_pos, cur_ratio, virtual_pos)
             
             -- Check for enemies near virtual path
-            local ambush_info = detect_ambush(virtual_pos)
+            local ambush_info = detect_ambush(virtual_pos, cur_ratio)
             if ambush_info then
                 if type(ambush_info) == "table" and ambush_info.detected then
-                    if ui_tlra_travel_map and ui_tlra_travel_map.is_open() then
+                    if ui_tlra_travel_map and ui_tlra_travel_map.is_open and ui_tlra_travel_map.is_open() then
                         tlra.is_paused = true
                         ui_tlra_travel_map.trigger_encounter(
                             ambush_info.name,
@@ -3340,17 +3473,17 @@ function actor_on_update()
                                     tlra.stats_stealth_dodges = (tlra.stats_stealth_dodges or 0) + 1
                                     tlra_log(" Ambush evaded via KCD interactive decision!")
                                 else
-                                    trigger_encounter()
+                                    trigger_encounter(ambush_info)
                                 end
                             end,
                             function()
                                 tlra.is_paused = false
-                                trigger_encounter()
+                                trigger_encounter(ambush_info)
                             end
                         )
                         return
                     else
-                        trigger_encounter()
+                        trigger_encounter(ambush_info)
                         return
                     end
                 elseif ambush_info == true then
@@ -3574,69 +3707,121 @@ function process_refund(ratio)
     return refund
 end
 
-function detect_ambush(virtual_pos)
+function detect_ambush(virtual_pos, cur_ratio)
     local actor = db.actor
     local sfind = string.find
     if not (virtual_pos and actor) then return false end
-    
-    local gg = game_graph()
-    local actor_lid = gg:vertex(db.actor:game_vertex_id()):level_id()
-    
-    -- v1.7.2 Protection: Ignore threats too close to the starting point 
-    -- (prevents immediate interruptions at bases/safe zones)
-    if virtual_pos:distance_to_sqr(tlra.start_pos) < 2500 then
+    cur_ratio = cur_ratio or (tlra.travel_dist and tlra.travel_dist > 0 and (tlra.current_dist / tlra.travel_dist)) or 0.0
+
+    -- Safe zone protection (start and destination buffers)
+    if cur_ratio < 0.08 or cur_ratio > 0.92 then
         return false
     end
-    
-    -- v1.9.1 Expanded Safe Zone protection
-    if tlra.active_config.safe_zone_protection then
-        if virtual_pos:distance_to_sqr(tlra.start_pos) < 10000 or virtual_pos:distance_to_sqr(tlra.dest_pos) < 10000 then
-            return false
+
+    local gg = game_graph()
+    local actor_lid = gg:vertex(db.actor:game_vertex_id()):level_id()
+    local actor_lvl = resolve_level_name(actor_lid) or level.name()
+
+    -- Determine traveler position and active level along the route
+    local traveler_pos = virtual_pos
+    local traveler_lvl = actor_lvl
+    local is_transition = tlra.is_transition
+    local traveler_uv = nil
+
+    if ui_tlra_travel_map and ui_tlra_travel_map.GUI then
+        local gui = ui_tlra_travel_map.GUI
+        if gui.GetPositionAlongRoute then
+            local pos, _, lvl = gui:GetPositionAlongRoute(cur_ratio)
+            if pos then
+                if is_transition then
+                    traveler_uv = { x = pos.x, y = pos.z }
+                else
+                    traveler_pos = pos
+                end
+            end
+            if lvl then traveler_lvl = lvl end
         end
     end
 
-    local radius = tlra.is_guide and 50 or 70 -- Detection radius in meters
+    if is_transition and not traveler_uv then
+        traveler_uv = ui_tlra_travel_map and ui_tlra_travel_map.coord_to_global_uv and ui_tlra_travel_map.coord_to_global_uv(virtual_pos, traveler_lvl)
+    end
+
+    local radius = tlra.is_guide and 50 or 75 -- Detection radius in meters
     local ambush_triggered = false
     local ambush_name = nil
     local ambush_dist = nil
-    
-    -- Check sim_board for hostile squads near virtual position
+    local ambush_squad_lid = nil
+    local ambush_squad_lvl = nil
+    local ambush_squad_pos = nil
+    local ambush_squad_lvid = nil
+    local ambush_squad_gvid = nil
+
+    -- 1. Check SIMBOARD squads across all levels along the route (Online and Offline!)
     local board = SIMBOARD
     if board and board.squads then
         pcall(function()
             for id, _ in pairs(board.squads) do
                 local squad = alife_object(id)
                 if squad and (type(squad) == "userdata") and squad.position then
-                    local squad_lid = -1
-                    local ok_lid, res_lid = pcall(function() return gg:vertex(squad.m_game_vertex_id):level_id() end)
-                    if ok_lid then squad_lid = res_lid end
+                    local s_gvid = squad.m_game_vertex_id
+                    local s_lid = -1
+                    local ok_lid, res_lid = pcall(function() return gg:vertex(s_gvid):level_id() end)
+                    if ok_lid then s_lid = res_lid end
 
-                    if squad_lid == actor_lid then
-                        local ok_dist, dist = pcall(function() return virtual_pos:distance_to(squad.position) end)
-                        if ok_dist and dist < radius then
-                            local community = "none"
-                            local ok_comm, res_comm = pcall(function() return squad:get_squad_community() end)
-                            if ok_comm then community = res_comm end
+                    local s_lvl = (s_lid >= 0 and alife():level_name(s_lid)) or "unknown"
+                    s_lvl = resolve_level_name(s_lvl) or s_lvl
 
-                            local is_hostile = false
-                            if community == "monster" or community == "zombied" or community == "monolith" then
-                                is_hostile = true
-                            else
-                                local rel = relation_registry.community_relation(community, db.actor:character_community())
-                                if rel and rel < 0 then
-                                    is_hostile = true
+                    -- Check if squad is hostile
+                    local community = "none"
+                    local ok_comm, res_comm = pcall(function() return squad:get_squad_community() end)
+                    if ok_comm then community = res_comm end
+
+                    local is_hostile = false
+                    if community == "monster" or community == "zombied" or community == "monolith" then
+                        is_hostile = true
+                    else
+                        local rel = relation_registry.community_relation(community, db.actor:character_community())
+                        if rel and rel < 0 then
+                            is_hostile = true
+                        end
+                    end
+
+                    if is_hostile then
+                        local dist = 999999
+                        if not is_transition then
+                            -- Same-level: evaluate squads on current level
+                            if s_lid == actor_lid or s_lvl == actor_lvl then
+                                dist = traveler_pos:distance_to(squad.position)
+                            end
+                        else
+                            -- Cross-zone: evaluate squads on the traveler's active segment level
+                            if s_lvl == traveler_lvl or string.find(traveler_lvl, s_lvl) or string.find(s_lvl, traveler_lvl) then
+                                if traveler_uv and ui_tlra_travel_map and ui_tlra_travel_map.coord_to_global_uv then
+                                    local s_uv = ui_tlra_travel_map.coord_to_global_uv(squad.position, s_lvl)
+                                    if s_uv then
+                                        local du = traveler_uv.x - s_uv.x
+                                        local dv = traveler_uv.y - s_uv.y
+                                        -- Global UV distance scaled to meters (~1.3 px/meter)
+                                        dist = math.sqrt(du * du + dv * dv) / 1.3
+                                    end
                                 end
                             end
+                        end
 
-                            if is_hostile then
-                                local squad_name = (tostring(community):gsub("^%l", string.upper)) .. " Squad"
-                                ambush_name = squad_name
-                                ambush_dist = dist
-                                tlra_log(" AMBUSH DETECTED! %s near virtual path (dist: %f)", squad_name, dist)
-                                ambush_triggered = true
-                                tlra.stats_ambushes = (tlra.stats_ambushes or 0) + 1
-                                break
-                            end
+                        if dist < radius then
+                            local squad_name = (tostring(community):gsub("^%l", string.upper)) .. " Squad"
+                            ambush_name = squad_name
+                            ambush_dist = dist
+                            ambush_squad_lid = s_lid
+                            ambush_squad_lvl = s_lvl
+                            ambush_squad_pos = vector():set(squad.position.x, squad.position.y, squad.position.z)
+                            ambush_squad_lvid = squad.m_level_vertex_id
+                            ambush_squad_gvid = s_gvid
+                            ambush_triggered = true
+                            tlra_log(" AMBUSH DETECTED! %s on %s near route (dist: %.1fm)", squad_name, s_lvl, dist)
+                            tlra.stats_ambushes = (tlra.stats_ambushes or 0) + 1
+                            break
                         end
                     end
                 end
@@ -3644,12 +3829,12 @@ function detect_ambush(virtual_pos)
         end)
     end
 
-    -- Expand check to online objects
-    if not ambush_triggered then
+    -- 2. Check local online objects if traveler is on the current level
+    if not ambush_triggered and (not is_transition or traveler_lvl == actor_lvl) then
         for id, obj in pairs(db.storage) do
             local npc = level.object_by_id(id)
             if npc and npc:alive() and (npc:id() ~= db.actor:id()) then
-                local dist = virtual_pos:distance_to(npc:position())
+                local dist = traveler_pos:distance_to(npc:position())
                 if dist < radius then
                     local is_hostile = false
                     if IsMonster(npc) then
@@ -3660,13 +3845,18 @@ function detect_ambush(virtual_pos)
                             is_hostile = true
                         end
                     end
-                    
+
                     if is_hostile then
                         local hostile_label = (IsMonster(npc) and "Mutant Pack") or ((npc.character_name and npc:character_name()) or npc:name() or "Hostile Stalker")
                         ambush_name = hostile_label
                         ambush_dist = dist
-                        tlra_log(" AMBUSH DETECTED (Online)! %s near virtual path (dist: %f)", hostile_label, dist)
+                        ambush_squad_lid = actor_lid
+                        ambush_squad_lvl = actor_lvl
+                        ambush_squad_pos = npc:position()
+                        ambush_squad_lvid = npc:level_vertex_id()
+                        ambush_squad_gvid = db.actor:game_vertex_id()
                         ambush_triggered = true
+                        tlra_log(" AMBUSH DETECTED (Online)! %s on %s near path (dist: %.1fm)", hostile_label, actor_lvl, dist)
                         tlra.stats_ambushes = (tlra.stats_ambushes or 0) + 1
                         break
                     end
@@ -3729,7 +3919,12 @@ function detect_ambush(virtual_pos)
                 detected = true,
                 name = ambush_name or "Hostile ALife Patrol",
                 dist = ambush_dist or 70,
-                evasion_chance = math.floor(total_chance)
+                evasion_chance = math.floor(total_chance),
+                squad_lid = ambush_squad_lid,
+                squad_lvl = ambush_squad_lvl,
+                squad_pos = ambush_squad_pos,
+                squad_lvid = ambush_squad_lvid,
+                squad_gvid = ambush_squad_gvid,
             }
         end
 
@@ -3920,7 +4115,7 @@ function purge_orphan_dots()
     tlra_log(" purge_orphan_dots: %d removed", purged)
 end
 
-function trigger_encounter()
+function trigger_encounter(ambush_info)
     if ui_tlra_travel_map and ui_tlra_travel_map.close_map then ui_tlra_travel_map.close_map() end
     tlra.is_paused = false
     set_safety_active(60.0)
@@ -3930,7 +4125,6 @@ function trigger_encounter()
     -- Skip surges, wipe stats, then jump clock
     check_and_skip_surges()
     set_safety_active(60.0)
-    -- Immediately zero dangerous stats before time jump
     pcall(function()
         if db.actor then
             db.actor.radiation   = -1.0
@@ -3938,10 +4132,52 @@ function trigger_encounter()
             db.actor.health      = 1.0
         end
     end)
-    -- Calculate safe encounter position BEFORE jumping time
-    tlra_log("!!! ENCOUNTER TRIGGERED at ratio %.2f - Start pos: %.1f %.1f %.1f", ratio, tlra.start_pos.x, tlra.start_pos.y, tlra.start_pos.z)
-    local encounter_pos
-    if tlra.is_transition then
+
+    local is_offline_level = false
+    local encounter_lvl = nil
+    local encounter_pos = nil
+    local encounter_lvid = nil
+    local encounter_gvid = nil
+
+    if ambush_info and ambush_info.squad_lvl then
+        local current_level = level.name()
+        encounter_lvl = ambush_info.squad_lvl
+        if encounter_lvl ~= current_level and string.find(current_level, encounter_lvl) == nil and string.find(encounter_lvl, current_level) == nil then
+            is_offline_level = true
+            encounter_pos  = ambush_info.squad_pos
+            encounter_lvid = ambush_info.squad_lvid or 0
+            encounter_gvid = ambush_info.squad_gvid or 0
+        end
+    end
+
+    if is_offline_level and encounter_pos then
+        tlra_log("!!! OFFLINE MAP ENCOUNTER TRIGGERED on %s at ratio %.2f - Pos: %.1f %.1f %.1f", encounter_lvl, ratio, encounter_pos.x, encounter_pos.y, encounter_pos.z)
+        -- Teleport companion server entities directly to target level
+        teleport_companions(encounter_pos, encounter_lvid, encounter_gvid)
+
+        advance_travel_time(ratio)
+        set_safety_active(90.0)
+        check_and_skip_surges()
+        schedule_arrival_weapon_unlock(true)
+
+        local refund = process_refund(ratio)
+        local refund_str = (refund and refund > 0) and string.format(tlra_str("tlra_msg_ru_refunded"), refund) or ""
+        tlra_msg(string.format("Ambushed in %s! Dropping out to fight! %s", string.upper(encounter_lvl), refund_str), 6)
+
+        cleanup_dots()
+        stop_travel_logic()
+        tlra_clear()
+
+        -- Engine ChangeLevel to the offline level straight into the battle!
+        ChangeLevel(encounter_pos, encounter_lvid, encounter_gvid, vector():set(0, 0, 1), true)
+        return
+    end
+
+    -- Online / Local Level Encounter:
+    tlra_log("!!! LOCAL ENCOUNTER TRIGGERED at ratio %.2f - Start pos: %.1f %.1f %.1f", ratio, tlra.start_pos.x, tlra.start_pos.y, tlra.start_pos.z)
+    if ambush_info and ambush_info.squad_pos then
+        encounter_pos = ambush_info.squad_pos
+    elseif tlra.is_transition then
         local exit_door = tlra.first_door_pos or tlra.start_pos
         local leg_ratio = math.min(1.0, ratio * 2.0)
         encounter_pos = vector():set(
@@ -3959,27 +4195,19 @@ function trigger_encounter()
             )
         end
     end
+
     local safe_landing = get_safe_pos(encounter_pos)
-    
-    -- TELEPORT BEFORE TIME JUMP to prevent starting location ambushes during simulation
     local lvid = level.vertex_id(safe_landing)
     local gvid = db.actor and db.actor:game_vertex_id() or 0
     if db.actor then
         db.actor:set_actor_position(safe_landing)
         teleport_companions(safe_landing, lvid, gvid)
     end
-	local tf_mult = (get_config("time_factor") or 1.0) * 2
     advance_travel_time(ratio)
-    set_safety_active(90.0)  -- Longer buffer
+    set_safety_active(90.0)
     check_and_skip_surges()
 
-    -- v1.8.7 Final Stat Injection
-    --apply_final_stats()
-
-    -- Refund unused portion and get amount back for the message
     local refund = process_refund(ratio)
-
-    -- Single interruption message with progress and refund combined
     local refund_str = (refund and refund > 0) and string.format(tlra_str("tlra_msg_ru_refunded"), refund) or ""
     if tlra.is_guide then
         tlra_msg(string.format(tlra_str("tlra_msg_interrupted_guide"), pct, refund_str), 6)
@@ -3991,14 +4219,11 @@ function trigger_encounter()
     stop_travel_logic()
     tlra_clear()
 
-    -- ALife De-stressing: Restoring TF and adding fade before teleport (1.0s delay)
     pcall(function() level.remove_pp_effector(201); level.add_pp_effector("fade_in.ppe", 201, false) end)
 
     CreateTimeEvent("tlra", "safe_encounter", 1.3, function()
         if not db.actor then return true end
         set_safety_active(60.0)
-        
-        -- Actor is already physically at safe_landing, just handle UI updates
         schedule_arrival_weapon_unlock(false)
         return true
     end)

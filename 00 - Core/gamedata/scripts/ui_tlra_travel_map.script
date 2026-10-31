@@ -227,7 +227,7 @@ local function parse_bound_rect(raw)
 end
 
 -- Read level bounds from game configs or fallback table
-local function get_level_bounds(level_name)
+function get_level_bounds(level_name)
     level_name = level_name or (level and level.name and level.name())
     if not level_name then return nil end
     local bounds = nil
@@ -281,7 +281,7 @@ local function get_level_bounds(level_name)
 end
 
 -- Read global Zone map canvas bounds
-local function get_global_bounds()
+function get_global_bounds()
     local canvas = nil
     local ini = get_maps_ini()
     if ini and ini:section_exist("global_map") then
@@ -292,7 +292,7 @@ local function get_global_bounds()
 end
 
 -- Read level placement rectangle on global Zone map
-local function get_level_global_rect(level_name)
+function get_level_global_rect(level_name)
     level_name = level_name or (level and level.name and level.name())
     if not level_name then return nil end
     local ini = get_maps_ini()
@@ -311,7 +311,7 @@ local function get_level_global_rect(level_name)
 end
 
 -- Convert level-local coordinates into 4096x8192 global Zone map pixel coordinates (u, v)
-local function coord_to_global_uv(pos, lvl_name)
+function coord_to_global_uv(pos, lvl_name)
     lvl_name = lvl_name or (level and level.name and level.name())
     local bounds = get_level_bounds(lvl_name)
     local rect   = get_level_global_rect(lvl_name)
@@ -665,14 +665,20 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
     self.global_canvas   = get_global_bounds()
     self.global_rect     = get_level_global_rect(self.level_name)
 
-    -- Pre-initialize active level map texture
-    local tex_id = LEVEL_MAP_TEXTURES[self.level_name] or LEVEL_MAP_TEXTURES["escape"]
-    if tex_id and self.map_canvas then
-        pcall(function()
-            self.map_canvas:InitTexture(tex_id)
-            self.map_canvas:SetStretchTexture(true)
-            self.map_canvas:Show(true)
-        end)
+    -- Initialize map textures
+    if not self.is_transition then
+        local tex_id = LEVEL_MAP_TEXTURES[self.level_name] or LEVEL_MAP_TEXTURES["escape"]
+        if tex_id and self.map_canvas then
+            pcall(function()
+                self.map_canvas:InitTexture(tex_id)
+                self.map_canvas:SetStretchTexture(true)
+                self.map_canvas:Show(true)
+            end)
+        end
+    else
+        if self.map_canvas then
+            self.map_canvas:Show(false)
+        end
     end
 
     pcall(function()
@@ -689,21 +695,34 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
 
     if not self.is_transition then
         -- Same-level local expedition: True Physical World Meter Coordinates
-        local dot_positions = nil
-        if zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.tlra then
-            dot_positions = zzzz_the_long_road_ahead.tlra.dot_positions
+        local road_path = nil
+        if zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.find_road_path then
+            road_path = zzzz_the_long_road_ahead.find_road_path(self.start_pos, self.dest_pos, self.level_name)
         end
-        if (not dot_positions or #dot_positions == 0) and zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.build_navmesh_dots then
-            dot_positions = zzzz_the_long_road_ahead.build_navmesh_dots(self.start_pos, self.dest_pos, 12)
-        end
-        self.dot_positions = dot_positions or {}
 
-        local waypoints = { vector():set(self.start_pos.x, 0, self.start_pos.z) }
-        for _, dp in ipairs(self.dot_positions) do
-            local vdp = to_vector(dp)
-            table.insert(waypoints, vector():set(vdp.x, 0, vdp.z))
+        local waypoints = {}
+        if road_path and #road_path >= 2 then
+            for _, pt in ipairs(road_path) do
+                local v = to_vector(pt)
+                table.insert(waypoints, vector():set(v.x, 0, v.z))
+            end
+        else
+            table.insert(waypoints, vector():set(self.start_pos.x, 0, self.start_pos.z))
+            local dot_positions = nil
+            if zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.tlra then
+                dot_positions = zzzz_the_long_road_ahead.tlra.dot_positions
+            end
+            if (not dot_positions or #dot_positions == 0) and zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.build_navmesh_dots then
+                dot_positions = zzzz_the_long_road_ahead.build_navmesh_dots(self.start_pos, self.dest_pos, 12, self.level_name)
+            end
+            if dot_positions then
+                for _, dp in ipairs(dot_positions) do
+                    local vdp = to_vector(dp)
+                    table.insert(waypoints, vector():set(vdp.x, 0, vdp.z))
+                end
+            end
+            table.insert(waypoints, vector():set(self.dest_pos.x, 0, self.dest_pos.z))
         end
-        table.insert(waypoints, vector():set(self.dest_pos.x, 0, self.dest_pos.z))
 
         self.waypoints = waypoints
         self.seg_lengths = {}
@@ -717,6 +736,13 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
         end
         self.total_path_len = math.max(1, total_len)
 
+        self.dot_positions = {}
+        for i = 1, 12 do
+            local frac = i / 13
+            local pt, _ = self:GetPositionAlongRoute(frac)
+            self.dot_positions[i] = vector():set(pt.x, 0, pt.z)
+        end
+
         -- Calculate tactical base scale: spans ~400m to 1200m comfortably on 1024x768 screen
         local dx = math.abs(self.dest_pos.x - self.start_pos.x) * (FH / FW)
         local dz = math.abs(self.dest_pos.z - self.start_pos.z)
@@ -728,14 +754,28 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
         self.start_gpos = coord_to_global_uv(self.start_pos, self.level_name)
         self.dest_gpos  = coord_to_global_uv(self.dest_pos, self.dest_level_name)
 
-        local waypoints = { vector():set(self.start_gpos.x, 0, self.start_gpos.y) }
-        if zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.tlra and zzzz_the_long_road_ahead.tlra.first_door_pos then
-            local door_uv = coord_to_global_uv(zzzz_the_long_road_ahead.tlra.first_door_pos, self.level_name)
-            if door_uv then
-                table.insert(waypoints, vector():set(door_uv.x, 0, door_uv.y))
-            end
+        local cross_route = nil
+        if zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.build_cross_zone_route then
+            cross_route = zzzz_the_long_road_ahead.build_cross_zone_route(self.level_name, self.dest_level_name, self.start_pos, self.dest_pos)
         end
-        table.insert(waypoints, vector():set(self.dest_gpos.x, 0, self.dest_gpos.y))
+
+        local waypoints = {}
+        self.route_node_info = {}
+        if cross_route and #cross_route >= 2 then
+            for idx, pt in ipairs(cross_route) do
+                table.insert(waypoints, vector():set(pt.x, 0, pt.z))
+                self.route_node_info[idx] = pt.lvl or self.level_name
+            end
+        else
+            table.insert(waypoints, vector():set(self.start_gpos.x, 0, self.start_gpos.y))
+            if zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.tlra and zzzz_the_long_road_ahead.tlra.first_door_pos then
+                local door_uv = coord_to_global_uv(zzzz_the_long_road_ahead.tlra.first_door_pos, self.level_name)
+                if door_uv then
+                    table.insert(waypoints, vector():set(door_uv.x, 0, door_uv.y))
+                end
+            end
+            table.insert(waypoints, vector():set(self.dest_gpos.x, 0, self.dest_gpos.y))
+        end
 
         self.waypoints = waypoints
         self.seg_lengths = {}
@@ -795,7 +835,7 @@ end
 function UIRoadAheadTravelMap:GetPositionAlongRoute(ratio)
     local n_pts = (self.waypoints and #self.waypoints) or 0
     if n_pts == 0 then
-        return vector():set(0, 0, 0), 0
+        return vector():set(0, 0, 0), 0, self.level_name
     end
     if n_pts == 1 or ratio <= 0 then
         local p = self.waypoints[1]
@@ -804,13 +844,15 @@ function UIRoadAheadTravelMap:GetPositionAlongRoute(ratio)
             local next_p = self.waypoints[2]
             heading = math.atan2(next_p.x - p.x, -(next_p.z - p.z))
         end
-        return vector():set(p.x, p.y, p.z), heading
+        local lvl = (self.route_node_info and self.route_node_info[1]) or self.level_name
+        return vector():set(p.x, p.y, p.z), heading, lvl
     end
     if ratio >= 1.0 then
         local p = self.waypoints[n_pts]
         local prev_p = self.waypoints[math.max(1, n_pts - 1)]
         local heading = math.atan2(p.x - prev_p.x, -(p.z - prev_p.z))
-        return vector():set(p.x, p.y, p.z), heading
+        local lvl = (self.route_node_info and self.route_node_info[n_pts]) or self.dest_level_name or self.level_name
+        return vector():set(p.x, p.y, p.z), heading, lvl
     end
 
     local target_dist = ratio * self.total_path_len
@@ -824,14 +866,17 @@ function UIRoadAheadTravelMap:GetPositionAlongRoute(ratio)
             local p1 = self.waypoints[i]
             local p2 = self.waypoints[i + 1]
             local p3 = self.waypoints[math.min(n_pts, i + 2)]
-            return catmull_rom_spline(p0, p1, p2, p3, t)
+            local pt, heading = catmull_rom_spline(p0, p1, p2, p3, t)
+            local lvl = (self.route_node_info and (t < 0.5 and self.route_node_info[i] or self.route_node_info[i+1])) or self.level_name
+            return pt, heading, lvl
         end
     end
 
     local last = self.waypoints[n_pts]
     local prev = self.waypoints[math.max(1, n_pts - 1)]
     local heading = math.atan2(last.x - prev.x, -(last.z - prev.z))
-    return vector():set(last.x, last.y, last.z), heading
+    local lvl = (self.route_node_info and self.route_node_info[n_pts]) or self.dest_level_name or self.level_name
+    return vector():set(last.x, last.y, last.z), heading, lvl
 end
 
 -- Unified cartographic viewport projection engine
@@ -960,70 +1005,98 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
         end
     else
         -- CROSS-ZONE EXPEDITION (GLOBAL ZONE VIEW)
+        if self.map_canvas then self.map_canvas:Show(false) end
+
         local cur_u = cur_pos.x
         local cur_v = cur_pos.z
-        local g_zoom = (self.base_scale or 1.0) * (self.user_zoom or 1.0)
+        local g_zoom = math.max(0.28, (self.base_scale or 1.0) * (self.user_zoom or 1.0))
 
+        local span_u = FW / g_zoom
+        local span_v = FH / g_zoom
+
+        if span_u > 4096 then
+            span_u = 4096
+            g_zoom = FW / 4096
+            span_v = FH / g_zoom
+        end
+        if span_v > 8192 then
+            span_v = 8192
+            g_zoom = FH / 8192
+            span_u = FW / g_zoom
+        end
+
+        local u1 = cur_u - span_u * 0.5
+        local v1 = cur_v - span_v * 0.5
+
+        if u1 < 0 then
+            u1 = 0
+        elseif u1 + span_u > 4096 then
+            u1 = 4096 - span_u
+        end
+
+        if v1 < 0 then
+            v1 = 0
+        elseif v1 + span_v > 8192 then
+            v1 = 8192 - span_v
+        end
+
+        local u2 = u1 + span_u
+        local v2 = v1 + span_v
+
+        self.bg_map_canvas:SetWndPos(vector2():set(0, 0))
+        self.bg_map_canvas:SetWndSize(vector2():set(FW, FH))
+        self.bg_map_canvas:SetTextureRect(Frect():set(u1, v1, u2, v2))
+        self.bg_map_canvas:Show(true)
+
+        -- Pawn marker position in screen space
+        local pawn_sx = (cur_u - u1) * g_zoom
+        local pawn_sy = (cur_v - v1) * g_zoom
+        self.pawn_marker:SetWndPos(vector2():set(pawn_sx - 14, pawn_sy - 14))
+        self.pawn_marker:Show(true)
+
+        -- Departure Origin Marker
         if self.start_gpos then
-            local sx = CX + (self.start_gpos.x - cur_u) * g_zoom
-            local sy = CY + (self.start_gpos.y - cur_v) * g_zoom
-            if sx >= -12 and sx <= FW + 12 and sy >= -12 and sy <= FH + 12 then
+            local sx = (self.start_gpos.x - u1) * g_zoom
+            local sy = (self.start_gpos.y - v1) * g_zoom
+            if sx >= -24 and sx <= FW + 24 and sy >= -24 and sy <= FH + 24 then
                 self.start_marker:SetWndPos(vector2():set(sx - 12, sy - 12))
                 self.start_marker:Show(true)
             else
                 self.start_marker:Show(false)
             end
+        else
+            self.start_marker:Show(false)
         end
 
+        -- Target Destination Marker
         if self.dest_gpos then
-            local dx = CX + (self.dest_gpos.x - cur_u) * g_zoom
-            local dy = CY + (self.dest_gpos.y - cur_v) * g_zoom
-            if dx >= -14 and dx <= FW + 14 and dy >= -14 and dy <= FH + 14 then
+            local dx = (self.dest_gpos.x - u1) * g_zoom
+            local dy = (self.dest_gpos.y - v1) * g_zoom
+            if dx >= -28 and dx <= FW + 28 and dy >= -28 and dy <= FH + 28 then
                 self.dest_marker:SetWndPos(vector2():set(dx - 14, dy - 14))
                 self.dest_marker:Show(true)
             else
                 self.dest_marker:Show(false)
             end
+        else
+            self.dest_marker:Show(false)
         end
 
+        -- Trail dots
         for i = 1, 12 do
             local gp = self.dot_gpositions and self.dot_gpositions[i]
             if gp then
-                local px = CX + (gp.x - cur_u) * g_zoom
-                local py = CY + (gp.y - cur_v) * g_zoom
-                if px >= -4 and px <= FW + 4 and py >= -4 and py <= FH + 4 then
+                local px = (gp.x - u1) * g_zoom
+                local py = (gp.y - v1) * g_zoom
+                if px >= -8 and px <= FW + 8 and py >= -8 and py <= FH + 8 then
                     self.trail_dots[i]:SetWndPos(vector2():set(px - 4, py - 4))
                     self.trail_dots[i]:Show(true)
                 else
                     self.trail_dots[i]:Show(false)
                 end
+            else
+                self.trail_dots[i]:Show(false)
             end
-        end
-
-        local half_u = (FW / (2 * g_zoom))
-        local half_v = (FH / (2 * g_zoom))
-        local win_l = cur_u - half_u
-        local win_t = cur_v - half_v
-        local win_r = cur_u + half_u
-        local win_b = cur_v + half_v
-
-        local cl_l = math.max(0, win_l)
-        local cl_t = math.max(0, win_t)
-        local cl_r = math.min(4096, win_r)
-        local cl_b = math.min(8192, win_b)
-
-        if cl_r > cl_l and cl_b > cl_t then
-            local span_u = math.max(1, win_r - win_l)
-            local span_v = math.max(1, win_b - win_t)
-            local fx1 = (cl_l - win_l) / span_u
-            local fy1 = (cl_t - win_t) / span_v
-            local fx2 = (cl_r - win_l) / span_u
-            local fy2 = (cl_b - win_t) / span_v
-
-            self.bg_map_canvas:SetWndPos(vector2():set(fx1 * FW, fy1 * FH))
-            self.bg_map_canvas:SetWndSize(vector2():set((fx2 - fx1) * FW, (fy2 - fy1) * FH))
-            self.bg_map_canvas:SetTextureRect(Frect():set(cl_l, cl_t, cl_r, cl_b))
-            self.bg_map_canvas:Show(true)
         end
     end
 end
@@ -1053,7 +1126,11 @@ function UIRoadAheadTravelMap:ProcessUpdate(tlra_core)
     local ratio        = math.min(current_dist / total_dist, 1.0)
 
     -- Interpolate physical traveler position along road waypoints
-    local cur_pos, heading = self:GetPositionAlongRoute(ratio)
+    local cur_pos, heading, cur_lvl = self:GetPositionAlongRoute(ratio)
+    self.current_route_level = cur_lvl
+    if self.is_transition and cur_lvl and self.txt_title then
+        self.txt_title:SetText(string.format("EXPEDITION: %s", string.upper(cur_lvl)))
+    end
 
     -- Auto-center map viewport on interpolated position
     self:UpdateViewport(cur_pos, ratio)
@@ -1328,6 +1405,7 @@ end
 
 function UIRoadAheadTravelMap:Close()
     self.travel_paused = true
+    pcall(function() self:HideDialog() end)
     self:Show(false)
     Unregister_UI("UIRoadAheadTravelMap")
     pcall(function()
@@ -1340,6 +1418,16 @@ end
 -- ===================================================================
 -- GLOBAL LIFECYCLE HOOKS
 -- ===================================================================
+function is_open()
+    return GUI ~= nil and GUI:IsShown()
+end
+
+function trigger_encounter(threat_name, threat_dist, evasion_chance, on_evade_cb, on_engage_cb)
+    if GUI and GUI:IsShown() then
+        GUI:PromptEncounter(threat_name, threat_dist, evasion_chance, on_evade_cb, on_engage_cb)
+    end
+end
+
 function show_map(start_pos, dest_pos, level_name, is_transition, travel_dist, dest_level_name)
     if not GUI then
         GUI = UIRoadAheadTravelMap()
@@ -1370,7 +1458,8 @@ function on_game_start()
 end
 
 function close_map()
-    if GUI and GUI:IsShown() then
+    if GUI then
+        pcall(function() GUI:HideDialog() end)
         GUI:Close()
     else
         pcall(function()
@@ -1378,4 +1467,5 @@ function close_map()
             if game and game.only_allow_movekeys then game.only_allow_movekeys(false) end
         end)
     end
+    GUI = nil
 end
