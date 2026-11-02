@@ -98,6 +98,70 @@ local MAP_TEXTURE_SIZES = {
     ["tlra_map_stancia_2"]            = { w = 2048, h = 1024 },
 }
 
+-- Descriptor texture id -> DDS file (relative to $game_textures$).
+local TEX_DDS_FILES = {
+    ["tlra_map_global"] = "ui\\ui_global_map.dds",
+    ["tlra_map_escape"] = "map\\map_escape.dds",
+    ["tlra_map_garbage"] = "map\\map_garbage.dds",
+    ["tlra_map_agroprom"] = "map\\map_agroprom.dds",
+    ["tlra_map_darkvalley"] = "map\\map_darkvalley.dds",
+    ["tlra_map_l05_bar"] = "map\\map_l05_bar.dds",
+    ["tlra_map_rostok"] = "map\\map_l06_rostok.dds",
+    ["tlra_map_military"] = "map\\map_military.dds",
+    ["tlra_map_yantar"] = "map\\map_yantar.dds",
+    ["tlra_map_deadcity"] = "map\\map_l09_deadcity.dds",
+    ["tlra_map_limansk"] = "map\\map_limansk.dds",
+    ["tlra_map_radar"] = "map\\map_radar.dds",
+    ["tlra_map_red_forest"] = "map\\map_red_forest.dds",
+    ["tlra_map_hospital"] = "map\\map_hospital.dds",
+    ["tlra_map_pripyat"] = "map\\map_pripyat.dds",
+    ["tlra_map_l11_pripyat"] = "map\\map_l11_pripyat.dds",
+    ["tlra_map_stancia"] = "map\\map_l12_stancia.dds",
+    ["tlra_map_stancia_2"] = "map\\map_stancia_2.dds",
+    ["tlra_map_generators"] = "map\\map_l13_generators.dds",
+    ["tlra_map_zaton"] = "map\\map_zaton.dds",
+    ["tlra_map_jupiter"] = "map\\map_jupiter.dds",
+    ["tlra_map_marsh"] = "map\\map_marsh.dds",
+    ["tlra_map_k01_darkscape"] = "map\\map_k01_darkscape.dds",
+    ["tlra_map_k02_trucks_cemetery"] = "map\\map_k02_trucks_cemetery.dds",
+}
+
+-- The engine samples SetTextureRect in pixels of the texture that is really loaded,
+-- but GAMMA mods replace the DDS with other resolutions (Winter PDA Maps ships
+-- 1024x2048 / half-size maps; hi-res packs ship 4096x8192). Read the DDS header
+-- (height @ byte 12, width @ byte 16) and return actual/descriptor scale factors.
+local tex_scale_cache = {}
+local function read_u32_le(rd)
+    local b0, b1, b2, b3 = rd:r_u8(), rd:r_u8(), rd:r_u8(), rd:r_u8()
+    return b0 + b1 * 256 + b2 * 65536 + b3 * 16777216
+end
+
+local function get_tex_scale(tex_id)
+    local c = tex_scale_cache[tex_id]
+    if c then return c.sx, c.sy end
+    local sx, sy = 1.0, 1.0
+    local file, nominal = TEX_DDS_FILES[tex_id], MAP_TEXTURE_SIZES[tex_id]
+    if file and nominal then
+        local ok, w, h = pcall(function()
+            local rd = getFS():r_open("$game_textures$", file)
+            if not rd then return nil end
+            for _ = 1, 12 do rd:r_u8() end
+            local hh = read_u32_le(rd)
+            local ww = read_u32_le(rd)
+            pcall(function() getFS():r_close(rd) end)
+            return ww, hh
+        end)
+        if ok and w and h and w >= 64 and h >= 64 and w <= 16384 and h <= 16384 then
+            sx, sy = w / nominal.w, h / nominal.h
+            if sx ~= 1.0 or sy ~= 1.0 then
+                printf("[TLRA] map texture %s actual %dx%d vs descriptor %dx%d (scale %.3f/%.3f)", tex_id, w, h, nominal.w, nominal.h, sx, sy)
+            end
+        end
+    end
+    tex_scale_cache[tex_id] = { sx = sx, sy = sy }
+    return sx, sy
+end
+
 -- Fallback level bounds in meters (x1, z1, x2, z2)
 -- Audited 1:1 ground-truth extracted directly from authentic game level.ltx archives
 local FALLBACK_LEVEL_BOUNDS = {
@@ -1087,7 +1151,8 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
 
     self.bg_map_canvas:SetWndPos(vector2():set(0, 0))
     self.bg_map_canvas:SetWndSize(vector2():set(FW, FH))
-    self.bg_map_canvas:SetTextureRect(Frect():set(u1, v1, u2, v2))
+    local gsx, gsy = get_tex_scale("tlra_map_global")
+    self.bg_map_canvas:SetTextureRect(Frect():set(u1 * gsx, v1 * gsy, u2 * gsx, v2 * gsy))
     self.bg_map_canvas:Show(true)
 
     -- Dynamic PDA Multi-Zone Regional Map Canvas Overlay Engine
@@ -1116,7 +1181,8 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
                 else
                     canvas:SetWndPos(vector2():set(sx1, sy1))
                     canvas:SetWndSize(vector2():set(sw, sh))
-                    canvas:SetTextureRect(Frect():set(0, 0, m.tw, m.th))
+                    local lsx, lsy = get_tex_scale(m.tex)
+                    canvas:SetTextureRect(Frect():set(0, 0, m.tw * lsx, m.th * lsy))
                     canvas:Show(true)
                 end
             end
