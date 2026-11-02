@@ -46,13 +46,13 @@ foreach ($s in $scripts) {
 # 2. luacheck
 $lcheck = Find-Tool 'LUACHECK' @('luacheck') @((Join-Path $PSScriptRoot '.bin\luacheck.exe'))
 if ($lcheck) {
-    $out = & $lcheck --no-color --codes --formatter plain @($scripts.FullName) 2>&1
+    $out = & $lcheck --no-color --codes --formatter plain --config .luacheckrc -- @($scripts | ForEach-Object { Rel $_.FullName }) 2>&1
     foreach ($l in $out) {
         if ($l -match '^(.+?):(\d+):(\d+): (.*)$') {
-            $f = Rel ($Matches[1]); $findings.Add("LUACHECK ${f}: $($Matches[4])")
+            $findings.Add("LUACHECK $($Matches[1]):$($Matches[4])")
         }
     }
-} else { Write-Warning 'luacheck not found; skipping lint (see tools/README note in check.ps1 header)' }
+} else { Write-Warning 'luacheck not found; skipping lint (set `$env:LUACHECK or place luacheck.exe in tools/.bin)' }
 
 # 3. XML well-formedness
 foreach ($x in $xmls) {
