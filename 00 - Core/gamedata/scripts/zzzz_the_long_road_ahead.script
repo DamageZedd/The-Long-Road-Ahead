@@ -4281,8 +4281,14 @@ function teleport_companions(pos, lvid, gvid, forced)
     lvid = lvid or db.actor:level_vertex_id()
     gvid = gvid or db.actor:game_vertex_id()
 
+    -- Destination on another level: lvid/pos belong to that level's navmesh, so level.* calls (current level) must not be used
+    local gg = game_graph()
+    local ok_dl, dest_lid = pcall(function() return gg:vertex(gvid):level_id() end)
+    local ok_al, actor_lid = pcall(function() return gg:vertex(db.actor:game_vertex_id()):level_id() end)
+    local cross_level = ok_dl and ok_al and dest_lid ~= actor_lid
+
     -- Use actor's known-good level vertex position as the anchor
-    local anchor_pos = level.vertex_position(lvid) or pos
+    local anchor_pos = (not cross_level and level.vertex_position(lvid)) or pos
 
     -- Collect all active companion squads safely across axr_companions and Useful Idiots
     local squads_to_tp = {}
@@ -4383,7 +4389,7 @@ function teleport_companions(pos, lvid, gvid, forced)
                     anchor_pos.z + dist * math.sin(angle)
                 )
 
-                local offset_lvid = level.vertex_id(offset_pos)
+                local offset_lvid = not cross_level and level.vertex_id(offset_pos)
                 local final_pos = anchor_pos
                 local final_lvid = lvid
 
