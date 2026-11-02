@@ -131,8 +131,9 @@ local TEX_DDS_FILES = {
 -- 1024x2048 / half-size maps; hi-res packs ship 4096x8192). Read the DDS header
 -- (height @ byte 12, width @ byte 16) and return actual/descriptor scale factors.
 local tex_scale_cache = {}
-local function read_u32_le(rd)
-    local b0, b1, b2, b3 = rd:r_u8(), rd:r_u8(), rd:r_u8(), rd:r_u8()
+local function read_u32_le(s, pos)
+    local b0, b1, b2, b3 = s:byte(pos, pos + 3)
+    if not b3 then return nil end
     return b0 + b1 * 256 + b2 * 65536 + b3 * 16777216
 end
 
@@ -142,14 +143,17 @@ local function get_tex_scale(tex_id)
     local sx, sy = 1.0, 1.0
     local file, nominal = TEX_DDS_FILES[tex_id], MAP_TEXTURE_SIZES[tex_id]
     if file and nominal then
+        -- Plain io read of the 20-byte DDS header: the FS reader's r_close raised a luabind
+        -- error on every call (engine logged "[BusyHandsDebug] Runtime Error"). Textures that
+        -- only exist inside a .db archive have no loose file, so they keep scale 1.0 (vanilla sizes).
         local ok, w, h = pcall(function()
-            local rd = getFS():r_open("$game_textures$", file)
-            if not rd then return nil end
-            for _ = 1, 12 do rd:r_u8() end
-            local hh = read_u32_le(rd)
-            local ww = read_u32_le(rd)
-            pcall(function() getFS():r_close(rd) end)
-            return ww, hh
+            local path = getFS():update_path("$game_textures$", file)
+            local fh = path and io.open(path, "rb")
+            if not fh then return nil end
+            local head = fh:read(20)
+            fh:close()
+            if not head or #head < 20 then return nil end
+            return read_u32_le(head, 17), read_u32_le(head, 13)
         end)
         if ok and w and h and w >= 64 and h >= 64 and w <= 16384 and h <= 16384 then
             sx, sy = w / nominal.w, h / nominal.h
