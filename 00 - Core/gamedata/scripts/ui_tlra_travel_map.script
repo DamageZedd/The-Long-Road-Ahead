@@ -1227,7 +1227,11 @@ function UIRoadAheadTravelMap:Update()
 
     local ok, err = pcall(self.ProcessUpdate, self, tlra_core)
     if not ok then
-        tlra_log("ERROR in UIRoadAheadTravelMap:Update: %s", tostring(err))
+        -- tlra_log is a file-local in zzzz_the_long_road_ahead, so it is nil here; log once per distinct error
+        if self.last_update_err ~= err then
+            self.last_update_err = err
+            printf("[TLRA] ERROR in UIRoadAheadTravelMap:Update: %s", tostring(err))
+        end
     end
 end
 
