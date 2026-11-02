@@ -9,6 +9,15 @@
 
 GUI = nil
 
+-- Traveler pawn sprite (tlra_pawn_kcd, 128x128 cell). PAWN_SIZE is the on-screen
+-- size in px and MUST match pawn_marker width/height in ui_tlra_travel_map.xml.
+-- The pedestal centre sits ~72% down the sprite and is what lands on the route point.
+local PAWN_SIZE         = 112
+local PAWN_ANCHOR_X     = 0.50
+local PAWN_ANCHOR_Y     = 0.72
+local PAWN_TRAIL_GAP    = PAWN_SIZE * 0.375   -- px of bare ground kept behind the pedestal
+local FW_CENTER, FH_CENTER = 512, 384
+
 
 -- Standard level map texture ID lookup (registered in textures_descr/tlra_maps.xml)
 local LEVEL_MAP_TEXTURES = {
@@ -523,7 +532,7 @@ function UIRoadAheadTravelMap:InitControls()
         end
     end
 
-    -- Stalker Traveler Pawn: Hand-Carved KCD Miniature on Pedestal (64x64, permanently upright)
+    -- Stalker Traveler Pawn: Hand-Carved KCD Miniature on Pedestal (permanently upright)
     self.pawn_marker        = xml:InitStatic("map_frame:pawn_marker", self.map_frame)
     if self.pawn_marker then
         if self.pawn_marker.EnableHeading then
@@ -536,7 +545,7 @@ function UIRoadAheadTravelMap:InitControls()
 
     -- 2. Top-Left: Expedition Dossier Index Card
     self.dossier_tab        = xml:InitStatic("dossier_tab", self)
-    self.dossier_bg         = xml:InitStatic("dossier_tab:dossier_bg", self.dossier_tab)
+    self.dossier_bg         = xml:InitFrame("dossier_tab:dossier_bg", self.dossier_tab)
     xml:InitStatic("dossier_tab:dossier_bt", self.dossier_tab)
     xml:InitStatic("dossier_tab:dossier_bb", self.dossier_tab)
     xml:InitStatic("dossier_tab:dossier_bl", self.dossier_tab)
@@ -548,7 +557,7 @@ function UIRoadAheadTravelMap:InitControls()
 
     -- 3. Top-Center: Environmental Telemetry Strip
     self.top_center         = xml:InitStatic("top_center", self)
-    self.top_center_bg      = xml:InitStatic("top_center:top_center_bg", self.top_center)
+    self.top_center_bg      = xml:InitFrame("top_center:top_center_bg", self.top_center)
     xml:InitStatic("top_center:top_center_bt", self.top_center)
     xml:InitStatic("top_center:top_center_bb", self.top_center)
     xml:InitStatic("top_center:top_center_bl", self.top_center)
@@ -559,7 +568,7 @@ function UIRoadAheadTravelMap:InitControls()
 
     -- 4. Top-Right: Trip Progress & Dual Gauges
     self.top_right          = xml:InitStatic("top_right", self)
-    self.top_right_bg       = xml:InitStatic("top_right:top_right_bg", self.top_right)
+    self.top_right_bg       = xml:InitFrame("top_right:top_right_bg", self.top_right)
     xml:InitStatic("top_right:top_right_bt", self.top_right)
     xml:InitStatic("top_right:top_right_bb", self.top_right)
     xml:InitStatic("top_right:top_right_bl", self.top_right)
@@ -574,7 +583,7 @@ function UIRoadAheadTravelMap:InitControls()
 
     -- 5. Bottom-Left: Floating Survival Metabolism Telemetry
     self.vitals_panel       = xml:InitStatic("vitals_panel", self)
-    self.vitals_bg          = xml:InitStatic("vitals_panel:vitals_bg", self.vitals_panel)
+    self.vitals_bg          = xml:InitFrame("vitals_panel:vitals_bg", self.vitals_panel)
     xml:InitStatic("vitals_panel:vitals_bt", self.vitals_panel)
     xml:InitStatic("vitals_panel:vitals_bb", self.vitals_panel)
     xml:InitStatic("vitals_panel:vitals_bl", self.vitals_panel)
@@ -593,7 +602,7 @@ function UIRoadAheadTravelMap:InitControls()
 
     -- 6. Bottom-Center: Authentic Road Reconnaissance Log
     self.journal_card       = xml:InitStatic("journal_card", self)
-    self.journal_bg         = xml:InitStatic("journal_card:journal_bg", self.journal_card)
+    self.journal_bg         = xml:InitFrame("journal_card:journal_bg", self.journal_card)
     xml:InitStatic("journal_card:journal_bt", self.journal_card)
     xml:InitStatic("journal_card:journal_bb", self.journal_card)
     xml:InitStatic("journal_card:journal_bl", self.journal_card)
@@ -607,7 +616,7 @@ function UIRoadAheadTravelMap:InitControls()
 
     -- 7. Bottom-Right: Heavy Industrial Command Panel
     self.action_panel       = xml:InitStatic("action_panel", self)
-    self.action_bg          = xml:InitStatic("action_panel:action_bg", self.action_panel)
+    self.action_bg          = xml:InitFrame("action_panel:action_bg", self.action_panel)
     xml:InitStatic("action_panel:action_bt", self.action_panel)
     xml:InitStatic("action_panel:action_bb", self.action_panel)
     xml:InitStatic("action_panel:action_bl", self.action_panel)
@@ -620,7 +629,7 @@ function UIRoadAheadTravelMap:InitControls()
 
     -- KCD Ambush / Threat Decision Modal Card
     self.encounter_modal        = xml:InitStatic("encounter_modal", self)
-    self.modal_bg               = xml:InitStatic("encounter_modal:modal_bg", self.encounter_modal)
+    self.modal_bg               = xml:InitFrame("encounter_modal:modal_bg", self.encounter_modal)
     self.modal_top_line         = xml:InitStatic("encounter_modal:modal_top_line", self.encounter_modal)
     self.modal_bot_line         = xml:InitStatic("encounter_modal:modal_bot_line", self.encounter_modal)
     self.modal_left_line        = xml:InitStatic("encounter_modal:modal_left_line", self.encounter_modal)
@@ -759,8 +768,8 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
         end
     end
 
-    -- Lock pawn marker at dead center (512 - 32, 384 - 32) for 64x64 KCD miniature
-    self.pawn_marker:SetWndPos(vector2():set(480, 352))
+    -- Lock pawn pedestal on the screen centre (route point is always centred)
+    self.pawn_marker:SetWndPos(vector2():set(FW_CENTER - PAWN_SIZE * PAWN_ANCHOR_X, FH_CENTER - PAWN_SIZE * PAWN_ANCHOR_Y))
     self.pawn_marker:Show(true)
 
     local FW = 1024
@@ -1114,10 +1123,10 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
         end
     end
 
-    -- Pawn marker position in screen space (64x64 KCD Figurine)
+    -- Pawn marker position in screen space (pedestal centre on the route point)
     local pawn_sx = (cur_u - u1) * g_zoom
     local pawn_sy = (cur_v - v1) * g_zoom * g_aspect
-    self.pawn_marker:SetWndPos(vector2():set(pawn_sx - 32, pawn_sy - 32))
+    self.pawn_marker:SetWndPos(vector2():set(pawn_sx - PAWN_SIZE * PAWN_ANCHOR_X, pawn_sy - PAWN_SIZE * PAWN_ANCHOR_Y))
     self.pawn_marker:Show(true)
 
     -- Departure Origin Marker
@@ -1153,7 +1162,7 @@ function UIRoadAheadTravelMap:UpdateViewport(cur_pos, ratio)
     local cur_dist  = (ratio or 0.0) * total_len
 
     -- Pawn base clearance in UV: footsteps only appear behind the pawn figurine's base
-    local pawn_base_clearance = 24.0 / math.max(0.01, g_zoom)
+    local pawn_base_clearance = PAWN_TRAIL_GAP / math.max(0.01, g_zoom)
     local max_stamped_dist    = cur_dist - pawn_base_clearance
 
     if self.stamped_steps and #self.stamped_steps > 0 then
