@@ -143,22 +143,29 @@ local function get_tex_scale(tex_id)
     local sx, sy = 1.0, 1.0
     local file, nominal = TEX_DDS_FILES[tex_id], MAP_TEXTURE_SIZES[tex_id]
     if file and nominal then
-        -- Plain io read of the 20-byte DDS header: the FS reader's r_close raised a luabind
-        -- error on every call (engine logged "[BusyHandsDebug] Runtime Error"). Textures that
-        -- only exist inside a .db archive have no loose file, so they keep scale 1.0 (vanilla sizes).
+        -- r_close raised a luabind error on every call (engine logged "[BusyHandsDebug] Runtime
+        -- Error"), so try a plain io read of the 20-byte DDS header first and fall back to
+        -- r_open/r_u8 WITHOUT r_close (small handle leak; GAMMA's piano script does the same).
         local ok, w, h = pcall(function()
+            local fh
             local path = getFS():update_path("$game_textures$", file)
-            local fh = path and io.open(path, "rb")
-            if not fh then return nil end
-            local head = fh:read(20)
-            fh:close()
-            if not head or #head < 20 then return nil end
+            if path then fh = io.open(path, "rb") end
+            if fh then
+                local head = fh:read(20)
+                fh:close()
+                if head and #head >= 20 then return read_u32_le(head, 17), read_u32_le(head, 13) end
+            end
+            local rd = getFS():r_open("$game_textures$", file)
+            if not rd then return nil end
+            local hdr = {}
+            for i = 1, 20 do hdr[i] = string.char(rd:r_u8()) end
+            local head = table.concat(hdr)
             return read_u32_le(head, 17), read_u32_le(head, 13)
         end)
         if ok and w and h and w >= 64 and h >= 64 and w <= 16384 and h <= 16384 then
             sx, sy = w / nominal.w, h / nominal.h
             if sx ~= 1.0 or sy ~= 1.0 then
-                printf("[TLRA] map texture %s actual %dx%d vs descriptor %dx%d (scale %.3f/%.3f)", tex_id, w, h, nominal.w, nominal.h, sx, sy)
+                printf("%s", string.format("[TLRA] map texture %s actual %dx%d vs descriptor %dx%d (scale %.3f/%.3f)", tex_id, w, h, nominal.w, nominal.h, sx, sy))
             end
         end
     end
