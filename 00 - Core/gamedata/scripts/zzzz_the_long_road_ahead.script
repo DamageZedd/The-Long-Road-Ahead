@@ -2860,6 +2860,8 @@ function actor_on_first_update()
 
     build_dynamic_map()
 
+    CreateTimeEvent("tlra", "fft_diag_load", 6.0, function() fft_marker_diag("first_update") return true end)
+
     -- Silent orphan sweep 3s after load to catch dots stuck from previous session
     CreateTimeEvent("tlra", "orphan_sweep", 3.0, function()
         if not (db.actor and alife() and not tlra.is_traveling) then return true end
@@ -3541,6 +3543,30 @@ function spawn_dot(index)
     end
 end
 
+-- Diagnostic: logs whether FFT's travel markers (map spots on smart terrains) still exist.
+function fft_marker_diag(tag)
+    pcall(function()
+        local g = game_fast_travel
+        if not g then tlra_log(" FFTDIAG[%s] game_fast_travel missing", tostring(tag)) return end
+        local spot = g.travel_mapspot or "fast_travel"
+        local n_smart, n_spot, n_tsm = 0, 0, 0
+        if g.tsmarts then for _ in pairs(g.tsmarts) do n_tsm = n_tsm + 1 end end
+        local sim = alife()
+        if sim then
+            for id = 1, 65534 do
+                local o = sim:object(id)
+                if o and o:clsid() == clsid.smart_terrain and g.tsmarts and g.tsmarts[o:name()] then
+                    n_smart = n_smart + 1
+                    if level.map_has_object_spot(id, spot) ~= 0 then n_spot = n_spot + 1 end
+                end
+            end
+        end
+        local st = g.basecfg and g.basecfg.ft and g.basecfg.ft.state
+        tlra_log(" FFTDIAG[%s] level=%s spot=%s ft_state=%s tsmarts=%d smarts_in_tsmarts=%d with_spot=%d is_traveling=%s",
+            tostring(tag), tostring(level.name()), tostring(spot), tostring(st), n_tsm, n_smart, n_spot, tostring(tlra.is_traveling))
+    end)
+end
+
 function complete_travel_sequence()
   if ui_tlra_travel_map and ui_tlra_travel_map.close_map then ui_tlra_travel_map.close_map() end
     local actor = db.actor
@@ -3684,6 +3710,7 @@ function complete_travel_sequence()
         if tlra.active_config and tlra.active_config.show_stats then
             tlra_msg(stats_msg, 8)
         end
+        fft_marker_diag("arrival")
         tlra_clear()
 
         -- Final safety cleanup (v2.1.6: safety reset delay extended to 15.0s)
