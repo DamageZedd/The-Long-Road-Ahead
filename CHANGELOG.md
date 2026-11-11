@@ -2,6 +2,15 @@
 
 ## v2.4.0 — Kingdom Come Animated Travel Map & Interactive Road Encounters
 
+### 🛡️ Busy Hands Type 2 Watchdog Resolution & Post-Travel Crash Prevention
+- **Destroyed Object & Watchdog Crash Elimination**: Fixed the post-travel CTD in `a_rax_wd.script:240` (fatal error: `The Timed Event system has crashed. Known as "Busy Hands" type 2`) triggered during fast-travel time jumps. When time advances hours across a journey (`advance_travel_time`), traders' restock timers expire and trigger `trader_autoinject.timed_update(npc)` with the raw C++ `game_object` pointer of traders on the old level (e.g. Sidorovich on Cordon). Upon cross-zone `ChangeLevel`, the old level is unloaded, destroying the client object; on the destination level, `a_rax_wd.script:168` executed `timed_update` without `pcall`, throwing `Accessing destroyed object`, leaving `last_event` armed, and triggering the fatal watchdog crash 5 seconds later.
+- **Multi-Layer Defensive Hardening**:
+  1. **Pre/Post-Transition Event Purge**: Automatically sweeps and cancels all transient `custom_update*`, `custom_resupply*`, and `trader_*` time events via `ProcessEventQueueState` and `RemoveTimeEvent` immediately prior to `ChangeLevel` in both arrival and ambush sequences, as well as on `actor_on_first_update`.
+  2. **Trader Autoinject Safety Shield**: Monkeypatched `trader_autoinject.timed_update` to defensively validate NPC game objects (`npc:alive()`, `npc:id()`, `npc:section()`) under `pcall`, returning `true` to cleanly discard events referencing destroyed objects.
+  3. **Universal Time Event Guard**: Wrapped `_G.CreateTimeEvent` to run all registered functors inside protected `pcall` execution blocks, ensuring third-party event failures gracefully complete and cleanly pop from the queue.
+  4. **ProcessEventQueue Watchdog Rescue**: Wrapped `_G.ProcessEventQueue` to catch any unhandled exceptions during event processing, immediately resetting `a_rax_wd`'s `last_event` upvalue and purging the offending event from `ev_queue` so the watchdog never asserts.
+  5. **Continuous Watchdog Sentry**: Monitored and automatically disarmed hung or expired `last_event` timers in `actor_on_update`, ensuring total resilience across all levels and mod combinations.
+
 ### 🗺️ Kingdom Come: Deliverance Style Animated Travel Map
 - **Crash Resolution & 1:1 Vanilla PDA Map Presentation**:
   - **Silent CTD Resolution & Safe Level Bounds Fallback**: Eliminated the silent crash to desktop (CTD) on game and save loading triggered by `ini_file` attempting to open `$game_levels$` paths on packed `.db` archives in `get_level_bounds`. Level bounds now safely resolve through `game_maps_single.ltx` and a comprehensive, pre-cached fallback table containing audited 1:1 ground-truth bounds for all levels.

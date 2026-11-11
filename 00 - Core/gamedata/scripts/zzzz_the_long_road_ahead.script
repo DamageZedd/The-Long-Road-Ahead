@@ -162,7 +162,178 @@ local function tlra_log(fmt, ...)
     -- printf("TLRA DEBUG: " .. msg)
 end
 
+-- ============================================================
+-- Engine Hardening: Timed Event & Busy Hands Watchdog Defense
+-- Prevents CTD (Busy Hands Type 2 / a_rax_wd.script:240) caused by
+-- fast-travel game-time jumps invoking trader resupply callbacks
+-- on destroyed NPC game_objects across level transitions.
+-- ============================================================
 
+local function purge_transient_time_events()
+    pcall(function()
+        local probe = {}
+        if _G.ProcessEventQueueState then
+            _G.ProcessEventQueueState(probe, true)
+        end
+        local queue = probe.event_queue
+        if not queue and _G.ProcessEventQueue then
+            local target_peq = _G._tlra_og_peq or _G.ProcessEventQueue
+            for i = 1, 20 do
+                local name, val = debug.getupvalue(target_peq, i)
+                if not name then break end
+                if name == "ev_queue" and type(val) == "table" then
+                    queue = val
+                    break
+                end
+            end
+        end
+
+        if queue then
+            local to_remove = {}
+            for ev_id, actions in pairs(queue) do
+                if type(ev_id) == "string" and (string.find(ev_id, "^custom_update") or string.find(ev_id, "^trader_") or string.find(ev_id, "^resupply")) then
+                    for act_id, _ in pairs(actions) do
+                        if act_id ~= "__size" then
+                            table.insert(to_remove, { ev = ev_id, act = act_id })
+                        end
+                    end
+                end
+            end
+            for _, item in ipairs(to_remove) do
+                if _G.RemoveTimeEvent then
+                    _G.RemoveTimeEvent(item.ev, item.act)
+                elseif queue[item.ev] and queue[item.ev][item.act] then
+                    queue[item.ev][item.act] = nil
+                    queue[item.ev].__size = math.max(0, (queue[item.ev].__size or 1) - 1)
+                    if queue[item.ev].__size == 0 then queue[item.ev] = nil end
+                end
+            end
+            if #to_remove > 0 then
+                tlra_log(" Purged %d transient trader time event(s) to protect level transition.", #to_remove)
+            end
+        end
+    end)
+end
+
+local function clear_rax_watchdog()
+    pcall(function()
+        local peq = _G._tlra_og_peq or _G.ProcessEventQueue
+        if not peq then return end
+        for i = 1, 20 do
+            local name, val = debug.getupvalue(peq, i)
+            if not name then break end
+            if name == "last_event" and type(val) == "table" and val.tmr then
+                if time_global() >= (val.tmr - 1000) then
+                    tlra_log(" Rescued expired last_event [%s][%s] from a_rax_wd.", tostring(val.event_id), tostring(val.action_id))
+                    if val.event_id and val.action_id and _G.RemoveTimeEvent then
+                        pcall(_G.RemoveTimeEvent, val.event_id, val.action_id)
+                    end
+                    debug.setupvalue(peq, i, {})
+                end
+                break
+            end
+        end
+    end)
+end
+
+local last_wd_check = 0
+local function check_and_clear_watchdog()
+    local tg = time_global()
+    if tg - last_wd_check < 500 then return end
+    last_wd_check = tg
+    clear_rax_watchdog()
+end
+
+local function secure_timed_events()
+    -- 1. Guard trader_autoinject.timed_update against destroyed NPC game_objects
+    if trader_autoinject and trader_autoinject.timed_update and not trader_autoinject._tlra_guarded then
+        local og_timed_update = trader_autoinject.timed_update
+        trader_autoinject.timed_update = function(npc)
+            local valid = false
+            local ok = pcall(function()
+                if npc and type(npc) == "userdata" and npc.alive and npc:alive() and npc.id and npc:id() and npc.section and npc:section() then
+                    valid = true
+                end
+            end)
+            if not (ok and valid) then
+                tlra_log(" Intercepted timed_update for invalid or destroyed NPC game_object. Clearing event safely.")
+                return true -- Returning true signals ProcessEventQueue to drop this event
+            end
+            local call_ok, res = pcall(og_timed_update, npc)
+            if not call_ok then
+                tlra_log(" trader_autoinject.timed_update error caught: %s", tostring(res))
+                return true
+            end
+            return res
+        end
+        trader_autoinject._tlra_guarded = true
+        tlra_log(" Protected trader_autoinject.timed_update against destroyed game_objects.")
+    end
+
+    -- 2. Guard _G.CreateTimeEvent so all registered functors run under pcall
+    if _G.CreateTimeEvent and not _G._tlra_cte_guarded then
+        local og_cte = _G.CreateTimeEvent
+        _G.CreateTimeEvent = function(ev_id, act_id, timer, f, ...)
+            if type(f) ~= "function" then
+                return og_cte(ev_id, act_id, timer, f, ...)
+            end
+            local safe_f = function(...)
+                local ok, res = pcall(f, ...)
+                if not ok then
+                    tlra_log(" Caught error in timed event [%s][%s]: %s", tostring(ev_id), tostring(act_id), tostring(res))
+                    return true -- Drop event cleanly on unhandled error
+                end
+                return res
+            end
+            return og_cte(ev_id, act_id, timer, safe_f, ...)
+        end
+        _G._tlra_cte_guarded = true
+        tlra_log(" Protected _G.CreateTimeEvent with safe pcall execution wrapper.")
+    end
+
+    -- 3. Guard _G.ProcessEventQueue and rescue a_rax_wd watchdog on error
+    if _G.ProcessEventQueue and not _G._tlra_peq_guarded then
+        local og_peq = _G.ProcessEventQueue
+        _G._tlra_og_peq = og_peq
+        _G.ProcessEventQueue = function(force)
+            local ok, res = pcall(og_peq, force)
+            if not ok then
+                tlra_log(" Error inside ProcessEventQueue: %s - rescuing watchdog!", tostring(res))
+                for i = 1, 20 do
+                    local name, val = debug.getupvalue(og_peq, i)
+                    if not name then break end
+                    if name == "last_event" then
+                        if type(val) == "table" and val.tmr then
+                            tlra_log(" Resetting hung last_event [%s][%s]", tostring(val.event_id), tostring(val.action_id))
+                            for j = 1, 20 do
+                                local qname, qval = debug.getupvalue(og_peq, j)
+                                if not qname then break end
+                                if qname == "ev_queue" and type(qval) == "table" then
+                                    if qval[val.event_id] and qval[val.event_id][val.action_id] then
+                                        qval[val.event_id][val.action_id] = nil
+                                        qval[val.event_id].__size = math.max(0, (qval[val.event_id].__size or 1) - 1)
+                                        if qval[val.event_id].__size == 0 then qval[val.event_id] = nil end
+                                        tlra_log(" Purged failing event [%s][%s] from ev_queue", tostring(val.event_id), tostring(val.action_id))
+                                    end
+                                    break
+                                end
+                            end
+                        end
+                        debug.setupvalue(og_peq, i, {})
+                        break
+                    end
+                end
+                return false
+            end
+            return res
+        end
+        _G._tlra_peq_guarded = true
+        tlra_log(" Protected _G.ProcessEventQueue with watchdog crash rescue.")
+    end
+end
+
+-- Initialize defensive timed event protections immediately upon script load
+secure_timed_events()
 
 local function safe_create_item(section, fallback)
     if not db or not db.actor then return end
@@ -2695,6 +2866,8 @@ function actor_on_before_hit(shit, bone_id)
 end
 
 function on_game_start()
+    secure_timed_events()
+
     -- Engine Hardening: Guard ranks.get_se_obj_rank_name against NULL profile crashes
     if ranks then
         if ranks.get_se_obj_rank_name then
@@ -2857,6 +3030,9 @@ end
 
 function actor_on_first_update()
     tlra_log(" actor_on_first_update triggered.")
+    secure_timed_events()
+    purge_transient_time_events()
+    clear_rax_watchdog()
 
     build_dynamic_map()
 
@@ -3218,6 +3394,8 @@ end
 -- 6. Update Loop
 -- ============================================================
 function actor_on_update()
+    check_and_clear_watchdog()
+
     local actor = db.actor
     if not actor then return end
 
@@ -3612,6 +3790,7 @@ function complete_travel_sequence()
 
         -- Jump clock to destination arrival time and clear travel flags
         advance_travel_time(1)
+        purge_transient_time_events()
         set_safety_active(90.0)
         check_and_skip_surges()
         schedule_arrival_weapon_unlock(true)
@@ -4186,6 +4365,7 @@ function trigger_encounter(ambush_info)
         teleport_companions(encounter_pos, encounter_lvid, encounter_gvid)
 
         advance_travel_time(ratio)
+        purge_transient_time_events()
         set_safety_active(90.0)
         check_and_skip_surges()
         schedule_arrival_weapon_unlock(true)
