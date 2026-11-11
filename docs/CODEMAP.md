@@ -1,6 +1,6 @@
 # TLRA Code Map
 
-Read-only map of the `.script` files in The Long Road Ahead (v2.3.1). Built from `grep -n` over the source at commit `5fc4868`. Line numbers refer to that commit. Regenerate after edits; line numbers drift.
+Read-only map of the `.script` files in The Long Road Ahead (v2.4.0). Built from `grep -n` over the source. Line numbers drift after edits.
 
 Files covered:
 

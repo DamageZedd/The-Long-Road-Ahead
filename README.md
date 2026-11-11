@@ -7,7 +7,7 @@
 
 *Ditch instant teleports. Experience the journey. Watch your back.*
 
-![Version](https://img.shields.io/badge/version-v2.3.1-e0a43c?style=for-the-badge) ![Author](https://img.shields.io/badge/by-Damage__Zedd-8fae5a?style=for-the-badge) ![Game](https://img.shields.io/badge/S.T.A.L.K.E.R.-Anomaly%201.5.3-555555?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-v2.4.0-e0a43c?style=for-the-badge) ![Author](https://img.shields.io/badge/by-Damage__Zedd-8fae5a?style=for-the-badge) ![Game](https://img.shields.io/badge/S.T.A.L.K.E.R.-Anomaly%201.5.3-555555?style=for-the-badge)
 
 **[Full Changelog](CHANGELOG.md)** · **[GitHub Repository](https://github.com/DamageZedd/The-Long-Road-Ahead)** · **[Latest Release](https://github.com/DamageZedd/The-Long-Road-Ahead/releases/latest)** · **[GAMMA Discord](https://discord.gg/stalker-gamma)**
 
@@ -19,6 +19,18 @@
 The Long Road Ahead is a comprehensive fast travel overhaul and continuous Zone travel simulation mod for S.T.A.L.K.E.R. Anomaly and G.A.M.M.A., inspired by the travel mechanics of *Kingdom Come: Deliverance*. Ditch immersion-breaking instant teleportation: travel takes real time, drains stamina and calories, advances the world clock, and tracks your physical movement across the Zone.
 
 Right-click any discovered map spot, fast-travel marker, or guide to set out. Your journey traverses intermediate territories in accelerated time, plotting animated breadcrumbs across the PDA map. Dynamic threat detection continuously scans nearby ALife simulation squads and mutant packs, pulling you out of travel for dangerous roadside ambushes or giving veteran stalkers a chance to slip past under the cover of night or stormy weather.
+
+---
+
+## 🆕 New in v2.4.0
+
+### 🗺️ Kingdom Come: Deliverance Style Animated Travel Map & Stalker-Style UI Overhaul
+- **Full Codebase Audit & Engine Hardening**: Completely eliminated native C++ memory leaks in `get_level_bounds`, hardened distance and encounter math against division-by-zero, and corrected spatial coordinate projection in `detect_ambush` so road ambushes reliably trigger.
+- **Kingdom Come Stalker Pawn Figurine & Inked Bootprint Trail**: Animated travel map now features an authentic hand-carved tabletop stalker miniature on a circular wooden pedestal (`tlra_pawn_kcd`) that stays permanently upright facing the player. Stamped combat bootprints (`tlra_trail_boot_l` and `tlra_trail_boot_r`) realistically mark the traveler's footsteps along the route polyline behind the pawn and remain anchored to terrain coordinates throughout the journey.
+- **S.T.A.L.K.E.R. PDA Dialog Frame & Tactical HUD Overhaul**: All HUD panels now use authentic vanilla PDA 9-slice dialog frames (`ui_icons_PDA_dialog_*`) with rust-plate headers and buttons (`ui_button_ordinary*`).
+- **Dynamic Multi-Resolution Texture Support & Seamless Stitching**: Dynamic DDS header reading automatically scales texture rects across diverse map resolution packs (including high-resolution packs and Winter PDA Maps).
+- **1:1 PDA Coordinate Calibration**: Fully synchronized level bounds against the engine's unpacked `level.ltx` archives across all 33 Zone levels, eliminating the Bar horizontal offset and Garbage map cutoff.
+- **Cross-Level Companion Teleportation Integrity**: Ensured companions teleporting during cross-zone travel anchor to valid destination-level coordinates without mixing local and remote vertex indices.
 
 ---
 

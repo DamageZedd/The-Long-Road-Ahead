@@ -4,7 +4,7 @@
 <p><strong><span style="font-size: 38px; letter-spacing: 3px; color: #f4e8c8;">THE LONG ROAD AHEAD</span></strong></p>
 <p><span style="font-size: 15px; letter-spacing: 3px; color: #e0a43c;">CONTINUOUS ZONE-TO-ZONE TRAVEL</span></p>
 <p>Ditch instant teleports. Experience the journey. Watch your back.</p>
-<p><span style="display: inline-block; padding: 3px 14px; background-color: #e0a43c; color: #14130f; font-weight: bold; font-size: 13px; letter-spacing: 1px;">v2.3.1</span><br><span style="display: inline-block; padding: 3px 14px; border: 1px solid #e0a43c; color: #e0a43c; font-size: 13px; letter-spacing: 1px; margin-top: 4px;">BY DAMAGE_ZEDD</span></p>
+<p><span style="display: inline-block; padding: 3px 14px; background-color: #e0a43c; color: #14130f; font-weight: bold; font-size: 13px; letter-spacing: 1px;">v2.4.0</span><br><span style="display: inline-block; padding: 3px 14px; border: 1px solid #e0a43c; color: #e0a43c; font-size: 13px; letter-spacing: 1px; margin-top: 4px;">BY DAMAGE_ZEDD</span></p>
 <p><br><a href="https://discord.gg/stalker-gamma" style="display: inline-block; padding: 8px 22px; margin: 4px 6px; background-color: #e0a43c; color: #14130f; font-weight: bold; text-decoration: none; letter-spacing: 1px; border: 1px solid #f1c46e;">GAMMA DISCORD THREAD</a><br><a href="https://github.com/DamageZedd/The-Long-Road-Ahead/blob/main/CHANGELOG.md" style="display: inline-block; padding: 8px 22px; margin: 4px 6px; background-color: transparent; color: #e0a43c; font-weight: bold; text-decoration: none; letter-spacing: 1px; border: 1px solid #e0a43c;">FULL CHANGELOG</a><br><a href="https://github.com/DamageZedd/The-Long-Road-Ahead" style="display: inline-block; padding: 8px 22px; margin: 4px 6px; background-color: transparent; color: #e0a43c; font-weight: bold; text-decoration: none; letter-spacing: 1px; border: 1px solid #e0a43c;">GITHUB</a></p>
 </div>
 <br><br><br>
@@ -31,6 +31,20 @@
 <div style="padding: 14px 16px; margin: 10px 0; background-color: #242119; border: 1px solid #4a402d; border-left: 3px solid #8fae5a;">
 <p><strong><span style="color: #8fae5a;">03. DYNAMIC SURVIVAL &amp; DIET ECONOMY</span></strong><br>No artificial money sinks for walking! You pay for expeditions with physical calories, hydration, and fatigue. Features native deep integration with the <strong>Diet System</strong> mod: carbohydrates, fats, and protein reserves burn in real time.</p>
 </div>
+</div>
+<div style="padding: 24px 22px; margin: 14px 0; background-color: #1f1d17; border: 1px solid #4a4333; border-top: 3px solid #8fae5a; box-shadow: inset 0 1px 0 rgba(255,236,190,0.06), 0 3px 12px rgba(0,0,0,0.3);">
+<h2><span style="color: #8fae5a; font-size: 22px; letter-spacing: 2px;">NEW IN v2.4.0</span></h2>
+<p><span style="display: inline-block; padding: 2px 10px; background-color: #8fae5a; color: #14130f; font-weight: bold; font-size: 12px; letter-spacing: 1px;">NEW</span> <strong><span style="font-size: 17px; color: #e0a43c;">KINGDOM COME STALKER PAWN &amp; INKED BOOTPRINT TRACKS</span></strong></p>
+<p>The animated travel map now features an authentic hand-carved tabletop stalker miniature on a circular wooden pedestal (<code>tlra_pawn_kcd</code>) locked permanently upright facing the player. Left and right combat bootprints (<code>tlra_trail_boot_l</code> and <code>tlra_trail_boot_r</code>) realistically stamp behind the pawn along the road polyline, remaining anchored to physical terrain coordinates throughout the journey.</p>
+<hr>
+<p><span style="display: inline-block; padding: 2px 10px; background-color: #e0a43c; color: #14130f; font-weight: bold; font-size: 12px; letter-spacing: 1px;">OVERHAUL</span> <strong><span style="font-size: 17px; color: #e0a43c;">VANILLA S.T.A.L.K.E.R. PDA DIALOG FRAMES &amp; HUD PANELS</span></strong></p>
+<p>Overhauled all expedition panels (dossier tab, clock/threat, progress tracker, telemetry, reconnaissance log, command button, and encounter decisions) to utilize vanilla PDA dialog 9-slice frames (<code>ui_icons_PDA_dialog_*</code>) and weathered rust-plate headers and buttons (<code>ui_button_ordinary*</code>) for a deeply authentic, diegetic in-universe aesthetic.</p>
+<hr>
+<p><span style="display: inline-block; padding: 2px 10px; background-color: #8fae5a; color: #14130f; font-weight: bold; font-size: 12px; letter-spacing: 1px;">NEW</span> <strong><span style="font-size: 17px; color: #e0a43c;">DYNAMIC MULTI-RESOLUTION TEXTURE SUPPORT</span></strong></p>
+<p>Added dynamic DDS header inspection that reads actual texture dimensions on disk at runtime, automatically scaling texture sampling rects so custom high-resolution map packs, vanilla textures, and seasonal overhauls (like Winter PDA Maps) render seamlessly without clamping, blurring, or aspect distortion.</p>
+<hr>
+<p><span style="display: inline-block; padding: 2px 10px; background-color: #e0a43c; color: #14130f; font-weight: bold; font-size: 12px; letter-spacing: 1px;">FIX</span> <strong><span style="font-size: 17px; color: #e0a43c;">1:1 PDA COORDINATE CALIBRATION &amp; FULL CODEBASE AUDIT</span></strong></p>
+<p>Synchronized level boundaries across all 33 Zone levels against engine <code>level.ltx</code> archives, eliminating the Bar offset and Garbage map cropping. Completely resolved C++ memory leaks in file readers, guarded math against division-by-zero, and projected route UV points to 3D world meters for accurate physical distance checks during roadside ambushes.</p>
 </div>
 <div style="padding: 24px 22px; margin: 14px 0; background-color: #1f1d17; border: 1px solid #4a4333; border-top: 3px solid #8fae5a; box-shadow: inset 0 1px 0 rgba(255,236,190,0.06), 0 3px 12px rgba(0,0,0,0.3);">
 <h2><span style="color: #8fae5a; font-size: 22px; letter-spacing: 2px;">NEW IN v2.3.1</span></h2>
@@ -138,7 +152,10 @@
 <br>
 <div style="padding: 24px 22px; margin: 14px 0; background-color: #1f1d17; border: 1px solid #4a4333; box-shadow: inset 0 1px 0 rgba(255,236,190,0.06), 0 3px 12px rgba(0,0,0,0.3);">
 <h2><span style="color: #e0a43c; font-size: 20px; letter-spacing: 2px;">COMPLETE VERSION HISTORY</span></h2>
-<p><strong><span style="color: #8fae5a;">v2.3.1 (Official Release):</span></strong></p>
+<p><strong><span style="color: #8fae5a;">v2.4.0 (Official Release):</span></strong></p>
+<p>• Kingdom Come style hand-carved stalker pawn (<code>tlra_pawn_kcd</code>) locked upright facing the player.<br><br>• Realistic stamped left/right combat bootprint walking track behind pawn.<br><br>• Vanilla PDA dialog 9-slice frame styling (<code>ui_icons_PDA_dialog_*</code>) and rust-plate buttons/headers.<br><br>• Dynamic multi-resolution DDS header reading supporting Winter PDA Maps and HD packs.<br><br>• 1:1 PDA coordinate calibration across all 33 Zone levels; fixed Bar offset and Garbage map cutoff.<br><br>• Full codebase audit: eliminated C++ file reader memory leaks, guarded math against division-by-zero, and projected route UVs to 3D world meters for accurate ambush detection.</p>
+<hr>
+<p><strong><span style="color: #e0a43c;">v2.3.1:</span></strong></p>
 <p>• Authoritative manual companion recall (<code>\</code> key) replacing FFT logic.<br><br>• Useful Idiots behavioral lock bypass on forced recall.<br><br>• Staggered radial placement (1.8m to 3.0m) preventing mesh stacking and physics deaths.<br><br>• Offline and cross-level ALife synchronization via <code>sim:teleport_object</code>.<br><br>• Standalone hotkey listener with UI focus filtering and 800ms debounce protection.<br><br>• HUD message feedback indicating the number of companions successfully recalled.</p>
 <hr>
 <p><strong><span style="color: #e0a43c;">v2.3.0:</span></strong></p>
