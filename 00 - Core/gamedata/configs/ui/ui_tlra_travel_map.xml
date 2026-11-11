@@ -73,7 +73,7 @@
     </map_frame>
 
     <!-- Stamped Footstep Static Template for Dynamic Journey Trail Pool -->
-    <trail_dot x="-50" y="-50" width="26" height="26" stretch="1" heading="1" heading_angle="0">
+    <trail_dot x="-50" y="-50" width="18" height="18" stretch="1" heading="1" heading_angle="0" alignment="c">
         <texture>tlra_trail_boot_r</texture>
     </trail_dot>
 
@@ -82,7 +82,7 @@
     <!-- =================================================================== -->
     <dossier_tab x="20" y="16" width="310" height="74">
         <dossier_bg x="0" y="0" width="310" height="74" stretch="1">
-            <texture r="255" g="255" b="255" a="255">ui_icons_PDA_dialog</texture>
+            <texture>ui_icons_PDA_dialog</texture>
         </dossier_bg>
         <dossier_bt x="5" y="5" width="300" height="1" stretch="1"><texture r="200" g="150" b="60" a="150">tlra_white_solid</texture></dossier_bt>
         <dossier_bb x="5" y="68" width="300" height="1" stretch="1"><texture r="200" g="150" b="60" a="150">tlra_white_solid</texture></dossier_bb>
