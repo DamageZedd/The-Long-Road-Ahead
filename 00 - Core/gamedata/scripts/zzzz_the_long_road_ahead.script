@@ -3085,7 +3085,8 @@ function abort_travel_safe()
     end
 
     local sformat = string.format
-    local ratio = math.min(tlra.current_dist / tlra.travel_dist, 1.0)
+    tlra.start_pos = tlra.start_pos or actor:position()
+    local ratio = (tlra.travel_dist and tlra.travel_dist > 0 and math.min((tlra.current_dist or 0) / tlra.travel_dist, 1.0)) or 0.0
     
     local spawn_pos
     if tlra.is_transition then
@@ -3460,9 +3461,14 @@ function actor_on_update()
             tlra.last_encounter_check = tg
             
             -- Calculate virtual position
-            local cur_ratio = mmin(tlra.current_dist / tlra.travel_dist, 1.0)
+            local cur_ratio = (tlra.travel_dist and tlra.travel_dist > 0 and mmin((tlra.current_dist or 0) / tlra.travel_dist, 1.0)) or 0.0
             local virtual_pos = vector()
-            lerp_pos(tlra.start_pos, tlra.dest_pos, cur_ratio, virtual_pos)
+            if tlra.is_transition then
+                local door = tlra.first_door_pos or tlra.start_pos
+                lerp_pos(tlra.start_pos, door, mmin(cur_ratio * 2.0, 1.0), virtual_pos)
+            else
+                lerp_pos(tlra.start_pos, tlra.dest_pos, cur_ratio, virtual_pos)
+            end
             
             -- Check for enemies near virtual path
             local ambush_info = detect_ambush(virtual_pos, cur_ratio)
@@ -3505,7 +3511,7 @@ function actor_on_update()
     if not tlra.is_paused then
         tlra.current_dist = tlra.current_dist + ((cfg.travel_speed or 35) * dt * speed_mod)
     end
-    local ratio = mmin(tlra.current_dist / tlra.travel_dist, 1.0)
+    local ratio = (tlra.travel_dist and tlra.travel_dist > 0 and mmin((tlra.current_dist or 0) / tlra.travel_dist, 1.0)) or 0.0
 
     local d_count = tlra.dot_count or TLRA_DOT_COUNT
     for i = 1, d_count do
@@ -3744,7 +3750,11 @@ function detect_ambush(virtual_pos, cur_ratio)
                 if is_transition then
                     traveler_uv = { x = pos.x, y = pos.z }
                 else
-                    traveler_pos = pos
+                    if ui_tlra_travel_map.global_uv_to_coord then
+                        traveler_pos = ui_tlra_travel_map.global_uv_to_coord(pos.x, pos.z, traveler_lvl)
+                    else
+                        traveler_pos = virtual_pos
+                    end
                 end
             end
             if lvl then traveler_lvl = lvl end
@@ -3752,7 +3762,19 @@ function detect_ambush(virtual_pos, cur_ratio)
     end
 
     if is_transition and not traveler_uv then
-        traveler_uv = ui_tlra_travel_map and ui_tlra_travel_map.coord_to_global_uv and ui_tlra_travel_map.coord_to_global_uv(virtual_pos, traveler_lvl)
+        if ui_tlra_travel_map and ui_tlra_travel_map.coord_to_global_uv then
+            local s_lvl = tlra.start_lvl or actor_lvl
+            local d_lvl = tlra.dest_lvl or actor_lvl
+            local uv_start = ui_tlra_travel_map.coord_to_global_uv(tlra.start_pos, s_lvl)
+            local uv_dest = ui_tlra_travel_map.coord_to_global_uv(tlra.dest_pos, d_lvl)
+            if uv_start and uv_dest then
+                traveler_uv = {
+                    x = uv_start.x + (uv_dest.x - uv_start.x) * cur_ratio,
+                    y = uv_start.y + (uv_dest.y - uv_start.y) * cur_ratio
+                }
+            end
+            traveler_lvl = (cur_ratio < 0.5 and s_lvl) or d_lvl
+        end
     end
 
     local radius = tlra.is_guide and 50 or 75 -- Detection radius in meters
@@ -4127,8 +4149,8 @@ function trigger_encounter(ambush_info)
     if ui_tlra_travel_map and ui_tlra_travel_map.close_map then ui_tlra_travel_map.close_map() end
     tlra.is_paused = false
     set_safety_active(60.0)
-    local pct   = math.floor(math.min(tlra.current_dist / tlra.travel_dist, 1.0) * 100)
-    local ratio = math.min(tlra.current_dist / tlra.travel_dist, 1.0)
+    local ratio = (tlra.travel_dist and tlra.travel_dist > 0 and math.min((tlra.current_dist or 0) / tlra.travel_dist, 1.0)) or 0.0
+    local pct   = math.floor(ratio * 100)
 
     -- Skip surges, wipe stats, then jump clock
     check_and_skip_surges()

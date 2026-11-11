@@ -364,21 +364,32 @@ function get_level_bounds(level_name)
         end
     end
 
-    -- 2. Try reading from level.ltx
+    -- 2. Try reading from level.ltx (leak-free VFS and archive safe)
     if not bounds then
         pcall(function()
             local fs = getFS()
-            if fs and fs.r_open then
+            if fs then
                 for _, sec in ipairs(candidates) do
-                    local reader = fs:r_open("$game_levels$", sec .. "\\level.ltx")
-                    if reader then
-                        local l_ini = ini_file(reader, "$game_levels$")
+                    local rel_path = sec .. "\\level.ltx"
+                    if fs.exist and fs:exist("$game_levels$", rel_path) then
+                        local full_path = (fs.update_path and fs:update_path("$game_levels$", rel_path)) or rel_path
+                        local l_ini = ini_file(full_path)
                         if l_ini and l_ini:section_exist("level_map") then
                             local raw = l_ini:r_string_ex("level_map", "bound_rect")
                             if raw then bounds = parse_bound_rect(raw) end
                         end
-                        if bounds then break end
+                    elseif fs.r_open and fs.r_close then
+                        local reader = fs:r_open("$game_levels$", rel_path)
+                        if reader then
+                            local l_ini = ini_file(reader, "$game_levels$")
+                            if l_ini and l_ini:section_exist("level_map") then
+                                local raw = l_ini:r_string_ex("level_map", "bound_rect")
+                                if raw then bounds = parse_bound_rect(raw) end
+                            end
+                            fs:r_close(reader)
+                        end
                     end
+                    if bounds then break end
                 end
             end
         end)
@@ -450,6 +461,31 @@ function coord_to_global_uv(pos, lvl_name)
     local u = orig_gx + (pos.x - bounds.x1) * g_ppm_x
     local v = orig_gy + (bounds.z2 - pos.z) * g_ppm_z
     return vector2():set(u, v)
+end
+
+-- Convert 4096x8192 global Zone map pixel coordinates (u, v) back into level-local 3D meter coordinates
+function global_uv_to_coord(u, v, lvl_name)
+    lvl_name = lvl_name or (level and level.name and level.name())
+    local bounds = get_level_bounds(lvl_name)
+    local rect   = get_level_global_rect(lvl_name)
+    local canvas = get_global_bounds()
+    if not (bounds and rect and canvas and u and v) then
+        return vector():set(0, 0, 0)
+    end
+
+    local g_scale_x = 4096 / math.max(1, canvas.x2 - canvas.x1)
+    local g_scale_y = 8192 / math.max(1, canvas.z2 - canvas.z1)
+    local orig_gx   = (rect.x1 - canvas.x1) * g_scale_x
+    local orig_gy   = (rect.z1 - canvas.z1) * g_scale_y
+    local rect_w_px = (rect.x2 - rect.x1) * g_scale_x
+    local rect_h_px = (rect.z2 - rect.z1) * g_scale_y
+
+    local g_ppm_x = rect_w_px / math.max(1, bounds.x2 - bounds.x1)
+    local g_ppm_z = rect_h_px / math.max(1, bounds.z2 - bounds.z1)
+
+    local x = bounds.x1 + (u - orig_gx) / math.max(0.0001, g_ppm_x)
+    local z = bounds.z2 - (v - orig_gy) / math.max(0.0001, g_ppm_z)
+    return vector():set(x, 0, z)
 end
 
 -- Pre-calculate and cache global texture UV coordinates for all regional tactical map overlays
