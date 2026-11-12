@@ -885,6 +885,32 @@ function get_custom_route_polyline()
     return pts
 end
 
+-- Cross-level planned route in global map UV: start, planned points, destination ({x, z, lvl} each)
+function get_custom_cross_route()
+    local plan = tlra.custom_route_uv
+    if not (plan and plan.pts and #plan.pts > 0 and tlra.start_pos and tlra.dest_pos) then
+        return nil
+    end
+    if not (ui_tlra_travel_map and ui_tlra_travel_map.coord_to_global_uv) then return nil end
+    local s_uv = ui_tlra_travel_map.coord_to_global_uv(tlra.start_pos, plan.src_lvl)
+    local d_uv = ui_tlra_travel_map.coord_to_global_uv(tlra.dest_pos, plan.dst_lvl)
+    if not (s_uv and d_uv) then return nil end
+    local pts = { { x = s_uv.x, z = s_uv.y, lvl = plan.src_lvl } }
+    for _, p in ipairs(plan.pts) do
+        table.insert(pts, { x = p.x, z = p.z, lvl = p.lvl })
+    end
+    table.insert(pts, { x = d_uv.x, z = d_uv.y, lvl = plan.dst_lvl })
+    return pts
+end
+
+-- True when two levels are the same or share a direct transition
+function levels_connected(a, b)
+    if not (a and b) then return false end
+    if a == b then return true end
+    local ok, path = pcall(find_zone_path, a, b)
+    return ok and path ~= nil and #path == 2
+end
+
 function polyline_length(pts)
     local total = 0
     if not pts then return 0 end
@@ -1851,6 +1877,7 @@ local function tlra_clear()
     tlra.last_positive_event = 0
     tlra.dest_raw_pos = nil
     tlra.custom_route = nil
+    tlra.custom_route_uv = nil
 end
 
 local function tlra_load()
@@ -2727,7 +2754,18 @@ function start_travel_sequence(pos, lvid, gvid, is_transition, final_gvid, is_gu
             total_dist = math.max(600, hops * 1200)
         end
         tlra.travel_dist = math.max(200, total_dist)
-        tlra.custom_route = nil -- planned routes are same-level only (v1)
+        tlra.custom_route = nil -- world-space plans are same-level only; cross-level uses custom_route_uv
+        local planned = get_custom_cross_route()
+        if planned then
+            -- Scale the estimate by how much longer the planned path is than the automatic one (map UV length)
+            local ok, auto = pcall(build_cross_zone_route, resolve_level_name(actor_lid), resolve_level_name(dest_lid), tlra.start_pos, tlra.dest_pos)
+            local auto_len = (ok and auto and #auto >= 2) and polyline_length(auto) or 0
+            local plan_len = polyline_length(planned)
+            if auto_len > 0 and plan_len > auto_len then
+                tlra.travel_dist = tlra.travel_dist * (plan_len / auto_len)
+            end
+            tlra_log(" Using planned cross-level route: %d waypoints, %.0fm", #planned - 2, tlra.travel_dist)
+        end
     else
         tlra.travel_dist = tlra.start_pos:distance_to(tlra.dest_pos)
         local planned = get_custom_route_polyline()
@@ -3299,8 +3337,8 @@ function on_map_spot_menu_add_property(pui, id, ln)
     end
     pui:AddItem(menu_text)
 
-    -- 1b. "Plan route [TLRA]" for same-level destinations (player draws the path on the travel map)
-    if get_config("enable_route_planning") and is_same_level_spot(id) then
+    -- 1b. "Plan route [TLRA]" (player draws the path on the travel map, across levels too)
+    if get_config("enable_route_planning") then
         pui:AddItem(tlra_str("tlra_menu_plan_route"))
     end
 
@@ -3340,13 +3378,34 @@ function open_route_planner(obj)
     if not (ui_tlra_travel_map and ui_tlra_travel_map.open_planner) then return end
     local dest = vector():set(obj.position.x, obj.position.y, obj.position.z)
     local dest_lvid, dest_gvid = obj.m_level_vertex_id, obj.m_game_vertex_id
-    ui_tlra_travel_map.open_planner(db.actor:position(), dest, level.name(), function(points)
+    local src_lvl = level.name()
+    local dst_lvl = src_lvl
+    pcall(function()
+        dst_lvl = resolve_level_name(game_graph():vertex(dest_gvid):level_id()) or src_lvl
+    end)
+    -- points: { {lvl, u, v, pos (world, current level only)} }
+    ui_tlra_travel_map.open_planner(db.actor:position(), dest, src_lvl, function(points)
         if tlra.is_traveling then return end
-        tlra.custom_route = points
+        tlra.custom_route, tlra.custom_route_uv = nil, nil
+        local all_local = (dst_lvl == src_lvl)
+        for _, p in ipairs(points) do
+            if p.lvl ~= src_lvl or not p.pos then all_local = false end
+        end
+        if #points > 0 then
+            if all_local then
+                local world = {}
+                for _, p in ipairs(points) do table.insert(world, p.pos) end
+                tlra.custom_route = world
+            else
+                local uv = {}
+                for _, p in ipairs(points) do table.insert(uv, { x = p.u, z = p.v, lvl = p.lvl }) end
+                tlra.custom_route_uv = { src_lvl = src_lvl, dst_lvl = dst_lvl, pts = uv }
+            end
+        end
         tlra.final_pos  = vector():set(dest.x, dest.y, dest.z)
         tlra.final_lvid = dest_lvid
         start_travel_sequence(dest, dest_lvid, dest_gvid, false, dest_gvid)
-    end)
+    end, dst_lvl)
 end
 
 function on_map_spot_menu_property_clicked(pui, id, ln, t)
@@ -3364,7 +3423,7 @@ function on_map_spot_menu_property_clicked(pui, id, ln, t)
     end
 
     if string.find(result, "(TLRA)", 1, true) then
-        tlra.custom_route = nil
+        tlra.custom_route, tlra.custom_route_uv = nil, nil
         tlra.final_pos  = vector():set(obj.position.x, obj.position.y, obj.position.z)
         tlra.final_lvid = obj.m_level_vertex_id
         start_travel_sequence(obj.position, obj.m_level_vertex_id, obj.m_game_vertex_id, false, obj.m_game_vertex_id)

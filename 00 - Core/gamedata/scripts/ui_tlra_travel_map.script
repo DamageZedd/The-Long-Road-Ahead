@@ -904,7 +904,10 @@ function UIRoadAheadTravelMap:StartJourney(start_pos, dest_pos, level_name, is_t
     else
         -- Cross-zone expedition waypoints in unified global UV space
         local cross_route = nil
-        if zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.build_cross_zone_route then
+        if zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.get_custom_cross_route then
+            cross_route = zzzz_the_long_road_ahead.get_custom_cross_route() -- player-planned route, if any
+        end
+        if not cross_route and zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.build_cross_zone_route then
             cross_route = zzzz_the_long_road_ahead.build_cross_zone_route(self.level_name, self.dest_level_name, self.start_pos, self.dest_pos)
         end
 
@@ -1636,14 +1639,35 @@ local PLAN_MAX_POINTS = 12
 local PLAN_PAN_STEP   = 90 -- screen pixels per arrow/WASD press
 local PLAN_CLICK_TOP, PLAN_CLICK_BOTTOM = 95, 612 -- clickable band between the HUD panels
 
-function UIRoadAheadTravelMap:StartPlanner(start_pos, dest_pos, level_name, on_confirm)
+-- Level whose global map rectangle contains (u, v); the smallest match wins where rects overlap
+local function level_at_uv(u, v)
+    init_zone_map_coordinates()
+    local best, best_area = nil, math.huge
+    for _, m in ipairs(ZONE_MAP_DEFINITIONS) do
+        if m.u1 and u >= m.u1 and u <= m.u2 and v >= m.v1 and v <= m.v2 then
+            local area = (m.u2 - m.u1) * (m.v2 - m.v1)
+            if area < best_area then
+                best, best_area = m.sec, area
+            end
+        end
+    end
+    return best
+end
+
+local function core_levels_connected(a, b)
+    if a == b then return true end
+    local core = zzzz_the_long_road_ahead
+    return core and core.levels_connected and core.levels_connected(a, b) or false
+end
+
+function UIRoadAheadTravelMap:StartPlanner(start_pos, dest_pos, level_name, on_confirm, dest_level_name)
     self.planning        = true
     self.plan_points     = {}
     self.plan_cb         = on_confirm
     self.start_pos       = to_vector(start_pos or (db.actor and db.actor:position()))
     self.dest_pos        = to_vector(dest_pos or self.start_pos)
     self.level_name      = level_name or (level and level.name and level.name()) or "escape"
-    self.dest_level_name = self.level_name
+    self.dest_level_name = dest_level_name or self.level_name
     self.is_transition   = false
     self.encounter_active = false
     self.user_zoom       = 1.0
@@ -1653,7 +1677,7 @@ function UIRoadAheadTravelMap:StartPlanner(start_pos, dest_pos, level_name, on_c
     self.global_canvas   = get_global_bounds()
     self.global_rect     = get_level_global_rect(self.level_name)
     self.start_gpos      = coord_to_global_uv(self.start_pos, self.level_name)
-    self.dest_gpos       = coord_to_global_uv(self.dest_pos, self.level_name)
+    self.dest_gpos       = coord_to_global_uv(self.dest_pos, self.dest_level_name)
 
     pcall(function()
         self.bg_map_canvas:InitTexture("tlra_map_global")
@@ -1662,7 +1686,7 @@ function UIRoadAheadTravelMap:StartPlanner(start_pos, dest_pos, level_name, on_c
     if self.map_canvas then self.map_canvas:Show(false) end
 
     local trek_span_uv = math.max(120, math.sqrt((self.dest_gpos.x - self.start_gpos.x)^2 + (self.dest_gpos.y - self.start_gpos.y)^2))
-    self.base_scale  = math.max(0.6, math.min(2.5, 420 / trek_span_uv))
+    self.base_scale  = math.max(0.35, math.min(2.5, 420 / trek_span_uv))
     self.plan_center = { x = (self.start_gpos.x + self.dest_gpos.x) * 0.5, y = (self.start_gpos.y + self.dest_gpos.y) * 0.5 }
 
     if self.txt_title then
@@ -1685,30 +1709,26 @@ function UIRoadAheadTravelMap:StartPlanner(start_pos, dest_pos, level_name, on_c
     self:RefreshPlanner()
 end
 
--- Rebuilds the preview polyline (start, waypoints, destination) and its footprint trail
+-- Rebuilds the preview polyline (start, waypoints, destination) and its footprint trail.
+-- Plan points are { lvl, u, v, pos } where pos is a snapped world position on the current level only.
 function UIRoadAheadTravelMap:RebuildPlanRoute()
-    local world_pts = { self.start_pos }
-    for _, p in ipairs(self.plan_points) do table.insert(world_pts, p) end
-    table.insert(world_pts, self.dest_pos)
-
-    self.waypoints = {}
-    self.route_node_info = {}
-    for idx, p in ipairs(world_pts) do
-        local uv = coord_to_global_uv(p, self.level_name)
-        table.insert(self.waypoints, vector():set(uv.x, 0, uv.y))
-        self.route_node_info[idx] = self.level_name
+    self.waypoints = { vector():set(self.start_gpos.x, 0, self.start_gpos.y) }
+    self.route_node_info = { self.level_name }
+    for _, p in ipairs(self.plan_points) do
+        table.insert(self.waypoints, vector():set(p.u, 0, p.v))
+        self.route_node_info[#self.waypoints] = p.lvl
     end
+    table.insert(self.waypoints, vector():set(self.dest_gpos.x, 0, self.dest_gpos.y))
+    self.route_node_info[#self.waypoints] = self.dest_level_name
 
     self.seg_lengths = {}
     self.cum_dist    = { 0 }
-    local total_len, world_len = 0, 0
+    local total_len = 0
     for i = 1, #self.waypoints - 1 do
         local d = self.waypoints[i]:distance_to(self.waypoints[i+1])
         self.seg_lengths[i] = d
         total_len = total_len + d
         self.cum_dist[i+1] = total_len
-        local dx, dz = world_pts[i+1].x - world_pts[i].x, world_pts[i+1].z - world_pts[i].z
-        world_len = world_len + math.sqrt(dx * dx + dz * dz)
     end
     self.total_path_len = math.max(1, total_len)
     self:BuildStampedFootsteps()
@@ -1716,11 +1736,29 @@ function UIRoadAheadTravelMap:RebuildPlanRoute()
         self:EnsureTrailCapacity(#self.stamped_steps)
     end
 
-    self.plan_world_len = world_len
-    if self.txt_route_info then
-        local direct = self.start_pos:distance_to(self.dest_pos)
+    if not self.txt_route_info then return end
+    -- Metres are exact only when every point is on the current level (world positions known)
+    local world_pts = { self.start_pos }
+    local all_local = (self.dest_level_name == self.level_name)
+    for _, p in ipairs(self.plan_points) do
+        if p.pos then table.insert(world_pts, p.pos) else all_local = false end
+    end
+    if all_local then
+        table.insert(world_pts, self.dest_pos)
+        local world_len = 0
+        for i = 1, #world_pts - 1 do
+            local dx, dz = world_pts[i+1].x - world_pts[i].x, world_pts[i+1].z - world_pts[i].z
+            world_len = world_len + math.sqrt(dx * dx + dz * dz)
+        end
         self.txt_route_info:SetText(string.format("ROUTE: %dm (DIRECT %dm) | WAYPOINTS %d/%d",
-            math.floor(world_len), math.floor(direct), #self.plan_points, PLAN_MAX_POINTS))
+            math.floor(world_len), math.floor(self.start_pos:distance_to(self.dest_pos)), #self.plan_points, PLAN_MAX_POINTS))
+    else
+        local seen, n_levels = {}, 0
+        for _, lvl in pairs(self.route_node_info) do
+            if lvl and not seen[lvl] then seen[lvl] = true; n_levels = n_levels + 1 end
+        end
+        self.txt_route_info:SetText(string.format("ROUTE: %d LEVELS | WAYPOINTS %d/%d",
+            n_levels, #self.plan_points, PLAN_MAX_POINTS))
     end
 end
 
@@ -1741,23 +1779,42 @@ function UIRoadAheadTravelMap:AddPlanPoint()
 
     local u = self.vp_u1 + cur.x / self.vp_zoom
     local v = self.vp_v1 + cur.y / (self.vp_zoom * (self.vp_aspect or 1))
+
+    -- Current level first: its map rect is authoritative even where level rects overlap
+    local lvl
     local world = global_uv_to_coord(u, v, self.level_name)
-
     local b = self.bounds
-    if b and (world.x < b.x1 or world.x > b.x2 or world.z < b.z1 or world.z > b.z2) then
-        self:AddLog("Can't go there: outside this area.")
+    if b and world.x >= b.x1 and world.x <= b.x2 and world.z >= b.z1 and world.z <= b.z2 then
+        lvl = self.level_name
+    else
+        lvl = level_at_uv(u, v)
+    end
+    if not lvl then
+        self:AddLog("Can't go there: off the map.")
         return
     end
 
-    world.y = self.start_pos.y
-    local snapped = zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.snap_route_point
-        and zzzz_the_long_road_ahead.snap_route_point(world)
-    if not snapped then
-        self:AddLog("Can't go there: no walkable ground.")
+    local prev_lvl = (#self.plan_points > 0 and self.plan_points[#self.plan_points].lvl) or self.level_name
+    if not core_levels_connected(prev_lvl, lvl) then
+        self:AddLog(string.format("No direct way from %s to %s. Add a waypoint in between.", prev_lvl, lvl))
         return
     end
 
-    table.insert(self.plan_points, snapped)
+    local point = { lvl = lvl, u = u, v = v }
+    if lvl == self.level_name then
+        -- Only the current level's AI map is loaded, so only here can a click be snapped to walkable ground
+        world.y = self.start_pos.y
+        local snapped = zzzz_the_long_road_ahead and zzzz_the_long_road_ahead.snap_route_point
+            and zzzz_the_long_road_ahead.snap_route_point(world)
+        if not snapped then
+            self:AddLog("Can't go there: no walkable ground.")
+            return
+        end
+        local suv = coord_to_global_uv(snapped, lvl)
+        point.pos, point.u, point.v = snapped, suv.x, suv.y
+    end
+
+    table.insert(self.plan_points, point)
     if self.snd_click then pcall(function() self.snd_click:play(db.actor, 0, sound_object.s2d) end) end
     self:RebuildPlanRoute()
     self:RefreshPlanner()
@@ -1771,6 +1828,12 @@ function UIRoadAheadTravelMap:UndoPlanPoint()
 end
 
 function UIRoadAheadTravelMap:ConfirmPlanner()
+    -- With no waypoints the automatic route is used, so only a planned last leg must connect
+    local last_lvl = (#self.plan_points > 0 and self.plan_points[#self.plan_points].lvl) or self.level_name
+    if #self.plan_points > 0 and not core_levels_connected(last_lvl, self.dest_level_name) then
+        self:AddLog(string.format("No direct way from %s to %s. Add a waypoint in between.", last_lvl, self.dest_level_name))
+        return
+    end
     local pts = {}
     for _, p in ipairs(self.plan_points or {}) do table.insert(pts, p) end
     local cb = self.plan_cb
@@ -1878,7 +1941,7 @@ function show_map(start_pos, dest_pos, level_name, is_transition, travel_dist, d
 end
 
 -- Opens the travel map as a route planner; on_confirm(points) receives the snapped waypoints
-function open_planner(start_pos, dest_pos, level_name, on_confirm)
+function open_planner(start_pos, dest_pos, level_name, on_confirm, dest_level_name)
     pcall(function()
         if ActorMenu and ActorMenu.get_pda_menu then
             local pda = ActorMenu.get_pda_menu()
@@ -1892,7 +1955,7 @@ function open_planner(start_pos, dest_pos, level_name, on_confirm)
         pcall(function() GUI:Close() end)
     end
     GUI = UIRoadAheadTravelMap()
-    GUI:StartPlanner(start_pos, dest_pos, level_name, on_confirm)
+    GUI:StartPlanner(start_pos, dest_pos, level_name, on_confirm, dest_level_name)
     GUI:ShowDialog(true)
     Register_UI("UIRoadAheadTravelMap", "ui_sleep_dialog")
     return GUI
