@@ -154,6 +154,12 @@
     <string id="ui_mcm_tlra_stealth_dodge_max_desc">
         <text>The absolute limit for the total stealth chance, preventing automatic success even with perfect bonuses.</text>
     </string>
+    <string id="ui_mcm_tlra_enable_route_planning">
+        <text>Enable Route Planning</text>
+    </string>
+    <string id="ui_mcm_tlra_enable_route_planning_desc">
+        <text>Adds a "Plan route" option to same-level travel spots. The travel map opens in planning mode: click to place waypoints, and the journey (time, food, stamina and ambush checks) follows your path. No threat info is shown while planning.</text>
+    </string>
     <string id="ui_mcm_tlra_enable_guide_travel">
         <text>Enable Instant Guide Travel</text>
     </string>
@@ -244,6 +250,9 @@
     </string>
     <string id="tlra_menu_hire_guide">
         <text>Hire guide (instant)</text>
+    </string>
+    <string id="tlra_menu_plan_route">
+        <text>Plan route [TLRA]</text>
     </string>
     <string id="tlra_menu_free">
         <text>Free</text>

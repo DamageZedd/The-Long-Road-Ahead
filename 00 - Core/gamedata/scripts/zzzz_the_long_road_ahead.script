@@ -43,6 +43,7 @@ local tlra = {
     active_config       = {},
     fft_authoritative   = false,
     is_guide            = false,
+    custom_route        = nil, -- player-planned waypoints (world vectors, excluding start/dest)
 }
 
 -- Global exposure for external patches
@@ -834,6 +835,87 @@ local function get_safe_pos(pos)
         end
     end
     return vector():set(pos.x, pos.y + 1.5, pos.z)
+end
+
+-- ============================================================
+-- Player-planned routes (Plan route [TLRA])
+-- ============================================================
+local INVALID_LVID = 4294967295
+
+-- 2D (x/z) distance; dist2d is declared further down, so routes use their own helper
+local function route_d2(a, b)
+    local dx, dz = a.x - b.x, a.z - b.z
+    return math.sqrt(dx * dx + dz * dz)
+end
+
+-- Snaps a clicked world position onto the current level's AI map.
+-- Returns a vector on the navmesh, or nil when nothing walkable is near.
+function snap_route_point(pos)
+    if not pos then return nil end
+    local function try_at(x, z)
+        local ok, lvid = pcall(function() return level.vertex_id(vector():set(x, pos.y, z)) end)
+        if ok and lvid and lvid ~= INVALID_LVID and lvid ~= -1 then
+            local vp = level.vertex_position(lvid)
+            if vp then return vector():set(vp.x, vp.y, vp.z) end
+        end
+        return nil
+    end
+    local hit = try_at(pos.x, pos.z)
+    if hit then return hit end
+    for _, r in ipairs({ 5, 10, 20 }) do
+        for k = 0, 7 do
+            local a = k * math.pi / 4
+            hit = try_at(pos.x + r * math.cos(a), pos.z + r * math.sin(a))
+            if hit then return hit end
+        end
+    end
+    return nil
+end
+
+-- Full polyline for the active custom route: start, planned points, destination
+function get_custom_route_polyline()
+    if not (tlra.custom_route and #tlra.custom_route > 0 and tlra.start_pos and tlra.dest_pos) then
+        return nil
+    end
+    local pts = { tlra.start_pos }
+    for _, p in ipairs(tlra.custom_route) do
+        table.insert(pts, p)
+    end
+    table.insert(pts, tlra.dest_pos)
+    return pts
+end
+
+function polyline_length(pts)
+    local total = 0
+    if not pts then return 0 end
+    for i = 1, #pts - 1 do
+        total = total + route_d2(pts[i], pts[i + 1])
+    end
+    return total
+end
+
+-- Writes the point at ratio (0..1) of the polyline's length into out_vec
+function polyline_point_at(pts, ratio, out_vec)
+    local total = polyline_length(pts)
+    if total <= 0 then
+        out_vec:set(pts[1].x, pts[1].y, pts[1].z)
+        return out_vec
+    end
+    local target = math.max(0, math.min(1, ratio)) * total
+    local acc = 0
+    for i = 1, #pts - 1 do
+        local seg = route_d2(pts[i], pts[i + 1])
+        if acc + seg >= target and seg > 0 then
+            local t = (target - acc) / seg
+            local a, b = pts[i], pts[i + 1]
+            out_vec:set(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t)
+            return out_vec
+        end
+        acc = acc + seg
+    end
+    local last = pts[#pts]
+    out_vec:set(last.x, last.y, last.z)
+    return out_vec
 end
 -- ============================================================
 -- S.T.A.L.K.E.R. Road Network Navigation Engine (A* Heuristics)
@@ -1768,6 +1850,7 @@ local function tlra_clear()
     tlra.last_event_msg = 0
     tlra.last_positive_event = 0
     tlra.dest_raw_pos = nil
+    tlra.custom_route = nil
 end
 
 local function tlra_load()
@@ -1864,6 +1947,7 @@ function get_config(key)
         stealth_dodge_max      = 75,
         border_travel_only     = false,
         enable_guide_travel    = false,
+        enable_route_planning  = true,
         arrival_offset         = 10,
     }
     return defs[key]
@@ -2643,8 +2727,15 @@ function start_travel_sequence(pos, lvid, gvid, is_transition, final_gvid, is_gu
             total_dist = math.max(600, hops * 1200)
         end
         tlra.travel_dist = math.max(200, total_dist)
+        tlra.custom_route = nil -- planned routes are same-level only (v1)
     else
         tlra.travel_dist = tlra.start_pos:distance_to(tlra.dest_pos)
+        local planned = get_custom_route_polyline()
+        if planned then
+            -- Player-planned detour: time, stamina and food scale with the real path length
+            tlra.travel_dist = math.max(tlra.travel_dist, polyline_length(planned))
+            tlra_log(" Using planned route: %d waypoints, %.0fm", #tlra.custom_route, tlra.travel_dist)
+        end
         if tlra.travel_dist < 40 then
             return fail_start(tlra_str("tlra_msg_too_close"), 2)
         end
@@ -3208,6 +3299,11 @@ function on_map_spot_menu_add_property(pui, id, ln)
     end
     pui:AddItem(menu_text)
 
+    -- 1b. "Plan route [TLRA]" for same-level destinations (player draws the path on the travel map)
+    if get_config("enable_route_planning") and is_same_level_spot(id) then
+        pui:AddItem(tlra_str("tlra_menu_plan_route"))
+    end
+
     -- 2. Add "Hire guide (instant)" option if Fair Fast Travel, its patch, and MCM toggle are enabled
     if game_fast_travel and zzz_tlra_fft_patch and get_config("enable_guide_travel") then
         local guide_text = tlra_str("tlra_menu_hire_guide")
@@ -3227,6 +3323,32 @@ function on_map_spot_menu_add_property(pui, id, ln)
     end
 end
 
+-- True when the map spot's object is on the actor's current level
+function is_same_level_spot(id)
+    local ok, same = pcall(function()
+        local se_obj = alife_object(id)
+        if not (se_obj and db.actor) then return false end
+        local gg = game_graph()
+        return gg:vertex(se_obj.m_game_vertex_id):level_id() == gg:vertex(db.actor:game_vertex_id()):level_id()
+    end)
+    return ok and same or false
+end
+
+-- Opens the travel map in planning mode; on confirm the journey starts along the planned points
+function open_route_planner(obj)
+    if tlra.is_traveling or not (obj and db.actor) then return end
+    if not (ui_tlra_travel_map and ui_tlra_travel_map.open_planner) then return end
+    local dest = vector():set(obj.position.x, obj.position.y, obj.position.z)
+    local dest_lvid, dest_gvid = obj.m_level_vertex_id, obj.m_game_vertex_id
+    ui_tlra_travel_map.open_planner(db.actor:position(), dest, level.name(), function(points)
+        if tlra.is_traveling then return end
+        tlra.custom_route = points
+        tlra.final_pos  = vector():set(dest.x, dest.y, dest.z)
+        tlra.final_lvid = dest_lvid
+        start_travel_sequence(dest, dest_lvid, dest_gvid, false, dest_gvid)
+    end)
+end
+
 function on_map_spot_menu_property_clicked(pui, id, ln, t)
     tlra_log(" map_spot_menu_property_clicked triggered.")
     local result = t or (pui and pui.GetResult and pui:GetResult())
@@ -3235,7 +3357,14 @@ function on_map_spot_menu_property_clicked(pui, id, ln, t)
     local obj = alife_object(id)
     if not obj then return end
 
+    -- Checked first: the plan label must never be mistaken for "Travel here (TLRA)"
+    if string.find(result, tlra_str("tlra_menu_plan_route"), 1, true) then
+        open_route_planner(obj)
+        return
+    end
+
     if string.find(result, "(TLRA)", 1, true) then
+        tlra.custom_route = nil
         tlra.final_pos  = vector():set(obj.position.x, obj.position.y, obj.position.z)
         tlra.final_lvid = obj.m_level_vertex_id
         start_travel_sequence(obj.position, obj.m_level_vertex_id, obj.m_game_vertex_id, false, obj.m_game_vertex_id)
@@ -3645,7 +3774,12 @@ function actor_on_update()
                 local door = tlra.first_door_pos or tlra.start_pos
                 lerp_pos(tlra.start_pos, door, mmin(cur_ratio * 2.0, 1.0), virtual_pos)
             else
-                lerp_pos(tlra.start_pos, tlra.dest_pos, cur_ratio, virtual_pos)
+                local planned = get_custom_route_polyline()
+                if planned then
+                    polyline_point_at(planned, cur_ratio, virtual_pos)
+                else
+                    lerp_pos(tlra.start_pos, tlra.dest_pos, cur_ratio, virtual_pos)
+                end
             end
             
             -- Check for enemies near virtual path

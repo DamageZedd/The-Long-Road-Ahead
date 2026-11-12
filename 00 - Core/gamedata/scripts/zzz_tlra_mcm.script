@@ -37,6 +37,7 @@ function on_mcm_load()
         { id = "show_stats",             type = "check", val = 1, def = true },
         { id = "line",         type = "line" },
 
+        { id = "enable_route_planning",  type = "check", val = 1, def = true },
         -- Troubleshooting
         { id = "debug_logging",          type = "check", val = 1, def = false },
     }}

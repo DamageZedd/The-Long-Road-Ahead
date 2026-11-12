@@ -158,6 +158,12 @@
         <text>Абсолютный предел суммарного шанса скрытности, предотвращающий автоматический успех даже при идеальных условиях.</text>
     </string>
 
+    <string id="ui_mcm_tlra_enable_route_planning">
+        <text>Включить планирование маршрута</text>
+    </string>
+    <string id="ui_mcm_tlra_enable_route_planning_desc">
+        <text>Добавляет пункт «Проложить маршрут» для точек на текущей локации. Карта путешествия открывается в режиме планирования: кликайте, чтобы ставить точки, и поход (время, еда, выносливость и проверки засад) пойдёт по вашему маршруту. Угрозы при планировании не показываются.</text>
+    </string>
     <string id="ui_mcm_tlra_enable_guide_travel">
         <text>Включить мгновенное путешествие с проводником</text>
     </string>
@@ -249,6 +255,9 @@
     </string>
     <string id="tlra_menu_hire_guide">
         <text>Нанять проводника (мгновенно)</text>
+    </string>
+    <string id="tlra_menu_plan_route">
+        <text>Проложить маршрут [TLRA]</text>
     </string>
     <string id="tlra_menu_free">
         <text>Бесплатно</text>

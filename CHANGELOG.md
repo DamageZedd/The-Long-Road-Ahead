@@ -2,6 +2,11 @@
 
 ## v2.4.0 — Kingdom Come Animated Travel Map & Interactive Road Encounters
 
+### 🧭 Plan Your Own Route *(untested in-game)*
+- **New "Plan route [TLRA]" option** on same-level travel spots (MCM toggle "Enable Route Planning", on by default). The travel map opens in planning mode: left-click places free waypoints (off-road allowed, snapped to walkable ground), right-click or Backspace undoes, arrow keys/WASD pan, the wheel zooms, Enter sets out, Esc cancels. Up to 12 waypoints; with none, the usual road route is used.
+- **The journey follows your path**: travel time, food, water, stamina and ambush checks all use the planned route's real length and position, so a cautious detour costs more time and calories. No threat information is shown while planning, so outcomes stay random.
+- Cross-level journeys still use the automatic route (v1 is same-level only). A planned route is not kept across a save/load mid-journey (same-level journeys do not resume after loading).
+
 ### 🛡️ Busy Hands Type 2 Watchdog Resolution & Post-Travel Crash Prevention
 - **Destroyed Object & Watchdog Crash Elimination**: Fixed the post-travel CTD in `a_rax_wd.script:240` (fatal error: `The Timed Event system has crashed. Known as "Busy Hands" type 2`) triggered during fast-travel time jumps. When time advances hours across a journey (`advance_travel_time`), traders' restock timers expire and trigger `trader_autoinject.timed_update(npc)` with the raw C++ `game_object` pointer of traders on the old level (e.g. Sidorovich on Cordon). Upon cross-zone `ChangeLevel`, the old level is unloaded, destroying the client object; on the destination level, `a_rax_wd.script:168` executed `timed_update` without `pcall`, throwing `Accessing destroyed object`, leaving `last_event` armed, and triggering the fatal watchdog crash 5 seconds later.
 - **Multi-Layer Defensive Hardening**:
