@@ -28,8 +28,8 @@ LUACHECK 00 - Core/gamedata/scripts/zzzz_the_long_road_ahead.script:(W311) value
 LUACHECK 00 - Core/gamedata/scripts/zzzz_the_long_road_ahead.script:(W311) value assigned to variable 'msg_text' is unused
 LUACHECK 00 - Core/gamedata/scripts/zzzz_the_long_road_ahead.script:(W311) value assigned to variable 'total_dist' is unused
 LUACHECK 00 - Core/gamedata/scripts/zzzz_the_long_road_ahead.script:(W421) shadowing definition of variable 'actor_lid' on line 2692
-LUACHECK 00 - Core/gamedata/scripts/zzzz_the_long_road_ahead.script:(W431) shadowing upvalue 'final_gvid' on line 3199
-LUACHECK 00 - Core/gamedata/scripts/zzzz_the_long_road_ahead.script:(W431) shadowing upvalue 'pos' on line 3199
+LUACHECK 00 - Core/gamedata/scripts/zzzz_the_long_road_ahead.script:(W431) shadowing upvalue 'final_gvid' on line 3211
+LUACHECK 00 - Core/gamedata/scripts/zzzz_the_long_road_ahead.script:(W431) shadowing upvalue 'pos' on line 3211
 LUACHECK 00 - Core/gamedata/scripts/zzzz_the_long_road_ahead.script:(W542) empty if branch
 LUACHECK 00 - Core/gamedata/scripts/zzzz_the_long_road_ahead.script:(W611) line contains only whitespace
 LUACHECK 00 - Core/gamedata/scripts/zzzz_the_long_road_ahead.script:(W612) line contains trailing whitespace

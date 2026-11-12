@@ -1422,19 +1422,42 @@ function UIRoadAheadTravelMap:UpdateSurvivalVitals()
     local actor = db.actor
     if not actor then return end
 
+    -- Most of the trip's food/water cost is charged by the arrival time jump; fold in what is owed so far
+    local pending
+    if not self.planning then
+        pcall(function()
+            local core = zzzz_the_long_road_ahead
+            if core and core.get_pending_travel_drain then pending = core.get_pending_travel_drain() end
+        end)
+    end
+
     local satiety = 1.0
     pcall(function()
-        if actor.satiety then satiety = math.max(0.0, math.min(1.0, actor.satiety)) end
+        if actor.satiety then satiety = actor.satiety end
     end)
+    if pending then satiety = satiety - pending.satiety end
+    satiety = math.max(0.0, math.min(1.0, satiety))
     local cal = math.floor(satiety * 2500)
-    if self.txt_calories then self.txt_calories:SetText(string.format("CALORIES: %d kcal (-14 kcal/min)", cal)) end
+    local rate = pending and string.format(" (-%d kcal/h)", math.floor(pending.kcal_per_hour + 0.5)) or ""
+    if self.txt_calories then self.txt_calories:SetText(string.format("CALORIES: %d kcal%s", cal, rate)) end
 
+    -- GAMMA/Anomaly thirst exposes deprivation (last_drink, 0..10000), not a water level
     local thirst = 1.0
     pcall(function()
-        if actor_status_thirst and actor_status_thirst.get_water then
-            thirst = math.max(0.0, math.min(1.0, actor_status_thirst.get_water()))
+        local st = actor_status_thirst
+        if not st then return end
+        local units
+        if st.get_last_drink then
+            units = st.get_last_drink() or 0
+        elseif st.get_water_deprivation then
+            units = (st.get_water_deprivation(false) or 0) * 10000
+        end
+        if units then
+            if pending then units = units + pending.thirst_units end
+            thirst = 1.0 - units / 10000
         end
     end)
+    thirst = math.max(0.0, math.min(1.0, thirst))
     if self.txt_hydration then self.txt_hydration:SetText(string.format("HYDRATION: %d%%", math.floor(thirst * 100))) end
 
     local stam = 1.0
@@ -1839,6 +1862,7 @@ function UIRoadAheadTravelMap:ConfirmPlanner()
     local cb = self.plan_cb
     self.planning = false
     self.plan_cb = nil
+    self.plan_cancel_cb = nil
     self:Close()
     if cb then
         local ok, err = pcall(cb, pts)
@@ -1847,9 +1871,12 @@ function UIRoadAheadTravelMap:ConfirmPlanner()
 end
 
 function UIRoadAheadTravelMap:CancelPlanner()
+    local cancel_cb = self.plan_cancel_cb
     self.planning = false
     self.plan_cb = nil
+    self.plan_cancel_cb = nil
     self:Close()
+    if cancel_cb then pcall(cancel_cb) end
 end
 
 function UIRoadAheadTravelMap:PanPlanner(dx, dy)
@@ -1941,7 +1968,7 @@ function show_map(start_pos, dest_pos, level_name, is_transition, travel_dist, d
 end
 
 -- Opens the travel map as a route planner; on_confirm(points) receives the snapped waypoints
-function open_planner(start_pos, dest_pos, level_name, on_confirm, dest_level_name)
+function open_planner(start_pos, dest_pos, level_name, on_confirm, dest_level_name, on_cancel)
     pcall(function()
         if ActorMenu and ActorMenu.get_pda_menu then
             local pda = ActorMenu.get_pda_menu()
@@ -1956,6 +1983,7 @@ function open_planner(start_pos, dest_pos, level_name, on_confirm, dest_level_na
     end
     GUI = UIRoadAheadTravelMap()
     GUI:StartPlanner(start_pos, dest_pos, level_name, on_confirm, dest_level_name)
+    GUI.plan_cancel_cb = on_cancel
     GUI:ShowDialog(true)
     Register_UI("UIRoadAheadTravelMap", "ui_sleep_dialog")
     return GUI

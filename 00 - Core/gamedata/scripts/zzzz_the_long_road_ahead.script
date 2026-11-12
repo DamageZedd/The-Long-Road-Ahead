@@ -2987,10 +2987,21 @@ function is_safety_active()
     return tlra.safety_until and tlra.safety_until > time_global()
 end
 
-function actor_on_before_hit(shit, bone_id)
+function actor_on_before_hit(shit, bone_id, flags)
     if is_safety_active() then
         tlra_log(" Damage blocked by travel safety. Original power: %f, type: %d", shit.power, shit.type)
         shit.power = 0
+        -- Cancel the hit outright so limb/bleed systems (GAMMA BHS) don't still apply it
+        if flags then flags.ret_value = false end
+    end
+end
+
+-- The world keeps running while the journey is simulated and the actor stands in place,
+-- so stalkers and mutants must not pick the traveling actor as an enemy.
+function on_enemy_eval(_, enemy, flags)
+    if tlra.is_traveling and enemy and enemy:id() == AC_ID then
+        flags.override = true
+        flags.result = false
     end
 end
 
@@ -3032,6 +3043,7 @@ function on_game_start()
     RegisterScriptCallback("actor_on_update",                actor_on_update)
     RegisterScriptCallback("actor_on_first_update",          actor_on_first_update)
     RegisterScriptCallback("actor_on_before_hit",            actor_on_before_hit)
+    RegisterScriptCallback("on_enemy_eval",                  on_enemy_eval)
     RegisterScriptCallback("on_key_press",                   on_key_press)
     RegisterScriptCallback("on_key_release",                 on_key_release)
     RegisterScriptCallback("on_loading_screen_dismissed",    on_loading_screen_dismissed)
@@ -3383,6 +3395,26 @@ function open_route_planner(obj)
     pcall(function()
         dst_lvl = resolve_level_name(game_graph():vertex(dest_gvid):level_id()) or src_lvl
     end)
+
+    -- Put the PDA away the same way start_travel_sequence does. GAMMA's 3D PDA stays in hand otherwise,
+    -- keeps input focus over the planner (no clicks, player can still walk) and needs its own Esc.
+    local prev_slot = db.actor.active_slot and db.actor:active_slot()
+    pcall(function()
+        if ActorMenu and ActorMenu.get_pda_menu then
+            local pda = ActorMenu.get_pda_menu()
+            if pda and pda:IsShown() then pda:HideDialog() end
+        end
+        hide_hud_all()
+        if hide_hud_pda then hide_hud_pda() end
+        if db.actor.activate_slot then db.actor:activate_slot(0) end
+    end)
+    local function on_cancel()
+        local slot = (prev_slot and prev_slot ~= 0 and prev_slot ~= 8) and prev_slot or tlra.last_equipped_slot
+        if slot and slot ~= 0 and db.actor and db.actor.activate_slot then
+            pcall(function() db.actor:activate_slot(slot) end)
+        end
+    end
+
     -- points: { {lvl, u, v, pos (world, current level only)} }
     ui_tlra_travel_map.open_planner(db.actor:position(), dest, src_lvl, function(points)
         if tlra.is_traveling then return end
@@ -3405,7 +3437,7 @@ function open_route_planner(obj)
         tlra.final_pos  = vector():set(dest.x, dest.y, dest.z)
         tlra.final_lvid = dest_lvid
         start_travel_sequence(dest, dest_lvid, dest_gvid, false, dest_gvid)
-    end, dst_lvl)
+    end, dst_lvl, on_cancel)
 end
 
 function on_map_spot_menu_property_clicked(pui, id, ln, t)
@@ -4417,6 +4449,32 @@ local function apply_diet_system_hunger(hours, hunger_rate, drain_mod)
     end
 
     return true
+end
+
+-- Survival drain that the arrival time jump will apply for the distance covered so far.
+-- Mirrors advance_travel_time + apply_final_stats (without random variance) so the travel map
+-- can show values that fall as the journey progresses instead of only at arrival.
+function get_pending_travel_drain()
+    local cfg = tlra.active_config
+    if not (tlra.is_traveling and cfg and cfg.costs_enabled and tlra.start_game_time
+            and tlra.expected_duration and tlra.expected_duration > 0) then
+        return nil
+    end
+    local ratio = 0
+    if tlra.travel_dist and tlra.travel_dist > 0 then
+        ratio = math.min((tlra.current_dist or 0) / tlra.travel_dist, 1.0)
+    end
+    local speed_mod = math.max(0.05, tlra.speed_mod or 1.0)
+    local elapsed = 0
+    pcall(function() elapsed = game.get_game_time():diffSec(tlra.start_game_time) end)
+    local pending_h = math.max(0, ratio * tlra.expected_duration * 60 / speed_mod - elapsed) / 3600
+    local drain_mod = tlra._weight_drain_mod or 1.0
+    local hr = cfg.hunger_rate or 0.10
+    return {
+        satiety       = hr * 0.12 * pending_h * drain_mod / speed_mod,
+        thirst_units  = (cfg.thirst_rate or 1.0) * pending_h * 360 * drain_mod / speed_mod,
+        kcal_per_hour = hr * 0.12 * 2500 * drain_mod / speed_mod,
+    }
 end
 
 function apply_final_stats(skipped_sec)

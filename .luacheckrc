@@ -55,6 +55,8 @@ globals = {
     "on_option_change",
     "open_planner",
     "open_route_planner",
+    "get_pending_travel_drain",
+    "on_enemy_eval",
     "polyline_length",
     "polyline_point_at",
     "process_refund",
